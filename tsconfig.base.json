@@ -15,7 +15,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "mathf": ["packages/mathf/src/index.ts"]
+      "core": ["packages/core/src/index.ts"],
+      "mathf": ["packages/mathf/src/index.ts"],
+      "renderer": ["packages/renderer/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
