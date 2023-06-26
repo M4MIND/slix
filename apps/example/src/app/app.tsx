@@ -1,8 +1,23 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import styles from './app.module.css';
+import { RendererServer } from 'renderer';
+import React, { useEffect } from 'react';
 
 export function App() {
-    return <div></div>;
+    const canvas = React.useRef<HTMLCanvasElement>(null);
+    useEffect(() => {
+        if (canvas.current) {
+            RendererServer.init({
+                canvas: canvas.current,
+                width: window.innerWidth,
+                height: window.innerHeight,
+            }).test();
+        }
+    }, []);
+
+    return (
+        <div>
+            <canvas ref={canvas}></canvas>
+        </div>
+    );
 }
 
 export default App;

@@ -1,32 +1,38 @@
 type components = [number, number, number];
 
-export default class Vector3 extends Array<number> {
+export default class Vector3 {
+    private _components: components = [0, 0, 0];
+
+    public get components(): components {
+        return this._components;
+    }
+
     public get x(): number {
-        return this[0];
+        return this._components[0];
     }
 
     public set x(v: number) {
-        this[0] = v;
+        this._components[0] = v;
     }
 
     public get y(): number {
-        return this[1];
+        return this._components[1];
     }
 
     public set y(v: number) {
-        this[1] = v;
+        this._components[1] = v;
     }
 
     public get z(): number {
-        return this[2];
+        return this._components[2];
     }
 
     public set z(v: number) {
-        this[2] = v;
+        this._components[2] = v;
     }
 
     constructor(...args: components) {
-        super(...args);
+        this._components = args;
     }
 
     public add(v: Vector3): Vector3 {
@@ -61,60 +67,6 @@ export default class Vector3 extends Array<number> {
         return this;
     }
 
-    public isLessThan(v: Vector3) {
-        if (this.x === v.x) {
-            if (this.y === v.y) {
-                return this.z < v.z;
-            }
-            return this.y < v.y;
-        }
-
-        return this.x < v.x;
-    }
-
-    public isGreatThan(v: Vector3) {
-        if (this.x === v.x) {
-            if (this.y === v.y) {
-                return this.z > v.z;
-            }
-
-            return this.y > v.y;
-        }
-
-        return this.x > v.x;
-    }
-
-    public isLessThanOrEqualTo(v: Vector3) {
-        if (this.x === v.x) {
-            if (this.y === v.y) {
-                return this.z <= v.z;
-            }
-            return this.y <= v.y;
-        }
-
-        return this.x <= v.x;
-    }
-
-    public isGreatThanOrEqualTo(v: Vector3) {
-        if (this.x === v.x) {
-            if (this.y === v.y) {
-                return this.z >= v.z;
-            }
-
-            return this.y >= v.y;
-        }
-
-        return this.x >= v.x;
-    }
-
-    public len(): number {
-        return Vector3.len(this);
-    }
-
-    public len_squared(): number {
-        return Vector3.len_squared(this);
-    }
-
     public scale(n: number): Vector3 {
         this.x *= n;
         this.y *= n;
@@ -123,22 +75,62 @@ export default class Vector3 extends Array<number> {
         return this;
     }
 
-    public comparison(v: Vector3) {
+    public isLessThan(v: Vector3) {
+        return Vector3.isLessThan(this, v);
+    }
+
+    public isGreatThan(v: Vector3) {
+        return Vector3.isGreatThan(this, v);
+    }
+
+    public isLessThanOrEqualTo(v: Vector3) {
+        return Vector3.isLessThanOrEqualTo(this, v);
+    }
+
+    public isGreatThanOrEqualTo(v: Vector3) {
+        return Vector3.isGreatThanOrEqualTo(this, v);
+    }
+
+    public len(): number {
+        return Vector3.len(this);
+    }
+
+    public lenSquared(): number {
+        return Vector3.lenSquared(this);
+    }
+
+    public isEqual(v: Vector3) {
         return Vector3.isEqual(this, v);
     }
 
-    public notComparison(v: Vector3) {
+    public isNotEqual(v: Vector3) {
         return Vector3.isNotEqual(this, v);
     }
 
-    public zero() {
+    public zero(): Vector3 {
         this.x = this.y = this.z = 0;
 
         return this;
     }
 
     public normalize() {
-        return Vector3.normalize(this);
+        const lengthSqr = this.lenSquared();
+
+        if (lengthSqr === 0) {
+            return this.zero();
+        }
+
+        const length = Math.sqrt(lengthSqr);
+
+        this.x /= length;
+        this.y /= length;
+        this.z /= length;
+
+        return this;
+    }
+
+    public toString() {
+        return `${Vector3.name} - x:${this.x} y:${this.y} z:${this.z}`;
     }
 
     public static add(a: Vector3, b: Vector3) {
@@ -165,7 +157,7 @@ export default class Vector3 extends Array<number> {
         return Math.sqrt(x2 + y2 + z2);
     }
 
-    public static len_squared(v: Vector3): number {
+    public static lenSquared(v: Vector3): number {
         const x2 = v.x * v.x;
         const y2 = v.y * v.y;
         const z2 = v.z * v.z;
@@ -178,7 +170,14 @@ export default class Vector3 extends Array<number> {
     }
 
     public static normalize(v: Vector3) {
-        return Vector3.scale(1 / v.len(), v);
+        const lengthSqr = Vector3.lenSquared(v);
+
+        if (lengthSqr === 0) {
+            return Vector3.zero();
+        }
+        const length = Math.sqrt(lengthSqr);
+
+        return new Vector3(v.x / length, v.y / length, v.z / length);
     }
 
     public static isEqual(a: Vector3, b: Vector3): boolean {
@@ -200,4 +199,50 @@ export default class Vector3 extends Array<number> {
     public static abs(v: Vector3) {
         return new Vector3(Math.abs(v.x), Math.abs(v.y), Math.abs(v.z));
     }
+
+    public static isLessThan(a: Vector3, b: Vector3) {
+        if (a.x === b.x) {
+            if (a.y === b.y) {
+                return a.z < b.z;
+            }
+            return a.y < b.y;
+        }
+        return a.x < b.x;
+    }
+
+    public static isGreatThan(a: Vector3, b: Vector3) {
+        if (a.x === b.x) {
+            if (a.y === b.y) {
+                return a.z > b.z;
+            }
+            return a.y > b.y;
+        }
+        return a.x > b.x;
+    }
+
+    public static isLessThanOrEqualTo(a: Vector3, b: Vector3) {
+        if (a.x === b.x) {
+            if (a.y === b.y) {
+                return a.z <= b.z;
+            }
+            return a.y <= b.y;
+        }
+        return a.x <= b.x;
+    }
+
+    public static isGreatThanOrEqualTo(a: Vector3, b: Vector3) {
+        if (a.x === b.x) {
+            if (a.y === b.y) {
+                return a.z >= b.z;
+            }
+            return a.y >= b.y;
+        }
+        return a.x >= b.x;
+    }
+
+    public static create(v: Vector3) {
+        return new Vector3(v.x, v.y, v.z);
+    }
 }
+
+new Vector3(2, 2, 2);
