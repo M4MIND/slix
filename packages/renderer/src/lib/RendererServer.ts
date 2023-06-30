@@ -1,117 +1,107 @@
-import { GL_BUFFERS, GL_USAGE_BUFFER } from './consts';
-
 import CanvasManager from './manager/CanvasManager';
-import GPUProgramManager from './manager/GPUProgramManager';
-import GpuBuffer from './buffer/GpuBuffer';
-import GpuProgram from './GpuProgram';
+import GpuProgramManager from './manager/GpuProgramManager';
 import RendererManager from './manager/RendererManager';
-import Shader from './Shader';
+import ShaderManager from './manager/ShaderManager';
 import WebGL2Context from './manager/WebGL2ContextManager';
+import {LinearAllocation, PoolAllocator} from 'memory';
+import BufferManager from "./manager/BufferManager";
 
 type initConfigs = { canvas: HTMLCanvasElement; width: number; height: number };
 
-const vertex = `
+const vertex = `#version 300 es
+precision highp float;
 
-// an attribute will receive data from a buffer
-attribute vec4 a_position;
-attribute vec4 b_position;
+in vec4 a_position;
 
-// all shaders have a main function
 void main() {
-
-  // gl_Position is a special variable a vertex shader
-  // is responsible for setting
-  gl_Position = a_position;
+    gl_Position = a_position * vec4(1,1,1,1);
 }
 `;
 
-const fragmnet = `
-// fragment shaders don't have a default precision so we need
-// to pick one. mediump is a good default
-precision mediump float;
+const fragmnet = `#version 300 es
+
+precision highp float;
+
+out vec4 outColor;
 
 void main() {
-  // gl_FragColor is a special variable a fragment shader
-  // is responsible for setting
-  gl_FragColor = vec4(1, 0, 0.5, 1); // return redish-purple
+    outColor = vec4(1, 0, 0.5, 1);
 }
 `;
 
 export default class RendererServer {
-    private static rendererServer: RendererServer;
+    public static canvasManager: CanvasManager;
+    public static contextManager: WebGL2Context;
+    public static gpuProgramManager: GpuProgramManager;
+    public static rendererManager: RendererManager;
+    public static shaderManager: ShaderManager;
+    //private static linearAllocator: LinearAllocation;
+    //private static poolAllocator: PoolAllocator;
+    private static bufferManager: BufferManager;
 
-    public readonly canvasManager: CanvasManager;
-    public readonly contextManager: WebGL2Context;
-    public readonly gpuProgramManager: GPUProgramManager;
-    public readonly rendererManager: RendererManager;
+    private constructor() {}
 
-    private constructor(configs: initConfigs) {
-        this.canvasManager = new CanvasManager(
-            configs.canvas,
-            configs.width,
-            configs.height
-        );
-        this.contextManager = new WebGL2Context(
-            configs.canvas,
-            configs.width,
-            configs.height
-        );
+    public static startUp(configs: initConfigs) {
+        //this.linearAllocator = new LinearAllocation(64);
+        //this.poolAllocator = new PoolAllocator(64, 1024, 4);
+        this.bufferManager = new BufferManager();
+        this.canvasManager = new CanvasManager(configs.canvas, configs.width, configs.height);
+        this.contextManager = new WebGL2Context(configs.width, configs.height);
+        this.shaderManager = new ShaderManager();
+        this.gpuProgramManager = new GpuProgramManager();
         this.rendererManager = new RendererManager();
-        this.gpuProgramManager = new GPUProgramManager();
-
-        GpuProgram.contextManager = this.contextManager;
-        Shader.contextManager = this.contextManager;
-    }
-
-    public static init(configs: initConfigs) {
-        if (!this.rendererServer) {
-            this.rendererServer = new RendererServer(configs);
-        }
 
         return this;
     }
 
-    public static getInstance() {
-        if (!this.rendererServer) {
-            throw new Error(
-                'Renderer server is not init. Please create new instance - RendererServer.init()'
-            );
-        }
-        return this.rendererServer;
-    }
-
-    public static getCanvasManager() {
-        return this.rendererServer.canvasManager;
-    }
-
-    public static getContextManager() {
-        return this.rendererServer.contextManager;
-    }
-
-    public static getRendererManager() {
-        return this.rendererServer.rendererManager;
-    }
-
-    public static getGpuProgramManager() {
-        return this.rendererServer.gpuProgramManager;
-    }
-
     public static test() {
-        const program = GpuProgram.create();
-        const vertexShader = Shader.createVertex();
-        const fragmentShader = Shader.createFragmnet();
+        // const array = this.memoryServer.linearAllocation.allocate(4, Int8Array);
+        // const array2 = this.memoryServer.linearAllocation.allocate(4, Float32Array);
+        // const array3 = this.memoryServer.linearAllocation.allocate(4, Float32Array);
+        //
+        // array[0] = 24;
+        // array2[1] = 32;
+        // array3[0] = 64;
+        //
+        // setTimeout(() => {
+        //     console.log(array, array2, array3, this.memoryServer.linearAllocation.buffer[0]);
+        // }, 1000)
 
-        vertexShader.compile(vertex);
-        fragmentShader.compile(fragmnet);
+        // array = this.memoryServer.linearAllocation.allocate(2, Float32Array);
+        // array2 = this.memoryServer.linearAllocation.allocate(4, Float32Array)
+        //
+        // array[1] = 24;
+        // array2[4] = 0;
+        //
+        // console.log(array, array2, this.memoryServer.linearAllocation);
 
-        program
-            .attachShader(vertexShader)
-            .attachShader(fragmentShader)
-            .link()
-            .use();
+        // this.memoryServer.linearAllocation.clear();
+        //
+        // array = this.memoryServer.linearAllocation.allocate(3, Int8Array);
+        // array2 = this.memoryServer.linearAllocation.allocate(12, Int8Array);
+        //
+        // array[0] = 56
+        // array2[2] = 24;
+        //
+        //
+        // console.log(array, array2, this.memoryServer.linearAllocation)
 
-        console.log(program, vertexShader, fragmentShader);
-
-        console.dir(program.getAttribLocation('a_position'));
+        // const shader = this.shaderManager.createShader('shader/test', vertex, fragmnet);
+        // const program = this.gpuProgramManager.createProgram(shader);
+        // const baseMesh = new BaseMesh();
+        //
+        // const ar = new Float64Array([16]);
+        //
+        // console.log(ar.byteLength);
+        //
+        // const address = this.memory.allocate(ar.byteLength);
+        // this.memory.write(address, new Float32Array([16, 13, 12, 345, 3456345, 34543]));
+        // console.dir(new Float32Array(this.memory.read(address)));
+        //
+        // program.use();
+        //
+        // const buffer = this.contextManager.createBuffer();
+        // this.contextManager.bindBuffer(GL_ARRAY_BUFFER, buffer);
+        // this.contextManager.bufferData(GL_ARRAY_BUFFER, new Float32Array([0, 0, 0, 0.5, 0.7, 0]), GL_STATIC_DRAW);
     }
 }

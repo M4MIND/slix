@@ -1,5 +1,3 @@
-import RendererServer from "./lib/RendererServer";
+import RendererServer from './lib/RendererServer';
 
-export {
-    RendererServer
-}
+export { RendererServer };

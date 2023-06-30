@@ -1,5 +1,5 @@
 export default class CanvasManager {
-    private readonly canvas: HTMLCanvasElement;
+    public readonly canvas: HTMLCanvasElement;
     
     private viewport: { x: number; y: number } = {
         x: 0,

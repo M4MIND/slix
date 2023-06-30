@@ -1,108 +1,113 @@
 import {
-    GL_ACTIVE_ATTRIBUTES,
-    GL_BUFFERS,
-    GL_BUFFERS_USAGE,
     GL_COLOR_BUFFER_BIT,
-    GL_COMPILE_STATUS,
     GL_DEPTH_BUFFER_BIT,
     GL_DEPTH_TEST,
-    GL_FRAGMENT_SHADER,
     GL_LEQUAL,
-    GL_LINK_STATUS,
-    GL_TRIANGLES,
-    GL_VERTEX_SHADER,
-} from '../consts';
-
-import GpuBuffer from '../buffer/GpuBuffer';
-import GpuBufferBase from '../buffer/GpuBufferBase';
-import GpuProgram from '../GpuProgram';
-import Shader from '../Shader';
+    GL_PROGRAM_PARAMETERS,
+    GL_SHADER_STATUSES,
+    GL_SHADER_TYPES, GL_STATIC_DRAW,
+} from '../webgl.consts';
+import { RendererServer } from '../../index';
 
 export default class WebGL2ContextManager {
     private context: WebGL2RenderingContext;
-    constructor(
-        private readonly canvas: HTMLCanvasElement,
-        width: number,
-        height: number
-    ) {
-        this.context = canvas.getContext('webgl2') as WebGL2RenderingContext;
+
+    constructor(width: number, height: number) {
+        this.context = RendererServer.canvasManager.canvas.getContext('webgl2') as WebGL2RenderingContext;
         this.viewport(width, height);
         this.clearColor();
         this.enable();
         this.depthFunc();
     }
 
-    public createProgram(): GpuProgram {
+    public createProgram(): WebGLProgram {
         const program = this.context.createProgram();
 
-        if (!program) {
-            throw new Error(`Can't create GPU program`);
+        if (program) {
+            return program;
         }
 
-        return new GpuProgram(program);
+        throw new Error(`Can't create GPU program`);
     }
 
-    public useProgram(program: GpuProgram): GpuProgram {
-        this.context.useProgram(program.program);
-        return program;
-    }
-
-    public linkProgram(program: GpuProgram) {
-        this.context.linkProgram(program.program);
-
-        if (!this.getProgramParameter(program)) {
-            throw new Error(`Problem with Link program: ${this.context.getProgramInfoLog(program.program)}`,);
-        }
-
-        return program;
-    }
-
-    public getProgramParameter(program: GpuProgram) {
-        return this.context.getProgramParameter(program.program, GL_LINK_STATUS);
-    }
-
-    public getAttribLocation(gpuProgram: GpuProgram, attrib: string) {
-        this.context.getAttribLocation(gpuProgram.program, attrib);
-    }
-
-    public createVertexShader(): Shader {
-        const shader = this.context.createShader(GL_VERTEX_SHADER);
-        if (shader) {
-            return new Shader(shader, this);
-        }
-
-        throw new Error(`Can't create shader Vertex shader`);
-    }
-
-    public createFragmnetShader(): Shader {
-        const shader = this.context.createShader(GL_FRAGMENT_SHADER);
+    public createShader(type: GL_SHADER_TYPES): WebGLShader {
+        const shader = this.context.createShader(type);
 
         if (shader) {
-            return new Shader(shader, this);
+            return shader;
         }
 
-        throw new Error(`Can't create shader Fragment shader`);
+        throw new Error(`Can't create Shader: ${GL_SHADER_TYPES[type]}`);
     }
 
-    public shaderSource(shader: Shader, source: string) {
-        this.context.shaderSource(shader.shader, source);
+    public shaderSource(shader: WebGLShader, source: string) {
+        this.context.shaderSource(shader, source);
 
-        return shader;
+        return this;
     }
 
-    public getShaderParameter(shader: Shader) {
-        return this.context.getShaderParameter(
-            shader.shader,
-            GL_COMPILE_STATUS
-        );
+    public attachShader(program: WebGLProgram, shader: WebGLShader) {
+        this.context.attachShader(program, shader);
+
+        return this;
     }
 
-    public attachShader(program: GpuProgram, shader: Shader) {
-        this.context.attachShader(program.program, shader.shader);
+    public getAttribLocation(program: WebGLProgram, name: string): number {
+        return this.context.getAttribLocation(program, name);
     }
 
-    public compileShader(shader: Shader) {
-        this.context.compileShader(shader.shader);
+    public getProgramParameter(program: WebGLProgram, type: GL_PROGRAM_PARAMETERS): number[] {
+        return [...new Array(this.context.getProgramParameter(program, type)).keys()];
+    }
+
+    public getActiveAttrib(program: WebGLProgram, index: number): WebGLActiveInfo | null {
+        return this.context.getActiveAttrib(program, index);
+    }
+
+    public getActiveUniform(program: WebGLProgram, index: number): WebGLActiveInfo | null {
+        return this.context.getActiveUniform(program, index);
+    }
+
+    public compileShader(shader: WebGLShader) {
+        this.context.compileShader(shader);
+    }
+
+    public linkProgram(program: WebGLProgram) {
+        this.context.linkProgram(program);
+    }
+
+    public useProgram(program: WebGLProgram) {
+        this.context.useProgram(program);
+    }
+
+    public getShaderParameter(shader: WebGLShader, type: GL_SHADER_STATUSES) {
+        return this.context.getShaderParameter(shader, type);
+    }
+
+    public getShaderCompileStatus(shader: WebGLShader) {
+        return this.getShaderParameter(shader, GL_SHADER_STATUSES.compile);
+    }
+
+    public getShaderInfoLog(shader: WebGLShader) {
+        return this.context.getShaderInfoLog(shader);
+    }
+
+    public createBuffer(): WebGLBuffer {
+        const buffer = this.context.createBuffer();
+
+        if (buffer) {
+            return buffer;
+        }
+
+        throw new Error(`Can't create WebGl buffer`);
+    }
+
+    public bindBuffer(type: number, buffer: WebGLBuffer) {
+        this.context.bindBuffer(type, buffer)
+    }
+
+    public bufferData(type: number, data: BufferSource, param: number) {
+        this.context.bufferData(type, data, param)
     }
 
     public clearColor() {
@@ -123,30 +128,5 @@ export default class WebGL2ContextManager {
 
     public viewport(x: number, y: number) {
         this.context.viewport(0, 0, x, y);
-    }
-
-    public createBuffer(): GpuBuffer {
-        const buffer = this.context.createBuffer();
-        if (buffer) {
-            return buffer;
-        }
-
-        throw new Error(`Can't create Buffer`);
-    }
-
-    public bindBuffer(buffer: GpuBufferBase) {
-        this.context.bindBuffer(buffer.type, buffer);
-    }
-
-    public bufferData(buffer: GpuBufferBase) {
-        this.context.bufferData(buffer.type, buffer.data, buffer.usage);
-    }
-
-    public draw() {
-        this.context.drawArrays(GL_TRIANGLES, 0, 3)
-    }
-
-    public getShaderInfoLog(shader: Shader) {
-        return this.context.getShaderInfoLog(shader.shader);
     }
 }

@@ -1,4 +1,7 @@
 {
   "tabWidth": 4,
-  "singleQuote": true
+  "singleQuote": true,
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "printWidth": 120
 }

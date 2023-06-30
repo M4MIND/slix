@@ -1,11 +1,11 @@
-import { RendererServer } from 'renderer';
 import React, { useEffect } from 'react';
+import { RendererServer } from 'renderer';
 
 export function App() {
     const canvas = React.useRef<HTMLCanvasElement>(null);
     useEffect(() => {
         if (canvas.current) {
-            RendererServer.init({
+            RendererServer.startUp({
                 canvas: canvas.current,
                 width: window.innerWidth,
                 height: window.innerHeight,
