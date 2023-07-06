@@ -1,6 +1,6 @@
 import RendererServer from '../RendererServer';
-import { GL_SHADER_TYPES } from '../webgl.consts';
 import Shader from '../shader/Shader';
+import { GL_SHADER_TYPES } from '../webgl.consts';
 import WebGL2ContextManager from './WebGL2ContextManager';
 
 export default class ShaderManager {

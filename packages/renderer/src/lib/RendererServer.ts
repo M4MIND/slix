@@ -1,10 +1,13 @@
+import MaterialManager from './gpu/MaterialManager';
+import BufferManager from './manager/BufferManager';
 import CanvasManager from './manager/CanvasManager';
-import GpuProgramManager from './manager/GpuProgramManager';
+import GpuManager from './manager/GpuManager';
+import MeshManager from './manager/MeshManager';
 import RendererManager from './manager/RendererManager';
 import ShaderManager from './manager/ShaderManager';
 import WebGL2Context from './manager/WebGL2ContextManager';
-import {LinearAllocation, PoolAllocator} from 'memory';
-import BufferManager from "./manager/BufferManager";
+import { Vector3 } from 'mathf';
+import { MemoryServer, NativeArray, NativeStaticArray, TypedArrayKeys } from 'memory';
 
 type initConfigs = { canvas: HTMLCanvasElement; width: number; height: number };
 
@@ -32,76 +35,57 @@ void main() {
 export default class RendererServer {
     public static canvasManager: CanvasManager;
     public static contextManager: WebGL2Context;
-    public static gpuProgramManager: GpuProgramManager;
+    public static gpuProgramManager: GpuManager;
     public static rendererManager: RendererManager;
     public static shaderManager: ShaderManager;
-    //private static linearAllocator: LinearAllocation;
-    //private static poolAllocator: PoolAllocator;
     private static bufferManager: BufferManager;
+    private static materialManager: MaterialManager;
+    private static meshManager: MeshManager;
+    private static memory: MemoryServer;
 
     private constructor() {}
 
     public static startUp(configs: initConfigs) {
-        //this.linearAllocator = new LinearAllocation(64);
-        //this.poolAllocator = new PoolAllocator(64, 1024, 4);
-        this.bufferManager = new BufferManager();
+        this.memory = MemoryServer.startUp();
         this.canvasManager = new CanvasManager(configs.canvas, configs.width, configs.height);
         this.contextManager = new WebGL2Context(configs.width, configs.height);
+        this.bufferManager = new BufferManager();
+        this.gpuProgramManager = new GpuManager();
         this.shaderManager = new ShaderManager();
-        this.gpuProgramManager = new GpuProgramManager();
+        this.materialManager = new MaterialManager();
+        this.meshManager = new MeshManager();
         this.rendererManager = new RendererManager();
+
+        const nativeArray = new NativeStaticArray({
+            position: { wordSize: TypedArrayKeys.Int32Array, length: 6 },
+            camera: { wordSize: TypedArrayKeys.Int32Array, length: 16 },
+            indices: { wordSize: TypedArrayKeys.Int32Array, length: 4 },
+        });
+
+        const nativeArray2 = new NativeStaticArray({
+            position: { wordSize: TypedArrayKeys.Int32Array, length: 6 },
+            camera: { wordSize: TypedArrayKeys.Int32Array, length: 16 },
+            indices: { wordSize: TypedArrayKeys.Int32Array, length: 4 },
+        });
+
+        nativeArray.setDataByStructureName('position', [new Vector3(-1, -2, -3), new Vector3(-4, -5, -6)].flat());
+        nativeArray.setDataByStructureName(
+            'camera',
+            [11, 12, 13, 14, 15, 16, 17, 18, 19, 110, 111, 112, 113, 114, 115, 116]
+        );
+        nativeArray.setDataByStructureName('indices', [210, 211, 212, 213]);
+
+        nativeArray2.setDataByStructureName('position', [new Vector3(-1, -2, -3), new Vector3(-4, -5, -6)].flat());
+        nativeArray2.setDataByStructureName(
+            'camera',
+            [11, 12, 13, 14, 15, 16, 17, 18, 19, 110, 111, 112, 113, 114, 115, 116]
+        );
+        nativeArray2.setDataByStructureName('indices', [210, 211, 212, 213]);
+
+        console.log(MemoryServer.LinearAllocation.arrayBuffer);
 
         return this;
     }
 
-    public static test() {
-        // const array = this.memoryServer.linearAllocation.allocate(4, Int8Array);
-        // const array2 = this.memoryServer.linearAllocation.allocate(4, Float32Array);
-        // const array3 = this.memoryServer.linearAllocation.allocate(4, Float32Array);
-        //
-        // array[0] = 24;
-        // array2[1] = 32;
-        // array3[0] = 64;
-        //
-        // setTimeout(() => {
-        //     console.log(array, array2, array3, this.memoryServer.linearAllocation.buffer[0]);
-        // }, 1000)
-
-        // array = this.memoryServer.linearAllocation.allocate(2, Float32Array);
-        // array2 = this.memoryServer.linearAllocation.allocate(4, Float32Array)
-        //
-        // array[1] = 24;
-        // array2[4] = 0;
-        //
-        // console.log(array, array2, this.memoryServer.linearAllocation);
-
-        // this.memoryServer.linearAllocation.clear();
-        //
-        // array = this.memoryServer.linearAllocation.allocate(3, Int8Array);
-        // array2 = this.memoryServer.linearAllocation.allocate(12, Int8Array);
-        //
-        // array[0] = 56
-        // array2[2] = 24;
-        //
-        //
-        // console.log(array, array2, this.memoryServer.linearAllocation)
-
-        // const shader = this.shaderManager.createShader('shader/test', vertex, fragmnet);
-        // const program = this.gpuProgramManager.createProgram(shader);
-        // const baseMesh = new BaseMesh();
-        //
-        // const ar = new Float64Array([16]);
-        //
-        // console.log(ar.byteLength);
-        //
-        // const address = this.memory.allocate(ar.byteLength);
-        // this.memory.write(address, new Float32Array([16, 13, 12, 345, 3456345, 34543]));
-        // console.dir(new Float32Array(this.memory.read(address)));
-        //
-        // program.use();
-        //
-        // const buffer = this.contextManager.createBuffer();
-        // this.contextManager.bindBuffer(GL_ARRAY_BUFFER, buffer);
-        // this.contextManager.bufferData(GL_ARRAY_BUFFER, new Float32Array([0, 0, 0, 0.5, 0.7, 0]), GL_STATIC_DRAW);
-    }
+    public static test() {}
 }

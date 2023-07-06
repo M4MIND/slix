@@ -1,4 +1,4 @@
-import { TypedArray } from '../../index';
+import { TypedArray } from '../memory.consts';
 
 class Chunk {
     public next?: Chunk;

@@ -1,3 +1,4 @@
+import { RendererServer } from '../../index';
 import {
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
@@ -5,9 +6,9 @@ import {
     GL_LEQUAL,
     GL_PROGRAM_PARAMETERS,
     GL_SHADER_STATUSES,
-    GL_SHADER_TYPES, GL_STATIC_DRAW,
+    GL_SHADER_TYPES,
+    GL_STATIC_DRAW,
 } from '../webgl.consts';
-import { RendererServer } from '../../index';
 
 export default class WebGL2ContextManager {
     private context: WebGL2RenderingContext;
@@ -103,11 +104,11 @@ export default class WebGL2ContextManager {
     }
 
     public bindBuffer(type: number, buffer: WebGLBuffer) {
-        this.context.bindBuffer(type, buffer)
+        this.context.bindBuffer(type, buffer);
     }
 
-    public bufferData(type: number, data: BufferSource, param: number) {
-        this.context.bufferData(type, data, param)
+    public bufferData(target: number, srcData: ArrayBufferView, usage: number, srcOffset = 0, length = 0) {
+        this.context.bufferData(target, srcData, usage, srcOffset, length);
     }
 
     public clearColor() {

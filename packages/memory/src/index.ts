@@ -1,6 +1,8 @@
+import MemoryServer from './lib/MemoryServer';
 import LinearAllocation from './lib/allocation/LinearAllocation';
 import PoolAllocator from './lib/allocation/PoolAllocator';
+import NativeArray from './lib/collections/NativeArray';
+import NativeStaticArray from './lib/collections/NativeStaticArray';
+import { TypedArrayKeys } from './lib/memory.consts';
 
-type TypedArray = Int8Array | Int16Array | Int32Array | Float32Array;
-
-export { LinearAllocation, PoolAllocator, TypedArray };
+export { LinearAllocation, PoolAllocator, NativeArray, NativeStaticArray, MemoryServer, TypedArrayKeys };

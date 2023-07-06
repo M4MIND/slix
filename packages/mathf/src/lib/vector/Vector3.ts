@@ -1,38 +1,32 @@
 type components = [number, number, number];
 
-export default class Vector3 {
-    private _components: components = [0, 0, 0];
-
-    public get components(): components {
-        return this._components;
-    }
-
+export default class Vector3 extends Array<number> {
     public get x(): number {
-        return this._components[0];
+        return this[0];
     }
 
     public set x(v: number) {
-        this._components[0] = v;
+        this[0] = v;
     }
 
     public get y(): number {
-        return this._components[1];
+        return this[1];
     }
 
     public set y(v: number) {
-        this._components[1] = v;
+        this[1] = v;
     }
 
     public get z(): number {
-        return this._components[2];
+        return this[2];
     }
 
     public set z(v: number) {
-        this._components[2] = v;
+        this[2] = v;
     }
 
     constructor(...args: components) {
-        this._components = args;
+        super(...args);
     }
 
     public add(v: Vector3): Vector3 {
