@@ -123,10 +123,6 @@ export default class Vector3 extends Array<number> {
         return this;
     }
 
-    public toString() {
-        return `${Vector3.name} - x:${this.x} y:${this.y} z:${this.z}`;
-    }
-
     public static add(a: Vector3, b: Vector3) {
         return new Vector3(a.x + b.x, a.y + b.y, a.x + b.z);
     }

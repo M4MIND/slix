@@ -153,5 +153,9 @@ export default abstract class NativeArray {
         return array;
     }
 
+    public getStructure(name: string) {
+        return this.structure[name];
+    }
+
     protected abstract createDataView(size: number): DataView;
 }

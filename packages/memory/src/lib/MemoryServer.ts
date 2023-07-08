@@ -1,20 +1,21 @@
-import { LinearAllocation, PoolAllocator } from 'memory';
+import BoundaryTagAllocator from './allocation/BoundaryTagAllocator';
+import { LinearAllocation } from 'memory';
 
 export default class MemoryServer {
+    private static _BoundaryTagAllocator: BoundaryTagAllocator;
+    private static _LinearAllocation: LinearAllocation;
+
     static get LinearAllocation(): LinearAllocation {
         return this._LinearAllocation;
     }
 
-    static get PoolAllocator(): PoolAllocator {
-        return this._PoolAllocator;
+    static get BoundaryTagAllocator(): BoundaryTagAllocator {
+        return this._BoundaryTagAllocator;
     }
 
-    private static _LinearAllocation: LinearAllocation;
-    private static _PoolAllocator: PoolAllocator;
-
     public static startUp() {
-        this._LinearAllocation = new LinearAllocation(64);
-        this._PoolAllocator = new PoolAllocator();
+        this._LinearAllocation = new LinearAllocation(128);
+        this._BoundaryTagAllocator = new BoundaryTagAllocator();
 
         return MemoryServer;
     }

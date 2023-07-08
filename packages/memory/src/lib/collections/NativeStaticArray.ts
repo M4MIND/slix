@@ -33,6 +33,10 @@ export default class NativeStaticArray extends NativeArray {
     }
 
     protected createDataView(size: number): DataView {
-        return this.memory.alloc(size);
+        const dataView = this.memory.alloc(size);
+        if (dataView) {
+            return this.dataView;
+        }
+        throw new Error(`Can't alloc memory`);
     }
 }
