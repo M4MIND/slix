@@ -6,8 +6,8 @@ enum LockBytesSize {
 }
 
 export default class BoundaryTagAllocator extends BaseAllocator {
-    constructor() {
-        super(1024 / 1024 / 1024);
+    constructor(mbSize = 4 / 1024) {
+        super(mbSize);
         this.prepare();
     }
 
@@ -20,7 +20,7 @@ export default class BoundaryTagAllocator extends BaseAllocator {
                 LockBytesSize.HEADER_STATUS_USE_BLOCK
         );
 
-        this.dataView.setUint8(4, 0x1);
+        this.dataView.setUint8(LockBytesSize.HEADER_FREE_BYTES, 0x1);
         this.dataView.setUint32(
             this.byteSize - LockBytesSize.HEADER_FREE_BYTES,
             this.byteSize -
@@ -53,7 +53,7 @@ export default class BoundaryTagAllocator extends BaseAllocator {
         this.coalesce(dataView.byteOffset - 5);
     }
 
-    markUsed(address: number, byteSize: number) {
+    private markUsed(address: number, byteSize: number) {
         const blockSize = this.sizeOf(address);
 
         this.dataView.setUint32(address, byteSize);
@@ -69,7 +69,7 @@ export default class BoundaryTagAllocator extends BaseAllocator {
         return address + 5;
     }
 
-    markFree(address: number) {
+    private markFree(address: number) {
         const size = this.sizeOf(address);
 
         this.dataView.setUint32(address, size);

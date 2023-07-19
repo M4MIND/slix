@@ -1,3 +1,6 @@
+import Vector2 from '../vector/Vector2';
+import Vector3 from '../vector/Vector3';
+
 type components = [
     number,
     number,
@@ -82,43 +85,15 @@ export default class Matrix4 extends Array<number> {
         return this[15];
     }
 
-    public get row1() {
-        return [this.m0x0, this.m0x1, this.m0x2, this.m0x3];
-    }
-
-    public get row2() {
-        return [this.m1x0, this.m1x1, this.m1x2, this.m1x3];
-    }
-
-    public get row3() {
-        return [this.m2x0, this.m2x1, this.m2x2, this.m2x3];
-    }
-
-    public get row4() {
-        return [this.m3x0, this.m3x1, this.m3x2, this.m3x3];
-    }
-
-    public get col1() {
-        return [this.m0x0, this.m1x0, this.m2x0, this.m3x0];
-    }
-
-    public get col2() {
-        return [this.m0x1, this.m1x1, this.m2x1, this.m3x1];
-    }
-
-    public get col3() {
-        return [this.m0x2, this.m1x2, this.m2x2, this.m3x2];
-    }
-
-    public get col4() {
-        return [this.m0x3, this.m1x3, this.m2x3, this.m3x3];
-    }
-
     constructor(...args: components) {
         super(...args);
     }
 
     public static createDefault() {
         return new Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    }
+
+    public static fromVectors(a: Vector3, b: Vector3, c: Vector3) {
+        return new Matrix4(a.x, b.x, c.x, 0, a.y, b.y, c.y, 0, a.z, b.z, c.z, 0, 0, 0, 0, 1);
     }
 }
