@@ -7,7 +7,7 @@ import RendererManager from './manager/RendererManager';
 import ShaderManager from './manager/ShaderManager';
 import WebGL2Context from './manager/WebGL2ContextManager';
 import { Vector3 } from 'mathf';
-import { MemoryServer, NativeArray, NativeStaticArray, TypedArrayKeys } from 'memory';
+import { MemoryServer, NativeArray, StructureNativeArray, TypedArrayKeys } from 'memory';
 
 type initConfigs = { canvas: HTMLCanvasElement; width: number; height: number };
 
@@ -56,13 +56,13 @@ export default class RendererServer {
         this.meshManager = new MeshManager();
         this.rendererManager = new RendererManager();
 
-        const nativeArray = new NativeStaticArray({
+        const nativeArray = new StructureNativeArray({
             position: { wordSize: TypedArrayKeys.Int32Array, length: 6 },
             camera: { wordSize: TypedArrayKeys.Int32Array, length: 16 },
             indices: { wordSize: TypedArrayKeys.Int32Array, length: 4 },
         });
 
-        const nativeArray2 = new NativeStaticArray({
+        const nativeArray2 = new StructureNativeArray({
             position: { wordSize: TypedArrayKeys.Int32Array, length: 6 },
             camera: { wordSize: TypedArrayKeys.Int32Array, length: 16 },
             indices: { wordSize: TypedArrayKeys.Int32Array, length: 4 },

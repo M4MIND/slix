@@ -1,9 +1,7 @@
 export default abstract class BaseAllocator {
-    public readonly arrayBuffer: ArrayBuffer;
     protected dataView: DataView;
     public readonly byteSize;
-    protected constructor(mbSize: number) {
-        this.arrayBuffer = new ArrayBuffer(mbSize * 1024 * 1024);
+    protected constructor(public readonly arrayBuffer: ArrayBuffer) {
         this.dataView = new DataView(this.arrayBuffer);
         this.byteSize = this.arrayBuffer.byteLength;
     }

@@ -1,14 +1,10 @@
 import BaseAllocator from './BaseAllocator';
 
 export default class LinearAllocation extends BaseAllocator {
-    public readonly byteLength: number;
-    private marker: number;
+    private marker = 0;
 
-    constructor(mbSize: number) {
-        super(mbSize);
-
-        this.byteLength = this.arrayBuffer.byteLength;
-        this.marker = 0;
+    constructor(arrayBuffer: ArrayBuffer) {
+        super(arrayBuffer);
     }
 
     public alloc(byteSize: number): DataView {

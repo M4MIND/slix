@@ -1,62 +1,41 @@
 import BaseAllocator from '../allocation/BaseAllocator';
-import { Structure, TypedArray, TypedArrayByteSize, TypedArrayConstructors } from '../memory.consts';
+import { TypedArray } from '../memory.consts';
+import { MemoryServer } from '../../index';
+import { TypeAllocators } from '../MemoryServer';
 
-type PrepareStructure = {
-    [index: string]: { dataView: DataView; constructor: new () => TypedArray; wordSize: number };
-};
-
-export default abstract class NativeArray {
-    protected byteSize = 0;
+export default class NativeArray {
     protected dataView: DataView;
-    protected memory: BaseAllocator;
-    protected structure: PrepareStructure;
+    protected allocator: BaseAllocator;
 
-    protected constructor(structure: Structure, allocator: BaseAllocator) {
-        this.memory = allocator;
-        this.dataView = this.createDataView(this.calculateByteSize(structure));
-        this.structure = this.prepareStructure(structure);
-    }
+    constructor(protected readonly byteSize: number, allocator: TypeAllocators = TypeAllocators.LINEAR) {
+        this.allocator = MemoryServer.getAllocator(allocator);
+        const dataView = this.allocator.alloc(byteSize);
 
-    protected calculateByteSize(structure: Structure): number {
-        this.byteSize = 0;
-
-        for (const key of Object.keys(structure)) {
-            const str = structure[key];
-            this.byteSize += str.length * TypedArrayByteSize[str.wordSize];
+        if (dataView) {
+            this.dataView = dataView;
+        } else {
+            throw new Error(`Can't make alloc`);
         }
-
-        return this.byteSize;
     }
 
-    protected prepareStructure(structure: Structure): PrepareStructure {
-        const out: PrepareStructure = {};
-        let byte = 0;
-
-        for (const key of Object.keys(structure)) {
-            const startByte = byte;
-            byte += structure[key].length * TypedArrayByteSize[structure[key].wordSize];
-            out[key] = {
-                dataView: new DataView(this.memory.arrayBuffer, startByte, byte - startByte),
-                constructor: TypedArrayConstructors[structure[key].wordSize],
-                wordSize: TypedArrayByteSize[structure[key].wordSize],
-            };
-        }
-
-        return out;
-    }
-
-    public abstract getSubArray<S extends TypedArray>(
+    public getSubArray<S extends TypedArray>(
         classType: new (arrayBuffer: ArrayBuffer, byteOffset: number, byteSize: number) => S,
         byteOffset: number,
         length: number
-    ): S;
+    ): S {
+        return new classType(this.allocator.arrayBuffer, this.dataView.byteOffset + byteOffset, length);
+    }
 
-    public abstract setData<S extends TypedArray>(
+    public setData<S extends TypedArray>(
         data: Array<number>,
         classType: new (arrayBuffer: ArrayBuffer, byteOffset: number, byteSize: number) => S,
-        byteOffset: number,
-        byteSize: number
-    ): this;
+        byteSize: number,
+        byteOffset = 0,
+    ): this {
+        new classType(this.allocator.arrayBuffer, this.dataView.byteOffset + byteOffset, byteSize).set(data);
+
+        return this;
+    }
 
     getFloat32Array(byteOffset: number, length: number): Float32Array {
         return this.getSubArray<Float32Array>(Float32Array, byteOffset, length);
@@ -128,34 +107,7 @@ export default abstract class NativeArray {
         return this;
     }
 
-    public setDataByStructureName(name: string, data: Array<number>) {
-        const structure = this.structure[name];
-        this.setData(data, structure.constructor, structure.dataView.byteOffset, structure.dataView.byteLength);
+    public dispose() {
+        this.allocator.dealloc(this.dataView);
     }
-
-    public getDataByStructureName(name: string): TypedArray {
-        const structure = this.structure[name];
-
-        return this.getSubArray(
-            structure.constructor,
-            structure.dataView.byteOffset,
-            structure.dataView.byteLength / structure.wordSize
-        );
-    }
-
-    public toArray() {
-        let array: Array<number> = [];
-
-        for (const k of Object.keys(this.structure)) {
-            array = array.concat(...this.getDataByStructureName(k));
-        }
-
-        return array;
-    }
-
-    public getStructure(name: string) {
-        return this.structure[name];
-    }
-
-    protected abstract createDataView(size: number): DataView;
 }

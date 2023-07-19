@@ -5,9 +5,11 @@ enum LockBytesSize {
     HEADER_STATUS_USE_BLOCK = Int8Array.BYTES_PER_ELEMENT,
 }
 
+// ВЫРАВНИВАНИЕ ПАМЯТИ!!!!!
+
 export default class BoundaryTagAllocator extends BaseAllocator {
-    constructor(mbSize = 4 / 1024) {
-        super(mbSize);
+    constructor(arrayBuffer: ArrayBuffer) {
+        super(arrayBuffer);
         this.prepare();
     }
 
@@ -142,52 +144,5 @@ export default class BoundaryTagAllocator extends BaseAllocator {
                 this.dataView.setUint32(previewAddress + newSize + 5, newSize);
             }
         }
-    }
-
-    public makeSnapshot(): {
-        size: number;
-        data: {
-            header: { value: number; size: number };
-            use: { value: boolean; size: number };
-            data: { size: number };
-            end: { value: number; size: number };
-        }[];
-    } {
-        return {
-            size: this.byteSize,
-            data: this.prepareData(),
-        };
-    }
-
-    private prepareData(
-        startPosition = 0,
-        array: {
-            header: { value: number; size: number };
-            use: { value: boolean; size: number };
-            data: { size: number };
-            end: { value: number; size: number };
-        }[] = []
-    ): {
-        header: { value: number; size: number };
-        use: { value: boolean; size: number };
-        data: { size: number };
-        end: { value: number; size: number };
-    }[] {
-        if (startPosition >= this.byteSize) {
-            return array;
-        }
-
-        const header = this.sizeOf(startPosition);
-        const use = this.isFree(startPosition);
-        const end = this.sizeOf(startPosition + header + 5);
-
-        array.push({
-            header: { size: 4, value: header },
-            use: { size: 1, value: use },
-            data: { size: header },
-            end: { size: 4, value: end },
-        });
-
-        return this.prepareData(this.nextAddress(startPosition), array);
     }
 }

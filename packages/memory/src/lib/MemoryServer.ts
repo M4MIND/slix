@@ -1,5 +1,11 @@
 import BoundaryTagAllocator from './allocation/BoundaryTagAllocator';
-import { LinearAllocation } from 'memory';
+import { LinearAllocation } from '../index';
+import BaseAllocator from './allocation/BaseAllocator';
+
+export enum TypeAllocators {
+    LINEAR,
+    BOUNDARY
+}
 
 export default class MemoryServer {
     private static _BoundaryTagAllocator: BoundaryTagAllocator;
@@ -14,9 +20,21 @@ export default class MemoryServer {
     }
 
     public static startUp() {
-        this._LinearAllocation = new LinearAllocation(128);
-        this._BoundaryTagAllocator = new BoundaryTagAllocator();
+        this._LinearAllocation = new LinearAllocation(new ArrayBuffer(64 * 1024 * 1024));
+        this._BoundaryTagAllocator = new BoundaryTagAllocator(new ArrayBuffer(64 * 1024 * 1024));
 
         return MemoryServer;
+    }
+
+    public static getAllocator(type: TypeAllocators): BaseAllocator {
+        if (type === TypeAllocators.BOUNDARY) {
+            return this.BoundaryTagAllocator;
+        }
+
+        if (type === TypeAllocators.LINEAR) {
+            return this.LinearAllocation;
+        }
+
+        return this.LinearAllocation;
     }
 }
