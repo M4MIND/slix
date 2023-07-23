@@ -38,10 +38,12 @@ export default class BoundaryTagAllocator extends BaseAllocator {
         }
 
         let address = 0;
+        let offset = 0;
 
         while (address < this.byteSize) {
-            if (this.isFree(address) && this.sizeOf(address) >= byteSize + 9) {
-                return new DataView(this.arrayBuffer, this.markUsed(address, byteSize), byteSize);
+            offset = 4 - ((address + byteSize) % 4);
+            if (this.isFree(address) && this.sizeOf(address) >= byteSize + 9 + offset) {
+                return new DataView(this.arrayBuffer, this.markUsed(address, byteSize), byteSize + offset);
             }
 
             address = this.nextAddress(address);

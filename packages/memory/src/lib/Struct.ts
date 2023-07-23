@@ -33,7 +33,7 @@ export default class Struct {
         if (wordSize <= 0 || length <= 0) {
             throw new Error(`WordSize or length <= 0`);
         }
-        return [name, wordSize, wordSize * length, constructor];
+        return [name, wordSize, length, constructor];
     }
 
     static uint8(name: string, length = 1): TypeStruct {

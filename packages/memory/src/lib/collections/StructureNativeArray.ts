@@ -18,6 +18,8 @@ export default class StructureNativeArray extends NativeArray {
     }
 
     set(key: string, value: number[]) {
+        const s = this.struct.getStruct(key);
 
+        this.setData(value, s.constructor, s.length, s.byteOffset);
     }
 }

@@ -29,10 +29,10 @@ export default class NativeArray {
     public setData<S extends TypedArray>(
         data: Array<number>,
         classType: new (arrayBuffer: ArrayBuffer, byteOffset: number, byteSize: number) => S,
-        byteSize: number,
+        length: number,
         byteOffset = 0,
     ): this {
-        new classType(this.allocator.arrayBuffer, this.dataView.byteOffset + byteOffset, byteSize).set(data);
+        new classType(this.allocator.arrayBuffer, this.dataView.byteOffset + byteOffset, length).set(data);
 
         return this;
     }

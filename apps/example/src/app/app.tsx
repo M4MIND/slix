@@ -1,26 +1,28 @@
 import React from 'react';
-import { TypeAllocators, MemoryServer, Struct, StructureNativeArray } from 'memory';
-import { Matrix4, Vector3 } from 'mathf';
+import { Mesh, RendererServer, VertexAttributeDescriptor, VertexAttributeFormat } from 'renderer';
 
 
 export function App() {
-    const canvas = React.useRef<HTMLCanvasElement>(null);
+    RendererServer.startUp({
+        canvas: document.createElement('canvas'),
+        width: 600,
+        height: 600
+    })
 
-    MemoryServer.startUp();
+    const mesh = new Mesh();
 
-    const vertext = [0.2, 0.6, 0.2];
-    const position = [0, 0, 0];
-    const vectors = [new Vector3(0, 0, 0), new Vector3(0, 12, 4)].flat();
-    const matrix = [Matrix4.createDefault(), Matrix4.createDefault()]
+    const array = new ArrayBuffer(216);
+    const dataView = new DataView(array);
 
-    const struct = new StructureNativeArray( new Struct(
-        Struct.float32('position', position.length),
-        Struct.float32('vertex', vertext.length),
-        Struct.float32('vectors', vectors.length),
-        Struct.float32('matrix', matrix.length)
-    ));
+    mesh.SetVertexBufferParams(9, [
+        new VertexAttributeDescriptor('position', VertexAttributeFormat.Float32, 3),
+        new VertexAttributeDescriptor('normal', VertexAttributeFormat.Float32, 2),
+        new VertexAttributeDescriptor('tangent', VertexAttributeFormat.Uint8, 4)
+    ]);
 
-    console.dir(struct.get('matrix'));
+
+    mesh.setVertexBufferData(dataView, 9)
+
 
     return <div></div>;
 }

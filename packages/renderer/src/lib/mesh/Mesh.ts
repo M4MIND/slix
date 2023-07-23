@@ -1,26 +1,15 @@
-import GraphicsBuffer from '../buffer/GraphicsBuffer';
-import { GL_BUFFER_TARGET } from '../webgl.consts';
 import VertexAttributeDescriptor from './VertexAttributeDescriptor';
+import BufferData from '../buffer/BufferData';
+import { GL_BUFFER_TARGET, GL_USAGE_BUFFER } from '../webgl.consts';
 
 export default class Mesh {
-    private readonly vertexBuffer: GraphicsBuffer;
-    private readonly indexBuffer: GraphicsBuffer;
-    private readonly vertexAttributeDescriptors: { [index: string]: VertexAttributeDescriptor } = {};
+    private readonly attributesBuffer = BufferData.make(GL_BUFFER_TARGET.ARRAY_BUFFER, GL_USAGE_BUFFER.STATIC_DRAW);
+    private readonly indicesBuffer = BufferData.make(GL_BUFFER_TARGET.ELEMENT_ARRAY_BUFFER, GL_USAGE_BUFFER.STATIC_DRAW);
+    public SetVertexBufferParams(vertexCount: number, layout: VertexAttributeDescriptor[]) {
 
-    constructor() {
-        this.vertexBuffer = new GraphicsBuffer(GL_BUFFER_TARGET.ELEMENT_ARRAY_BUFFER);
-        this.indexBuffer = new GraphicsBuffer(GL_BUFFER_TARGET.ELEMENT_ARRAY_BUFFER);
     }
 
-    public setVertexBufferParams(vertexDescriptor: VertexAttributeDescriptor[], vertexCount: number) {
-        return this;
+    public setVertexBufferData(data: DataView, count: number) {
+
     }
-
-    public setVertexBufferData<T>(data: T, dataStart: number, meshBufferStart: number, count: number, stream: number) {
-        return this;
-    }
-
-    public setIndexBufferParams() {}
-
-    public setIndexBufferData() {}
 }
