@@ -1,4 +1,5 @@
 import { RendererServer } from '../../index';
+import VAO from '../buffer/VAO';
 import {
     GL_BUFFER_TARGET,
     GL_COLOR_BUFFER_BIT,
@@ -8,10 +9,8 @@ import {
     GL_PROGRAM_PARAMETERS,
     GL_SHADER_STATUSES,
     GL_SHADER_TYPES,
-    GL_USAGE_BUFFER
+    GL_USAGE_BUFFER,
 } from '../webgl.consts';
-import VAO from '../buffer/VAO';
-import BufferData from '../buffer/BufferData';
 
 export default class WebGL2ContextManager {
     private context: WebGL2RenderingContext;
@@ -96,7 +95,7 @@ export default class WebGL2ContextManager {
         return this.context.getShaderInfoLog(shader);
     }
 
-    public createBuffer() {
+    public createWebGLBuffer() {
         const buffer = this.context.createBuffer();
 
         if (buffer) {
@@ -106,26 +105,30 @@ export default class WebGL2ContextManager {
         throw new Error(`Can't create WebGLBuffer`);
     }
 
-    public bufferData(target: GL_BUFFER_TARGET, src: ArrayBufferView, usage: GL_USAGE_BUFFER, srcOffset = 0, length = 0) {
+    public deleteWebGLBuffer(a: WebGLBuffer) {
+        this.context.deleteBuffer(a);
+    }
+
+    public bufferData(
+        target: GL_BUFFER_TARGET,
+        src: ArrayBufferView,
+        usage: GL_USAGE_BUFFER,
+        srcOffset = 0,
+        length = 0
+    ) {
         this.context.bufferData(target, src, usage, srcOffset, length);
 
         return this;
     }
 
-    public bufferSubData(target: GL_BUFFER_TARGET, dstByteOffset: number, srcData: ArrayBufferView, srcOffset = 0, length = 0) {
+    public bufferSubData(
+        target: GL_BUFFER_TARGET,
+        dstByteOffset: number,
+        srcData: ArrayBufferView,
+        srcOffset = 0,
+        length = 0
+    ) {
         this.context.bufferSubData(target, dstByteOffset, srcData, srcOffset, length);
-    }
-
-    public createBufferData(target: GL_BUFFER_TARGET, usage: GL_USAGE_BUFFER) {
-        return new BufferData(this.createBuffer(), target, usage);
-    }
-
-    public createArrayBuffer(usage: GL_USAGE_BUFFER = GL_USAGE_BUFFER.STATIC_DRAW): BufferData {
-        return new BufferData(this.createBuffer(), GL_BUFFER_TARGET.ARRAY_BUFFER, usage);
-    }
-
-    public createElementArrayBuffer(usage: GL_USAGE_BUFFER = GL_USAGE_BUFFER.STATIC_DRAW): BufferData {
-        return new BufferData(this.createBuffer(), GL_BUFFER_TARGET.ELEMENT_ARRAY_BUFFER, usage);
     }
 
     public bindBuffer(type: number, buffer: WebGLBuffer) {
@@ -154,7 +157,7 @@ export default class WebGL2ContextManager {
         return this;
     }
 
-    public createVertexArray(): VAO {
+    public createVertexArrayObject(): VAO {
         const vao = this.context.createVertexArray();
         if (!vao) {
             throw new Error(`Can't create VAO`);

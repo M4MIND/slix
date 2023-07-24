@@ -1,28 +1,30 @@
+import { Matrix4 } from 'mathf';
 import React from 'react';
-import { Mesh, RendererServer, VertexAttributeDescriptor, VertexAttributeFormat } from 'renderer';
-
+import { Cube, GL_BUFFER_TARGET, GL_USAGE_BUFFER, GraphicsBuffer, RendererParams, RendererServer } from 'renderer';
 
 export function App() {
     RendererServer.startUp({
         canvas: document.createElement('canvas'),
         width: 600,
-        height: 600
-    })
+        height: 600,
+    });
 
-    const mesh = new Mesh();
+    console.dir(RendererServer);
 
-    const array = new ArrayBuffer(216);
-    const dataView = new DataView(array);
+    const meshPositions = new GraphicsBuffer(GL_BUFFER_TARGET.ARRAY_BUFFER, GL_USAGE_BUFFER.STATIC_DRAW);
+    const meshColor = new GraphicsBuffer(GL_BUFFER_TARGET.ARRAY_BUFFER, GL_USAGE_BUFFER.STATIC_DRAW);
+    const meshIndices = new GraphicsBuffer(GL_BUFFER_TARGET.ELEMENT_ARRAY_BUFFER, GL_USAGE_BUFFER.STATIC_DRAW);
 
-    mesh.SetVertexBufferParams(9, [
-        new VertexAttributeDescriptor('position', VertexAttributeFormat.Float32, 3),
-        new VertexAttributeDescriptor('normal', VertexAttributeFormat.Float32, 2),
-        new VertexAttributeDescriptor('tangent', VertexAttributeFormat.Uint8, 4)
-    ]);
+    meshPositions.setData(Float32Array.from(Cube.vertices));
+    meshColor.setData(Float32Array.from(Cube.colors));
+    meshIndices.setData(Uint16Array.from(Cube.indices));
 
-
-    mesh.setVertexBufferData(dataView, 9)
-
+    const rendererParams = new RendererParams();
+    rendererParams.materialPropertyBlock
+        .setBuffer('_TRIANGLES', meshIndices)
+        .setBuffer('_POSITIONS', meshPositions)
+        .setBuffer('_COLORS', meshColor)
+        .setMatrix('_MATRIX', Matrix4.default());
 
     return <div></div>;
 }

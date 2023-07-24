@@ -1,6 +1,7 @@
 import WebGlBuffer from './WebGlBuffer';
 
 export default class EBO implements WebGlBuffer {
+    constructor() {}
     bind(): this {
         return this;
     }

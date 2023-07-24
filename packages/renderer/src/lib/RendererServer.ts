@@ -1,8 +1,9 @@
 import MaterialManager from './gpu/MaterialManager';
+import BufferManager from './manager/BufferManager';
 import CanvasManager from './manager/CanvasManager';
 import GpuManager from './manager/GpuManager';
+import GraphicsManager from './manager/GraphicsManager';
 import MeshManager from './manager/MeshManager';
-import RendererManager from './manager/RendererManager';
 import ShaderManager from './manager/ShaderManager';
 import WebGL2Context from './manager/WebGL2ContextManager';
 
@@ -33,21 +34,23 @@ export default class RendererServer {
     public static canvasManager: CanvasManager;
     public static contextManager: WebGL2Context;
     public static gpuProgramManager: GpuManager;
-    public static rendererManager: RendererManager;
+    public static rendererManager: GraphicsManager;
     public static shaderManager: ShaderManager;
-    private static materialManager: MaterialManager;
-    private static meshManager: MeshManager;
+    public static materialManager: MaterialManager;
+    public static meshManager: MeshManager;
+    public static bufferManager: BufferManager;
 
     private constructor() {}
 
     public static startUp(configs: initConfigs) {
         this.canvasManager = new CanvasManager(configs.canvas, configs.width, configs.height);
         this.contextManager = new WebGL2Context(configs.width, configs.height);
+        this.bufferManager = new BufferManager();
         this.gpuProgramManager = new GpuManager();
         this.shaderManager = new ShaderManager();
         this.materialManager = new MaterialManager();
         this.meshManager = new MeshManager();
-        this.rendererManager = new RendererManager();
+        this.rendererManager = new GraphicsManager();
 
         return this;
     }

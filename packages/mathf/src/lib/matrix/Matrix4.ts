@@ -89,7 +89,7 @@ export default class Matrix4 extends Array<number> {
         super(...args);
     }
 
-    public static createDefault() {
+    public static default() {
         return new Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     }
 

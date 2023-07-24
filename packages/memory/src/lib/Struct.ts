@@ -11,11 +11,11 @@ export default class Struct {
     public readonly byteSize = 0;
     public readonly struct: {
         [index: TypeNameStruct]: {
-            wordSize: TypeWordSizeStruct,
-            byteOffset: TypeByteSizeStruct,
-            length: TypeByteSizeStruct,
-            constructor: TypeConstructorStruct
-        }
+            wordSize: TypeWordSizeStruct;
+            byteOffset: TypeByteSizeStruct;
+            length: TypeByteSizeStruct;
+            constructor: TypeConstructorStruct;
+        };
     } = {};
 
     constructor(...args: TypeStruct[]) {
@@ -29,7 +29,12 @@ export default class Struct {
         return this.struct[k];
     }
 
-    private static make(name: TypeNameStruct, wordSize: TypeWordSizeStruct, length: TypeByteSizeStruct, constructor: TypeConstructorStruct): TypeStruct {
+    private static make(
+        name: TypeNameStruct,
+        wordSize: TypeWordSizeStruct,
+        length: TypeByteSizeStruct,
+        constructor: TypeConstructorStruct
+    ): TypeStruct {
         if (wordSize <= 0 || length <= 0) {
             throw new Error(`WordSize or length <= 0`);
         }
@@ -64,4 +69,3 @@ export default class Struct {
         return this.make(name, 4, length, Float32Array);
     }
 }
-
