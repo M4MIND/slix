@@ -1,7 +1,5 @@
 import Vector from './Vector';
 
-type components = [number, number, number, number];
-
 export default class Vector4 extends Vector {
     get x(): number {
         return this[0];
@@ -27,15 +25,15 @@ export default class Vector4 extends Vector {
         this[2] = v;
     }
 
-    set w(v: number) {
-        this[3] = v;
-    }
-
     get w() {
         return this[3];
     }
 
-    constructor(...args: components) {
-        super(...args);
+    set w(v: number) {
+        this[3] = v;
+    }
+
+    constructor(x = 0, y = 0, z = 0, w = 1) {
+        super(x, y, z, w);
     }
 }

@@ -1,7 +1,5 @@
 import Vector from './Vector';
 
-type components = [number, number];
-
 export default class Vector2 extends Vector {
     get x() {
         return this[0];
@@ -19,7 +17,7 @@ export default class Vector2 extends Vector {
         this[0] = n;
     }
 
-    constructor(...args: components) {
-        super(...args);
+    constructor(x = 0, y = 0) {
+        super(x, y);
     }
 }

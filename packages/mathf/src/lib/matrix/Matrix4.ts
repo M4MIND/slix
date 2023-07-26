@@ -1,4 +1,3 @@
-import Vector2 from '../vector/Vector2';
 import Vector3 from '../vector/Vector3';
 
 type components = [

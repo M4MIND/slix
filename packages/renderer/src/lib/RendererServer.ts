@@ -34,14 +34,13 @@ export default class RendererServer {
     public static canvasManager: CanvasManager;
     public static contextManager: WebGL2Context;
     public static gpuProgramManager: GpuManager;
-    public static rendererManager: GraphicsManager;
+    public static graphicsManager: GraphicsManager;
     public static shaderManager: ShaderManager;
     public static materialManager: MaterialManager;
     public static meshManager: MeshManager;
     public static bufferManager: BufferManager;
 
     private constructor() {}
-
     public static startUp(configs: initConfigs) {
         this.canvasManager = new CanvasManager(configs.canvas, configs.width, configs.height);
         this.contextManager = new WebGL2Context(configs.width, configs.height);
@@ -50,7 +49,7 @@ export default class RendererServer {
         this.shaderManager = new ShaderManager();
         this.materialManager = new MaterialManager();
         this.meshManager = new MeshManager();
-        this.rendererManager = new GraphicsManager();
+        this.graphicsManager = new GraphicsManager();
 
         return this;
     }

@@ -1,12 +1,10 @@
 import RendererServer from '../RendererServer';
 import Shader from '../shader/Shader';
-import { GL_SHADER_TYPES } from '../webgl.consts';
+import { GL_SHADER_TYPES } from '../webgl.enums';
 import WebGL2ContextManager from './WebGL2ContextManager';
 
 export default class ShaderManager {
     private readonly context: WebGL2ContextManager = RendererServer.contextManager;
-
-    constructor() {}
 
     public createShader(name: string, vertex: string, fragment: string): Shader {
         const [vertexShader, fragmentShader] = [

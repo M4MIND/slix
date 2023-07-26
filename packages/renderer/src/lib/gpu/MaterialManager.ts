@@ -1,3 +1,5 @@
 export default class MaterialManager {
-    public createMaterial() {}
+    public createMaterial() {
+        ///
+    }
 }

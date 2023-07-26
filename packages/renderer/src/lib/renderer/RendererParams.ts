@@ -1,8 +1,9 @@
 import MaterialPropertyBlock from './MaterialPropertyBlock';
+import Material from '../material/Material';
 
 export default class RendererParams {
     public materialPropertyBlock: MaterialPropertyBlock;
-    constructor() {
+    constructor(public material: Material) {
         this.materialPropertyBlock = new MaterialPropertyBlock();
     }
 }

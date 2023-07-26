@@ -1,7 +1,7 @@
 import GraphicsBuffer from '../buffer/GraphicsBuffer';
 import { Matrix4, Vector4 } from 'mathf';
 
-type Color = Vector4;
+type Color = [number, number, number, number];
 
 enum UniformTypes {
     INT,

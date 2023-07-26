@@ -1,1 +1,5 @@
-export default class Material {}
+export default class Material {
+    constructor() {
+        //
+    }
+}

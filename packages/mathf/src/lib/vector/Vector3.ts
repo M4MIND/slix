@@ -1,12 +1,9 @@
 import Vector from './Vector';
 
-type components = [number, number, number];
-
 export default class Vector3 extends Vector {
     get x(): number {
         return this[0];
     }
-
     set x(v: number) {
         this[0] = v;
     }
@@ -27,8 +24,8 @@ export default class Vector3 extends Vector {
         this[2] = v;
     }
 
-    constructor(...args: components) {
-        super(...args);
+    constructor(x = 0, y = 0, z = 0) {
+        super(x, y, z);
     }
 
     isLessThan(v: Vector3) {
@@ -54,7 +51,6 @@ export default class Vector3 extends Vector {
     isNotEqual(v: Vector3) {
         return Vector3.isNotEqual(this, v);
     }
-
     static add(a: Vector3, ...args: Vector3[]) {
         a = Vector3.copy(a);
 

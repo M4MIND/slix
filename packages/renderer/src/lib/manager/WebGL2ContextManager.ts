@@ -1,16 +1,12 @@
-import { RendererServer } from '../../index';
-import VAO from '../buffer/VAO';
 import {
     GL_BUFFER_TARGET,
-    GL_COLOR_BUFFER_BIT,
-    GL_DEPTH_BUFFER_BIT,
-    GL_DEPTH_TEST,
-    GL_LEQUAL,
     GL_PROGRAM_PARAMETERS,
     GL_SHADER_STATUSES,
     GL_SHADER_TYPES,
     GL_USAGE_BUFFER,
-} from '../webgl.consts';
+    RendererServer,
+} from '../../index';
+import { GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST, GL_LEQUAL } from '../webgl.consts';
 
 export default class WebGL2ContextManager {
     private context: WebGL2RenderingContext;
@@ -155,15 +151,6 @@ export default class WebGL2ContextManager {
         this.context.viewport(0, 0, x, y);
 
         return this;
-    }
-
-    public createVertexArrayObject(): VAO {
-        const vao = this.context.createVertexArray();
-        if (!vao) {
-            throw new Error(`Can't create VAO`);
-        }
-
-        return new VAO(vao);
     }
 
     public bindVertexArray(a: WebGLVertexArrayObject) {

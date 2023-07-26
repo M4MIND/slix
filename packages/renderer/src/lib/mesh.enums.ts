@@ -1,0 +1,8 @@
+import { GL_LINES, GL_LINE_STRIP, GL_POINTS, GL_TRIANGLES } from './webgl.consts';
+
+export enum MESH_TOPOLOGY {
+    TRIANGLES = GL_TRIANGLES,
+    LINES = GL_LINES,
+    LINE_STRIP = GL_LINE_STRIP,
+    POINT = GL_POINTS,
+}

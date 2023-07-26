@@ -1,6 +1,6 @@
-import { RendererServer } from '../../index';
+import RendererServer from '../RendererServer';
 import BufferManager from '../manager/BufferManager';
-import { GL_BUFFER_TARGET, GL_USAGE_BUFFER } from '../webgl.consts';
+import { GL_BUFFER_TARGET, GL_USAGE_BUFFER } from '../webgl.enums';
 
 export default class GraphicsBuffer {
     private readonly bufferHandler: WebGLBuffer;
@@ -21,9 +21,5 @@ export default class GraphicsBuffer {
     setData(data: ArrayBufferView, srcOffset = 0, length = 0) {
         this.bind();
         this.bufferManager.setData(this.target, data, this.usage, srcOffset, length);
-    }
-
-    release() {
-        this.bufferManager.deleteWebGLBuffer(this.bufferHandler);
     }
 }

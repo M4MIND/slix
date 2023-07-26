@@ -5,8 +5,38 @@
   ],
   "plugins": [
     "@nx",
-    "simple-import-sort"
+    "simple-import-sort",
+    "sort-exports",
+    "sort-class-members"
   ],
+  "rules": {
+    "sort-exports/sort-exports": ["error", {
+      "sortDir": "asc",
+      "ignoreCase": true,
+      "sortExportKindFirst": "value"
+    }],
+    "sort-class-members/sort-class-members": [
+      2,
+      {
+        "order": [
+          "[getters]",
+          "[setters]",
+          "[accessor-pairs]",
+          "[properties]",
+          "[static-properties]",
+          "constructor",
+          "[conventional-private-properties]",
+          "[methods]",
+          "[static-methods]",
+          "[conventional-private-methods]"
+        ],
+        "groups": {
+          "event-handlers": [{"name":  "/is.+/", "type":  "method"}]
+        },
+        "accessorPairPositioning": "getThenSet"
+      }
+    ]
+  },
   "overrides": [
     {
       "files": [
@@ -31,8 +61,7 @@
             ]
           }
         ],
-        "eslint/no-empty-function": ["error", {"allow": ["private-constructors", "constructors"]}],
-        "@typescript-eslint/no-empty-function": ["error", {"allow": ["private-constructors", "constructors"]}]
+        "@typescript-eslint/no-empty-function": ["error", {"allow": ["private-constructors"]}]
       }
     },
     {
