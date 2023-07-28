@@ -1,4 +1,5 @@
-import Allocator from './Allocator';
+import { DataTypeArguments, DataTypeConstructor } from '../types/DataType';
+import Allocator, { TYPED_ARRAY } from './Allocator';
 
 enum ALLOCATOR_INFORMATION {
     BYTE_SIZE = 0,
@@ -45,7 +46,7 @@ export default class LinearAllocator extends Allocator {
 
     constructor() {
         super();
-        this.arrayBuffer = new ArrayBuffer(64 * 1024 * 1024);
+        this.arrayBuffer = new ArrayBuffer(1024 * 1024 * 1024);
         this.dataView = new DataView(this.arrayBuffer);
         this.usedMemory = ALLOCATOR_INFORMATION.HEADER_SIZE;
         this.currentPosition = ALLOCATOR_INFORMATION.HEADER_SIZE;
@@ -53,7 +54,7 @@ export default class LinearAllocator extends Allocator {
         this.numAllocations = 0;
     }
 
-    malloc(size: number, alignment: number): DataView | null {
+    private getAddress(size: number, alignment: number) {
         this.checkSize(size);
 
         const adjustment = this.alignForwardAdjustment(this.currentPosition, alignment);
@@ -66,16 +67,29 @@ export default class LinearAllocator extends Allocator {
 
         this.numAllocations = this.numAllocations + 1;
 
-        return new DataView(this.arrayBuffer, aligned_address, size);
+        return aligned_address;
     }
 
-    override deallocate(dataView: DataView) {
-        console.warn(`LinearAllocator can't be deallocate. Please, use Clear method`);
+    malloc(size: number, alignment: number): Uint8Array {
+        const address = this.getAddress(size, alignment);
+        if (!address) throw new Error('');
+        return new Uint8Array(this.arrayBuffer, address, size);
+    }
+
+    calloc<T extends TYPED_ARRAY>(length: number, type: DataTypeConstructor<DataTypeArguments>): T {
+        const address = this.getAddress(length * type.byteSize, type.byteSize);
+        if (!address) throw new Error('');
+
+        return new type.dataViewConstructor(this.arrayBuffer, address, length) as T;
     }
 
     clear(): void {
         this.numAllocations = 0;
         this.usedMemory = ALLOCATOR_INFORMATION.HEADER_SIZE;
         this.currentPosition = ALLOCATOR_INFORMATION.HEADER_SIZE;
+    }
+
+    deallocate(dataView: TYPED_ARRAY): void {
+        throw new Error('Please, use Clear() method');
     }
 }

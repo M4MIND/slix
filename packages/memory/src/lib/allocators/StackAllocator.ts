@@ -1,4 +1,5 @@
-import Allocator, { ALIGNMENT } from './Allocator';
+import { DataTypeArguments, DataTypeConstructor } from '../types/DataType';
+import Allocator, { TYPED_ARRAY } from './Allocator';
 
 enum MARKER {
     ADJUSTMENT = 4,
@@ -60,7 +61,7 @@ export default class StackAllocator extends Allocator {
         this.numAllocations = 0;
     }
 
-    malloc(size: number, alignment: number): DataView | null {
+    private getAddress(size: number, alignment: number) {
         this.checkSize(size);
 
         const adjustment = this.alignForwardAdjustmentWithHeader(this.currentPosition, alignment, MARKER.ADJUSTMENT);
@@ -76,13 +77,27 @@ export default class StackAllocator extends Allocator {
         this.usedMemory += size + adjustment;
         this.numAllocations = this.numAllocations + 1;
 
-        return new DataView(this.arrayBuffer, aligned_address, size);
+        return aligned_address;
     }
-    override deallocate(dataView: DataView) {
+
+    malloc(size: number, alignment: number): Uint8Array {
+        const address = this.getAddress(size, alignment);
+        if (!address) throw new Error();
+
+        return new Uint8Array(this.arrayBuffer, address, size);
+    }
+    deallocate(dataView: TYPED_ARRAY) {
         const headerAddress = dataView.byteOffset - MARKER.HEADER_SIZE;
         this.usedMemory -= this.currentPosition - dataView.byteOffset + this.dataView.getUint32(headerAddress);
         this.currentPosition = dataView.byteOffset - this.dataView.getUint32(headerAddress);
 
         this.numAllocations = this.numAllocations - 1;
+    }
+
+    calloc<T extends TYPED_ARRAY>(length: number, type: DataTypeConstructor<DataTypeArguments>): T {
+        const address = this.getAddress(length * type.byteSize, type.byteSize);
+        if (!address) throw new Error();
+
+        return new type.dataViewConstructor(this.arrayBuffer, address, length) as T;
     }
 }

@@ -1,10 +1,5 @@
-import Allocator, { ALIGNMENT } from './Allocator';
-
-enum ALLOCATION_HEADER {
-    BYTE_SIZE = 0,
-    ADJUSTMENT = 4,
-    HEADER_SIZE = 8,
-}
+import { DataTypeArguments, DataTypeConstructor } from '../types/DataType';
+import Allocator, { TYPED_ARRAY } from './Allocator';
 
 enum FREE_BLOCK {
     BYTE_SIZE_OFFSET = 0,
@@ -60,11 +55,15 @@ export default class FreeListAllocator extends Allocator {
         this.dataView.setUint32(ALLOCATOR_INFORMATION.HEADER_SIZE + FREE_BLOCK.NEXT_OFFSET, 0);
     }
 
-    malloc(size: number, alignment: ALIGNMENT): DataView | null {
-        return null;
+    deallocate(dataView: TYPED_ARRAY): void {}
+
+    malloc(size: number, alignment: number): Uint8Array {
+        return new Uint8Array();
     }
 
-    deallocate(dataView: DataView): void {}
+    calloc<T extends TYPED_ARRAY>(length: number, size: DataTypeConstructor<DataTypeArguments>): T {
+        return new Uint8Array() as T;
+    }
 
     // private getFreeAddress(address: number): boolean {
     //     return this.dataView.getUint32(ALLOCATOR_INFORMATION.HEADER_SIZE + FREE_BLOCK.USED) === 1;
