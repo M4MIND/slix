@@ -44,9 +44,9 @@ export default class LinearAllocator extends Allocator {
     private readonly arrayBuffer: ArrayBuffer;
     private readonly dataView: DataView;
 
-    constructor() {
+    constructor(byteSize: number) {
         super();
-        this.arrayBuffer = new ArrayBuffer(1024 * 1024 * 1024);
+        this.arrayBuffer = new ArrayBuffer(byteSize);
         this.dataView = new DataView(this.arrayBuffer);
         this.usedMemory = ALLOCATOR_INFORMATION.HEADER_SIZE;
         this.currentPosition = ALLOCATOR_INFORMATION.HEADER_SIZE;
@@ -72,13 +72,21 @@ export default class LinearAllocator extends Allocator {
 
     malloc(size: number, alignment: number): Uint8Array {
         const address = this.getAddress(size, alignment);
-        if (!address) throw new Error('');
+        if (!address)
+            throw new Error(
+                `Failed to allocate memory for ${size} bytes. ${this.byteSize - this.usedMemory} bytes available `
+            );
         return new Uint8Array(this.arrayBuffer, address, size);
     }
 
     calloc<T extends TYPED_ARRAY>(length: number, type: DataTypeConstructor<DataTypeArguments>): T {
         const address = this.getAddress(length * type.byteSize, type.byteSize);
-        if (!address) throw new Error('');
+        if (!address)
+            throw new Error(
+                `Failed to allocate memory for ${length * type.byteSize} bytes. ${
+                    this.byteSize - this.usedMemory
+                } bytes available `
+            );
 
         return new type.dataViewConstructor(this.arrayBuffer, address, length) as T;
     }

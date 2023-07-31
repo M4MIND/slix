@@ -1,9 +1,16 @@
 import Vector3 from './Vector3';
 
-describe('mathf Vector3.add', () => {
-    const a = new Vector3(2, 2, 2);
-    const b = new Vector3(1, 4, 5);
-    const c = a.add(b);
+describe('Vector3', () => {
+    it('Has components x/y/z === 2,2,2', () => {
+        const a = new Vector3(2, 2, 2);
 
-    expect(c.components).toEqual([3, 6, 7]);
-})
+        expect(a).toEqual([2, 2, 2]);
+    });
+
+    it('add', () => {
+        const a = new Vector3(2, 2, 2);
+        const b = new Vector3(4, 3, 1);
+
+        expect(Vector3.add(a, b)).toEqual([6, 5, 3]);
+    });
+});
