@@ -204,7 +204,7 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         return this;
     }
 
-    public scale(v: Vector3 | [number, number, number] = new Vector3(1, 1, 1)): Matrix4 {
+    public scale(v: Vector3 | [number, number, number] = [1, 1, 1]): Matrix4 {
         this[0] *= v[0];
         this[1] *= v[0];
         this[2] *= v[0];

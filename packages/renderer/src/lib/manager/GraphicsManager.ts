@@ -26,7 +26,7 @@ export default class GraphicsManager {
         indexCount: number,
         startIndex = 0
     ) {
-        this.context.clearColor(0, 0, 0.2, 1);
+        this.context.clearColor(1, 1, 1, 1);
         this.context.clear();
         this.context.enable(GL_DEPTH_TEST);
         this.context.depthFunc();
@@ -49,8 +49,13 @@ export default class GraphicsManager {
         );
 
         this.context.uniformMatrix(
-            rendererParams.material.shader.getUniformLocationByName('_MODEL_MATRIX'),
-            rendererParams.materialPropertyBlock.getMatrix('_MODEL_MATRIX')
+            rendererParams.material.shader.getUniformLocationByName('_VIEW'),
+            rendererParams.materialPropertyBlock.getMatrix('_VIEW')
+        );
+
+        this.context.uniformMatrix(
+            rendererParams.material.shader.getUniformLocationByName('_MODEL'),
+            rendererParams.materialPropertyBlock.getMatrix('_MODEL')
         );
 
         indexBuffer.bind();

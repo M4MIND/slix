@@ -1,5 +1,6 @@
 import MemoryServer from './lib/MemoryServer';
 import type { MemoryServerInitConfigs } from './lib/MemoryServer';
+import LinearAllocator from './lib/allocators/LinearAllocator';
 import Float32NativeArray from './lib/array/Float32NativeArray';
 import Int8NativeArray from './lib/array/Int8NativeArray';
 import Int16NativeArray from './lib/array/Int16NativeArray';
@@ -32,6 +33,7 @@ export {
     INT16,
     INT32,
     INT8,
+    LinearAllocator,
     MemoryServer,
     MemoryServerInitConfigs,
     TYPED_ARRAY,
