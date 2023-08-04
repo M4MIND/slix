@@ -1,15 +1,33 @@
-import RendererServer from '../RendererServer';
-import Shader from '../shader/Shader';
+import { Shader } from '../../index';
+import { RendererServer } from '../RendererServer';
 import { GL_SHADER_TYPES } from '../webgl.enums';
 import WebGL2ContextManager from './WebGL2ContextManager';
 
-export default class ShaderManager {
-    private readonly context: WebGL2ContextManager = RendererServer.contextManager;
+export type ShaderSource = {
+    name: string;
+    vertex: string;
+    fragment: string;
+};
 
-    public createShader(name: string, vertex: string, fragment: string): Shader {
+export default class ShaderManager {
+    private readonly gpuProgramManager = RendererServer.gpuProgramManager;
+    private readonly context: WebGL2ContextManager = RendererServer.contextManager;
+    private readonly shaderCollection: { [key: string]: Shader } = {};
+
+    constructor(shaders: ShaderSource[]) {
+        for (const shader of shaders) {
+            this.shaderCollection[shader.name] = this.compile(shader.name, shader.vertex, shader.fragment);
+        }
+    }
+
+    public findShader(name: string) {
+        return this.shaderCollection[name] ? this.shaderCollection[name] : null;
+    }
+
+    private compile(name: string, vertex: string, fragment: string): Shader {
         const [vertexShader, fragmentShader] = [
-            this.context.createShader(GL_SHADER_TYPES.vertex),
-            this.context.createShader(GL_SHADER_TYPES.fragment),
+            this.context.createShader(GL_SHADER_TYPES.VERTEX),
+            this.context.createShader(GL_SHADER_TYPES.FRAGMENT),
         ];
 
         this.context.shaderSource(vertexShader, vertex).compileShader(vertexShader);
@@ -28,6 +46,8 @@ export default class ShaderManager {
             throw new Error(`Can't compile Fragment Shader: ${this.context.getShaderInfoLog(fragmentShader)}`);
         }
 
-        return new Shader(name, vertexShader, fragmentShader);
+        const gpuProgram = this.gpuProgramManager.createProgram(vertexShader, fragmentShader);
+
+        return new Shader(name, gpuProgram);
     }
 }

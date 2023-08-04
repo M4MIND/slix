@@ -1,21 +1,42 @@
 import MemoryServer from './lib/MemoryServer';
-import Float32NativeArray from './lib/struct/Float32NativeArray';
-import Int8NativeArray from './lib/struct/Int8NativeArray';
-import Int16NativeArray from './lib/struct/Int16NativeArray';
-import Int32NativeArray from './lib/struct/Int32NativeArray';
-import NativeArray from './lib/struct/NativeArray';
-import Uint8NativeArray from './lib/struct/Uint8NativeArray';
-import Uint16NativeArray from './lib/struct/Uint16NativeArray';
-import Uint32NativeArray from './lib/struct/Uint32NativeArray';
+import type { MemoryServerInitConfigs } from './lib/MemoryServer';
+import Float32NativeArray from './lib/array/Float32NativeArray';
+import Int8NativeArray from './lib/array/Int8NativeArray';
+import Int16NativeArray from './lib/array/Int16NativeArray';
+import Int32NativeArray from './lib/array/Int32NativeArray';
+import { Uint8NativeArray } from './lib/array/Uint8NativeArray';
+import Uint16NativeArray from './lib/array/Uint16NativeArray';
+import Uint32NativeArray from './lib/array/Uint32NativeArray';
+import { DataType, FLOAT32, INT8, INT16, INT32, UINT8, UINT16, UINT32 } from './lib/types/DataType';
+import type {
+    DataTypeArguments,
+    DataTypeConstructor,
+    TYPED_ARRAY,
+    TYPED_ARRAY_CONSTRUCTOR,
+} from './lib/types/DataType';
 
+export const Collection = {
+    Float32NativeArray: Float32NativeArray,
+    Int32NativeArray: Int32NativeArray,
+    Int16NativeArray: Int16NativeArray,
+    Int8NativeArray: Int8NativeArray,
+    Uint8NativeArray: Uint8NativeArray,
+    Uint16NativeArray: Uint16NativeArray,
+    Uint32NativeArray: Uint32NativeArray,
+};
 export {
-    Float32NativeArray,
-    Int16NativeArray,
-    Int32NativeArray,
-    Int8NativeArray,
+    DataType,
+    DataTypeArguments,
+    DataTypeConstructor,
+    FLOAT32,
+    INT16,
+    INT32,
+    INT8,
     MemoryServer,
-    NativeArray,
-    Uint16NativeArray,
-    Uint32NativeArray,
-    Uint8NativeArray,
+    MemoryServerInitConfigs,
+    TYPED_ARRAY,
+    TYPED_ARRAY_CONSTRUCTOR,
+    UINT16,
+    UINT32,
+    UINT8,
 };

@@ -1,5 +1,6 @@
 import GraphicsBuffer from '../buffer/GraphicsBuffer';
 import { Matrix4, Vector4 } from 'mathf';
+import { TYPED_ARRAY } from 'memory';
 
 type Color = [number, number, number, number];
 
@@ -16,7 +17,7 @@ enum UniformTypes {
 
 export default class MaterialPropertyBlock {
     private buffers: { [index: string]: GraphicsBuffer } = {};
-    private readonly uniforms: { [key in UniformTypes]: { [index: string]: number | number[] } } = {
+    private readonly uniforms: { [key in UniformTypes]: { [index: string]: number | number[] | TYPED_ARRAY } } = {
         [UniformTypes.INT]: {},
         [UniformTypes.COLOR]: {},
         [UniformTypes.FLOAT]: {},
@@ -28,18 +29,28 @@ export default class MaterialPropertyBlock {
     };
 
     setBuffer(name: string, buffer: GraphicsBuffer) {
-        if (!this.buffers[name]) {
-            this.buffers[name] = buffer;
-
-            return this;
-        }
-
+        this.buffers[name] = buffer;
         return this;
     }
 
-    private setUniform(type: UniformTypes, name: string, v: number | number[]) {
+    getBuffers() {
+        return Object.values(this.buffers);
+    }
+    getBuffersKeys() {
+        return Object.keys(this.buffers);
+    }
+
+    getBufferByKey(key: string) {
+        return this.buffers[key];
+    }
+
+    private setUniform(type: UniformTypes, name: string, v: number | number[] | TYPED_ARRAY) {
         this.uniforms[type][name] = v;
         return this;
+    }
+
+    private getUniform(type: UniformTypes, name: string) {
+        return this.uniforms[type][name];
     }
 
     setInt(name: string, v: number) {
@@ -62,15 +73,11 @@ export default class MaterialPropertyBlock {
         return this.setUniform(UniformTypes.VECTOR, name, v);
     }
 
-    setVectorArray(name: string, v: Vector4[]) {
-        return this.setUniform(UniformTypes.VECTOR_ARRAY, name, v.flat());
-    }
-
     setMatrix(name: string, v: Matrix4) {
         return this.setUniform(UniformTypes.MATRIX, name, v);
     }
 
-    setMatrixArray(name: string, v: Matrix4[]) {
-        return this.setUniform(UniformTypes.MATRIX_ARRAY, name, v.flat());
+    getMatrix(name: string): number[] {
+        return this.getUniform(UniformTypes.MATRIX, name) as number[];
     }
 }

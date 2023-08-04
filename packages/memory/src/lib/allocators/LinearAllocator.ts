@@ -1,5 +1,5 @@
-import { DataTypeArguments, DataTypeConstructor } from '../types/DataType';
-import Allocator, { TYPED_ARRAY } from './Allocator';
+import { DataTypeArguments, DataTypeConstructor, TYPED_ARRAY } from '../types/DataType';
+import Allocator from './Allocator';
 
 enum ALLOCATOR_INFORMATION {
     BYTE_SIZE = 0,
@@ -12,29 +12,25 @@ export default class LinearAllocator extends Allocator {
     public get byteSize() {
         return this.dataView.getUint32(ALLOCATOR_INFORMATION.BYTE_SIZE);
     }
-
-    private set byteSize(v: number) {
-        this.dataView.setUint32(ALLOCATOR_INFORMATION.BYTE_SIZE, v);
-    }
-
     public get usedMemory() {
         return this.dataView.getUint32(ALLOCATOR_INFORMATION.USED_MEMORY);
+    }
+    public get currentPosition() {
+        return this.dataView.getUint32(ALLOCATOR_INFORMATION.CURRENT_POSITION);
+    }
+    public get numAllocations() {
+        return this.dataView.getUint32(ALLOCATOR_INFORMATION.NUM_ALLOCATIONS);
+    }
+    private set byteSize(v: number) {
+        this.dataView.setUint32(ALLOCATOR_INFORMATION.BYTE_SIZE, v);
     }
 
     private set usedMemory(v: number) {
         this.dataView.setUint32(ALLOCATOR_INFORMATION.USED_MEMORY, v);
     }
 
-    public get currentPosition() {
-        return this.dataView.getUint32(ALLOCATOR_INFORMATION.CURRENT_POSITION);
-    }
-
     private set currentPosition(v: number) {
         this.dataView.setUint32(ALLOCATOR_INFORMATION.CURRENT_POSITION, v);
-    }
-
-    public get numAllocations() {
-        return this.dataView.getUint32(ALLOCATOR_INFORMATION.NUM_ALLOCATIONS);
     }
 
     private set numAllocations(v: number) {
@@ -70,15 +66,14 @@ export default class LinearAllocator extends Allocator {
         return aligned_address;
     }
 
-    malloc(size: number, alignment: number): Uint8Array {
+    malloc(size: number, alignment: number): DataView {
         const address = this.getAddress(size, alignment);
         if (!address)
             throw new Error(
                 `Failed to allocate memory for ${size} bytes. ${this.byteSize - this.usedMemory} bytes available `
             );
-        return new Uint8Array(this.arrayBuffer, address, size);
+        return new DataView(this.arrayBuffer, address, size);
     }
-
     calloc<T extends TYPED_ARRAY>(length: number, type: DataTypeConstructor<DataTypeArguments>): T {
         const address = this.getAddress(length * type.byteSize, type.byteSize);
         if (!address)
@@ -87,16 +82,13 @@ export default class LinearAllocator extends Allocator {
                     this.byteSize - this.usedMemory
                 } bytes available `
             );
-
         return new type.dataViewConstructor(this.arrayBuffer, address, length) as T;
     }
-
     clear(): void {
         this.numAllocations = 0;
         this.usedMemory = ALLOCATOR_INFORMATION.HEADER_SIZE;
         this.currentPosition = ALLOCATOR_INFORMATION.HEADER_SIZE;
     }
-
     deallocate(dataView: TYPED_ARRAY): void {
         throw new Error('Please, use Clear() method');
     }

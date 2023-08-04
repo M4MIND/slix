@@ -1,10 +1,18 @@
 export default class CanvasManager {
     public readonly canvas: HTMLCanvasElement;
-    
+
     private viewport: { x: number; y: number } = {
         x: 0,
         y: 0,
     };
+
+    get width() {
+        return this.viewport.x;
+    }
+
+    get height() {
+        return this.viewport.y;
+    }
 
     constructor(canvas: HTMLCanvasElement, width: number, heigth: number) {
         this.canvas = canvas;

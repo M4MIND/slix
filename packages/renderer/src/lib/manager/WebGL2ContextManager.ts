@@ -4,19 +4,26 @@ import {
     GL_SHADER_STATUSES,
     GL_SHADER_TYPES,
     GL_USAGE_BUFFER,
+    MESH_TOPOLOGY,
     RendererServer,
 } from '../../index';
-import { GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_DEPTH_TEST, GL_LEQUAL } from '../webgl.consts';
+import {
+    GL_COLOR_BUFFER_BIT,
+    GL_DATA_UNSIGNED_INT,
+    GL_DEPTH_BUFFER_BIT,
+    GL_DEPTH_TEST,
+    GL_LEQUAL,
+    GL_LINK_STATUS,
+} from '../webgl.consts';
+import { GL_BUFFER_PARAMS, GL_PARAMETERS, GL_VERTEX_ATTRIBUTE_FORMAT } from '../webgl.enums';
 
 export default class WebGL2ContextManager {
     private context: WebGL2RenderingContext;
 
     constructor(width: number, height: number) {
         this.context = RendererServer.canvasManager.canvas.getContext('webgl2') as WebGL2RenderingContext;
+
         this.viewport(width, height);
-        this.clearColor();
-        this.enable();
-        this.depthFunc();
     }
 
     public createProgram(): WebGLProgram {
@@ -57,6 +64,10 @@ export default class WebGL2ContextManager {
 
     public getProgramParameter(program: WebGLProgram, type: GL_PROGRAM_PARAMETERS): number[] {
         return [...new Array(this.context.getProgramParameter(program, type)).keys()];
+    }
+
+    public getProgramParameterLink(program: WebGLProgram) {
+        return this.context.getProgramParameter(program, GL_LINK_STATUS);
     }
 
     public getActiveAttrib(program: WebGLProgram, index: number): WebGLActiveInfo | null {
@@ -131,20 +142,24 @@ export default class WebGL2ContextManager {
         this.context.bindBuffer(type, buffer);
     }
 
-    public clearColor() {
-        this.context.clearColor(1.0, 0.0, 0.0, 1);
+    public unbindBuffer(type: number) {
+        this.context.bindBuffer(type, null);
     }
 
-    public enable() {
-        this.context.enable(GL_DEPTH_TEST);
+    public clearColor(r: number, g: number, b: number, a: number) {
+        this.context.clearColor(r, g, b, a);
     }
 
-    public depthFunc() {
-        this.context.depthFunc(GL_LEQUAL);
+    public enable(param: number) {
+        this.context.enable(param);
     }
 
-    public clear() {
-        this.context.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    public depthFunc(param: number = GL_LEQUAL) {
+        this.context.depthFunc(param);
+    }
+
+    public clear(param: number = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) {
+        this.context.clear(param);
     }
 
     public viewport(x: number, y: number) {
@@ -169,5 +184,63 @@ export default class WebGL2ContextManager {
         this.context.deleteVertexArray(a);
 
         return this;
+    }
+
+    public getBufferParameter(target: GL_BUFFER_TARGET, param: GL_BUFFER_PARAMS | GL_BUFFER_TARGET) {
+        return this.context.getBufferParameter(target, param);
+    }
+
+    public getBufferSubData(
+        target: GL_BUFFER_TARGET,
+        srcByteOffset = 0,
+        dstData: ArrayBufferView,
+        dstOffset = 0,
+        length = 0
+    ) {
+        this.context.getBufferSubData(target, srcByteOffset, dstData, dstOffset, length);
+    }
+
+    public getParameter(param: GL_PARAMETERS) {
+        return this.context.getParameter(param);
+    }
+
+    public drawElements(mode: MESH_TOPOLOGY, count: number, type: number, offset: number) {
+        this.context.drawElements(mode, count, type, offset);
+    }
+
+    public getUniformLocation(program: WebGLProgram, name: string) {
+        return this.context.getUniformLocation(program, name);
+    }
+
+    public vertexAttributePointer(
+        index: number,
+        size: number,
+        type: GL_VERTEX_ATTRIBUTE_FORMAT,
+        normalize = false,
+        stride = 0,
+        offset = 0
+    ) {
+        this.context.vertexAttribPointer(index, size, type, normalize, stride, offset);
+    }
+
+    public enableVertexAttribArray(index: number) {
+        this.context.enableVertexAttribArray(index);
+    }
+
+    public uniformMatrix(location: WebGLUniformLocation, data: number[], transpose = false) {
+        if (data.length === 4) {
+            this.context.uniformMatrix2fv(location, transpose, data);
+            return;
+        }
+
+        if (data.length === 9) {
+            this.context.uniformMatrix3fv(location, transpose, data);
+
+            return;
+        }
+
+        if (data.length === 16) {
+            this.context.uniformMatrix4fv(location, transpose, data);
+        }
     }
 }

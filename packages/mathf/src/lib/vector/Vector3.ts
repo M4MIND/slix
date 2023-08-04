@@ -51,6 +51,17 @@ export default class Vector3 extends Vector {
     isNotEqual(v: Vector3) {
         return Vector3.isNotEqual(this, v);
     }
+
+    public static cross(a: Vector3, b: Vector3) {
+        const vx = a.x,
+            vy = a.y,
+            vz = a.z,
+            x = b.x,
+            y = b.y,
+            z = b.z;
+
+        return new Vector3(y * vz - z * vy, z * vx - x * vz, x * vy - y * vx);
+    }
     static add(a: Vector3, ...args: Vector3[]) {
         a = Vector3.copy(a);
 

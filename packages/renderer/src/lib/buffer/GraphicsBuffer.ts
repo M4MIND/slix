@@ -1,25 +1,54 @@
-import RendererServer from '../RendererServer';
-import BufferManager from '../manager/BufferManager';
-import { GL_BUFFER_TARGET, GL_USAGE_BUFFER } from '../webgl.enums';
+import { RendererServer } from '../RendererServer';
+import { GL_BUFFER_PARAMS, GL_BUFFER_TARGET, GL_USAGE_BUFFER, GL_VERTEX_ATTRIBUTE_FORMAT } from '../webgl.enums';
+import { TYPED_ARRAY } from 'memory';
+
+export enum GraphicsBufferUsageFlag {
+    None = 0,
+    LockBuffer = 1,
+}
 
 export default class GraphicsBuffer {
-    private readonly bufferHandler: WebGLBuffer;
-    private readonly bufferManager: BufferManager;
-
+    get count(): number {
+        return this._count;
+    }
+    public readonly bufferHandle: WebGLBuffer;
     constructor(
-        public readonly target: GL_BUFFER_TARGET,
-        public readonly usage: GL_USAGE_BUFFER = GL_USAGE_BUFFER.STATIC_DRAW
+        public readonly target: GL_BUFFER_TARGET = GL_BUFFER_TARGET.ARRAY_BUFFER,
+        public readonly type: GL_VERTEX_ATTRIBUTE_FORMAT = GL_VERTEX_ATTRIBUTE_FORMAT.Float32,
+        public readonly usageFlag: GraphicsBufferUsageFlag = GraphicsBufferUsageFlag.None,
+        public readonly usage: GL_USAGE_BUFFER = GL_USAGE_BUFFER.STATIC_DRAW,
+        public readonly elementSize: number = 3
     ) {
-        this.bufferManager = RendererServer.bufferManager;
-        this.bufferHandler = this.bufferManager.createWebGLBuffer();
+        this.bufferHandle = RendererServer.contextManager.createWebGLBuffer();
+    }
+    private _count = 0;
+
+    bind() {
+        RendererServer.contextManager.bindBuffer(this.target, this.bufferHandle);
     }
 
-    private bind() {
-        this.bufferManager.bindBuffer(this.target, this.bufferHandler);
+    private unbind() {
+        RendererServer.contextManager.unbindBuffer(this.target);
     }
 
-    setData(data: ArrayBufferView, srcOffset = 0, length = 0) {
+    setData(array: TYPED_ARRAY) {
         this.bind();
-        this.bufferManager.setData(this.target, data, this.usage, srcOffset, length);
+        this._count = array.length;
+        RendererServer.contextManager.bufferData(this.target, array, this.usage);
+    }
+
+    getBufferSize(): number {
+        this.bind();
+        return RendererServer.contextManager.getBufferParameter(this.target, GL_BUFFER_PARAMS.BUFFER_SIZE);
+    }
+
+    getData(array: TYPED_ARRAY) {
+        this.bind();
+        RendererServer.contextManager.getBufferSubData(this.target, 0, array);
+        return array;
+    }
+
+    release() {
+        RendererServer.contextManager.deleteWebGLBuffer(this.bufferHandle);
     }
 }

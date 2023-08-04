@@ -1,6 +1,8 @@
-export default class Vector extends Array<number> {
+import { Collection } from 'memory';
+
+export default class Vector extends Collection.Float32NativeArray {
     protected constructor(...args: number[]) {
-        super(...args);
+        super(args);
     }
 
     add(v: Vector): this {

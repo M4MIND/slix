@@ -1,0 +1,5 @@
+{
+  "name": "default",
+  "vertex": "#version 300 es\n\n// an attribute is an input (in) to a vertex shader.\n// It will receive data from a buffer\nin vec3 _POSITION;\nin vec4 _COLORS;\n\nuniform mat4 _PROJECTION;\nuniform mat4 _MODEL_MATRIX;\n\nout vec4 v_color;\n\n// all shaders have a main function\nvoid main() {\n  // Multiply the position by the matrix.\n  gl_Position = _PROJECTION * _MODEL_MATRIX * vec4(_POSITION, 1);\n  v_color = _COLORS;\n}",
+  "fragment": "#version 300 es\n\nprecision highp float;\n\nin vec4 v_color;\n\nout vec4 outColor;\n\nvoid main() {\n  outColor = v_color;\n}"
+}

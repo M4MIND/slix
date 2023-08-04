@@ -1,5 +1,5 @@
-import { DataTypeArguments, DataTypeConstructor } from '../types/DataType';
-import Allocator, { TYPED_ARRAY } from './Allocator';
+import { DataTypeArguments, DataTypeConstructor, TYPED_ARRAY } from '../types/DataType';
+import Allocator from './Allocator';
 
 enum MARKER {
     ADJUSTMENT = 4,
@@ -80,11 +80,11 @@ export default class StackAllocator extends Allocator {
         return aligned_address;
     }
 
-    malloc(size: number, alignment: number): Uint8Array {
+    malloc(size: number, alignment: number): DataView {
         const address = this.getAddress(size, alignment);
         if (!address) throw new Error();
 
-        return new Uint8Array(this.arrayBuffer, address, size);
+        return new DataView(this.arrayBuffer, address, size);
     }
     deallocate(dataView: TYPED_ARRAY) {
         const headerAddress = dataView.byteOffset - MARKER.HEADER_SIZE;

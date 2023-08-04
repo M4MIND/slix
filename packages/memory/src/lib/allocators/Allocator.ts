@@ -1,15 +1,4 @@
-import { DataTypeArguments, DataTypeConstructor } from '../types/DataType';
-
-export type TYPED_ARRAY = Uint8Array | Uint16Array | Uint32Array | Int8Array | Int16Array | Int32Array | Float32Array;
-
-export type TYPED_ARRAY_CONSTRUCTOR =
-    | Uint8ArrayConstructor
-    | Uint16ArrayConstructor
-    | Uint32ArrayConstructor
-    | Int8ArrayConstructor
-    | Int16ArrayConstructor
-    | Int32ArrayConstructor
-    | Float32ArrayConstructor;
+import { DataTypeArguments, DataTypeConstructor, TYPED_ARRAY } from '../types/DataType';
 
 export default abstract class Allocator {
     abstract get byteSize(): number;
@@ -44,7 +33,7 @@ export default abstract class Allocator {
         if (size <= 0) throw new Error(`Can't free ${size}`);
     }
 
-    abstract malloc(size: number, alignment: number): Uint8Array;
+    abstract malloc(size: number, alignment: number): DataView;
 
     abstract calloc<T extends TYPED_ARRAY>(length: number, size: DataTypeConstructor<DataTypeArguments>): T;
     abstract deallocate(dataView: TYPED_ARRAY): void;

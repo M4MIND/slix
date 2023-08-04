@@ -1,5 +1,5 @@
-import { DataTypeArguments, DataTypeConstructor } from '../types/DataType';
-import Allocator, { TYPED_ARRAY } from './Allocator';
+import { DataTypeArguments, DataTypeConstructor, TYPED_ARRAY } from '../types/DataType';
+import Allocator from './Allocator';
 
 enum FREE_BLOCK {
     BYTE_SIZE_OFFSET = 0,
@@ -57,8 +57,8 @@ export default class FreeListAllocator extends Allocator {
 
     deallocate(dataView: TYPED_ARRAY): void {}
 
-    malloc(size: number, alignment: number): Uint8Array {
-        return new Uint8Array();
+    malloc(size: number, alignment: number): DataView {
+        return new DataView(this.arrayBuffer);
     }
 
     calloc<T extends TYPED_ARRAY>(length: number, size: DataTypeConstructor<DataTypeArguments>): T {
