@@ -1,4 +1,4 @@
-import { Shader } from '../../index';
+import { BaseShader } from '../../index';
 import { RendererServer } from '../RendererServer';
 import { GL_SHADER_TYPES } from '../webgl.enums';
 import WebGL2ContextManager from './WebGL2ContextManager';
@@ -12,7 +12,7 @@ export type ShaderSource = {
 export default class ShaderManager {
     private readonly gpuProgramManager = RendererServer.gpuProgramManager;
     private readonly context: WebGL2ContextManager = RendererServer.contextManager;
-    private readonly shaderCollection: { [key: string]: Shader } = {};
+    private readonly shaderCollection: { [key: string]: BaseShader } = {};
 
     constructor(shaders: ShaderSource[]) {
         for (const shader of shaders) {
@@ -24,7 +24,7 @@ export default class ShaderManager {
         return this.shaderCollection[name] ? this.shaderCollection[name] : null;
     }
 
-    private compile(name: string, vertex: string, fragment: string): Shader {
+    private compile(name: string, vertex: string, fragment: string): BaseShader {
         const [vertexShader, fragmentShader] = [
             this.context.createShader(GL_SHADER_TYPES.VERTEX),
             this.context.createShader(GL_SHADER_TYPES.FRAGMENT),
@@ -48,6 +48,6 @@ export default class ShaderManager {
 
         const gpuProgram = this.gpuProgramManager.createProgram(vertexShader, fragmentShader);
 
-        return new Shader(name, gpuProgram);
+        return new BaseShader(name, gpuProgram);
     }
 }

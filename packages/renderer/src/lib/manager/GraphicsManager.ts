@@ -10,7 +10,7 @@ export default class GraphicsManager {
     constructor() {
         //
     }
-    public drawElementsInstanced(
+    drawElementsInstanced(
         rendererParams: RendererParams,
         topology: MESH_TOPOLOGY,
         indexBuffer: GraphicsBuffer,
@@ -19,7 +19,7 @@ export default class GraphicsManager {
         instanceCount: number
     ) {}
 
-    public drawElements(
+    drawElements(
         rendererParams: RendererParams,
         topology: MESH_TOPOLOGY,
         indexBuffer: GraphicsBuffer,

@@ -118,7 +118,7 @@ export default class Vector3 extends Vector {
         const lengthSqr = Vector3.lenSquared(v);
 
         if (lengthSqr === 0) {
-            return Vector3.zero();
+            return Vector3.zero;
         }
 
         const length = Math.sqrt(lengthSqr);
@@ -132,10 +132,6 @@ export default class Vector3 extends Vector {
 
     static isNotEqual(a: Vector3, b: Vector3): boolean {
         return a.x !== b.x || a.y !== b.y || a.z !== b.z;
-    }
-
-    static zero(): Vector3 {
-        return new Vector3(0, 0, 0);
     }
 
     static inverse(v: Vector3): Vector3 {
@@ -194,7 +190,35 @@ export default class Vector3 extends Vector {
         return new Vector3(v.x, v.y, v.z);
     }
 
-    static default() {
+    static get default() {
+        return new Vector3(0, 0, 0);
+    }
+
+    static get up() {
+        return new Vector3(0, 1, 0);
+    }
+
+    static get rigth() {
+        return new Vector3(1, 0, 0);
+    }
+
+    static get forward() {
+        return new Vector3(0, 0, 1);
+    }
+
+    static get back() {
+        return new Vector3(0, 0, -1);
+    }
+
+    static get down() {
+        return new Vector3(0, -1, 0);
+    }
+
+    static get one() {
+        return new Vector3(1, 1, 1);
+    }
+
+    static get zero(): Vector3 {
         return new Vector3(0, 0, 0);
     }
 }

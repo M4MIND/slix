@@ -16,15 +16,6 @@ import type {
     TYPED_ARRAY_CONSTRUCTOR,
 } from './lib/types/DataType';
 
-export const Collection = {
-    Float32NativeArray: Float32NativeArray,
-    Int32NativeArray: Int32NativeArray,
-    Int16NativeArray: Int16NativeArray,
-    Int8NativeArray: Int8NativeArray,
-    Uint8NativeArray: Uint8NativeArray,
-    Uint16NativeArray: Uint16NativeArray,
-    Uint32NativeArray: Uint32NativeArray,
-};
 export {
     DataType,
     DataTypeArguments,
@@ -41,4 +32,11 @@ export {
     UINT16,
     UINT32,
     UINT8,
+    Float32NativeArray,
+    Int32NativeArray,
+    Int16NativeArray,
+    Int8NativeArray,
+    Uint8NativeArray,
+    Uint16NativeArray,
+    Uint32NativeArray,
 };

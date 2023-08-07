@@ -1,5 +1,6 @@
 import Vector3 from '../vector/Vector3';
-import { Collection } from 'memory';
+import { Quaternion } from 'mathf';
+import { Float32NativeArray } from 'memory';
 
 type components = [
     number,
@@ -20,8 +21,8 @@ type components = [
     number
 ];
 
-export default class Matrix4 extends Collection.Float32NativeArray {
-    private cache;
+export default class Matrix4 extends Float32NativeArray {
+    private cache = new Float32NativeArray(18);
     /*
     |get00(0),  get01(1),  get02(2),  get03(3)|
     |get10(4),  get11(5),  get12(6),  get13(7)|
@@ -48,154 +49,153 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         m33 = 1
     ) {
         super([m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33]);
-        this.cache = new Collection.Float32NativeArray(18);
     }
 
-    public get00(): number {
+    get00(): number {
         return this[0];
     }
 
-    public set00(v: number): this {
+    set00(v: number): this {
         this[0] = v;
         return this;
     }
 
-    public get01(): number {
+    get01(): number {
         return this[1];
     }
 
-    public set01(v: number): this {
+    set01(v: number): this {
         this[1] = v;
         return this;
     }
 
-    public get02(): number {
+    get02(): number {
         return this[2];
     }
 
-    public set02(v: number): this {
+    set02(v: number): this {
         this[2] = v;
         return this;
     }
 
-    public get03(): number {
+    get03(): number {
         return this[3];
     }
 
-    public set03(v: number): this {
+    set03(v: number): this {
         this[3] = v;
         return this;
     }
 
-    public get10(): number {
+    get10(): number {
         return this[4];
     }
 
-    public set10(v: number): this {
+    set10(v: number): this {
         this[4] = v;
         return this;
     }
 
-    public get11(): number {
+    get11(): number {
         return this[5];
     }
 
-    public set11(v: number): this {
+    set11(v: number): this {
         this[5] = v;
         return this;
     }
 
-    public get12(): number {
+    get12(): number {
         return this[6];
     }
 
-    public set12(v: number): this {
+    set12(v: number): this {
         this[6] = v;
         return this;
     }
 
-    public get13(): number {
+    get13(): number {
         return this[7];
     }
 
-    public set13(v: number): this {
+    set13(v: number): this {
         this[7] = v;
         return this;
     }
 
-    public get20(): number {
+    get20(): number {
         return this[8];
     }
 
-    public set20(v: number): this {
+    set20(v: number): this {
         this[8] = v;
         return this;
     }
 
-    public get21(): number {
+    get21(): number {
         return this[9];
     }
 
-    public set21(v: number): this {
+    set21(v: number): this {
         this[9] = v;
         return this;
     }
 
-    public get22(): number {
+    get22(): number {
         return this[10];
     }
 
-    public set22(v: number): this {
+    set22(v: number): this {
         this[10] = v;
         return this;
     }
 
-    public get23(): number {
+    get23(): number {
         return this[11];
     }
 
-    public set23(v: number): this {
+    set23(v: number): this {
         this[11] = v;
         return this;
     }
 
-    public get30(): number {
+    get30(): number {
         return this[12];
     }
 
-    public set30(v: number): this {
+    set30(v: number): this {
         this[12] = v;
         return this;
     }
 
-    public get31(): number {
+    get31(): number {
         return this[13];
     }
 
-    public set31(v: number): this {
+    set31(v: number): this {
         this[13] = v;
         return this;
     }
 
-    public get32(): number {
+    get32(): number {
         return this[14];
     }
 
-    public set32(v: number): this {
+    set32(v: number): this {
         this[14] = v;
         return this;
     }
 
-    public get33(): number {
+    get33(): number {
         return this[15];
     }
 
-    public set33(v: number): this {
+    set33(v: number): this {
         this[15] = v;
         return this;
     }
 
-    public translate(v: Vector3 | [number, number, number]): Matrix4 {
+    translate(v: Vector3 | [number, number, number]): Matrix4 {
         this[12] = this[0] * v[0] + this[4] * v[1] + this[8] * v[2] + this[12];
         this[13] = this[1] * v[0] + this[5] * v[1] + this[9] * v[2] + this[13];
         this[14] = this[2] * v[0] + this[6] * v[1] + this[10] * v[2] + this[14];
@@ -204,7 +204,7 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         return this;
     }
 
-    public scale(v: Vector3 | [number, number, number] = [1, 1, 1]): Matrix4 {
+    scale(v: Vector3 | [number, number, number] = [1, 1, 1]): Matrix4 {
         this[0] *= v[0];
         this[1] *= v[0];
         this[2] *= v[0];
@@ -221,9 +221,9 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         return this;
     }
 
-    public rotate(rad: number, axis: Vector3 | [number, number, number]) {}
+    rotate(rad: number, axis: Vector3 | [number, number, number]) {}
 
-    public rotateX(r: number): Matrix4 {
+    rotateX(r: number): Matrix4 {
         this.cache.set(this);
 
         this.cache[16] = Math.sin(r);
@@ -241,7 +241,7 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         return this;
     }
 
-    public rotateY(r: number): Matrix4 {
+    rotateY(r: number): Matrix4 {
         this.cache.set(this);
 
         this.cache[16] = Math.sin(r);
@@ -259,7 +259,7 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         return this;
     }
 
-    public rotateZ(r: number): Matrix4 {
+    rotateZ(r: number): Matrix4 {
         this.cache.set(this);
 
         this.cache[16] = Math.sin(r);
@@ -277,7 +277,45 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         return this;
     }
 
-    public multiply(b: Matrix4): this {
+    static fromQuaternion(matrix: Matrix4, q: Quaternion) {
+        let x2 = q.x + q.x;
+        let y2 = q.y + q.y;
+        let z2 = q.z + q.z;
+
+        let xx = q.x * x2;
+        let yx = q.y * x2;
+        let yy = q.y * y2;
+        let zx = q.z * x2;
+        let zy = q.z * y2;
+        let zz = q.z * z2;
+        let wx = q.w * x2;
+        let wy = q.w * y2;
+        let wz = q.w * z2;
+
+        matrix[0] = 1 - yy - zz;
+        matrix[1] = yx + wz;
+        matrix[2] = zx - wy;
+        matrix[3] = 0;
+
+        matrix[4] = yx - wz;
+        matrix[5] = 1 - xx - zz;
+        matrix[6] = zy + wx;
+        matrix[7] = 0;
+
+        matrix[8] = zx + wy;
+        matrix[9] = zy - wx;
+        matrix[10] = 1 - xx - yy;
+        matrix[11] = 0;
+
+        matrix[12] = 0;
+        matrix[13] = 0;
+        matrix[14] = 0;
+        matrix[15] = 1;
+    }
+
+    fromRotationTranslation(quaternion: Quaternion, vector: Vector3) {}
+
+    multiply(b: Matrix4): this {
         const t00 = this[0];
         const t01 = this[1];
         const t02 = this[2];
@@ -328,7 +366,7 @@ export default class Matrix4 extends Collection.Float32NativeArray {
             .set32(b30 * t02 + b31 * t12 + b32 * t22 + b33 * t32);
     }
 
-    public inverse(): this {
+    inverse(): this {
         const m00 = this[0];
         const m01 = this[1];
         const m02 = this[2];
@@ -396,7 +434,7 @@ export default class Matrix4 extends Collection.Float32NativeArray {
             .set33(d * (tmp_22 * m22 + tmp_16 * m02 + tmp_21 * m12 - (tmp_20 * m12 + tmp_23 * m22 + tmp_17 * m02)));
     }
 
-    public multiplyFromArray(...args: Matrix4[]) {
+    multiplyFromArray(...args: Matrix4[]) {
         const l = args.length - 1;
 
         for (let i = 0; i < l; i++) {
@@ -406,7 +444,7 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         return this;
     }
 
-    public clear() {
+    clear() {
         this[0] = 1;
         this[1] = 0;
         this[2] = 0;
@@ -425,36 +463,36 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         this[15] = 1;
     }
 
-    public static translate(v: Vector3 = Vector3.zero()): Matrix4 {
+    static translate(v: Vector3 = Vector3.zero): Matrix4 {
         return new this(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, v.x, v.y, v.z);
     }
 
-    public static scale(v: Vector3 = new Vector3(1, 1, 1)): Matrix4 {
+    static scale(v: Vector3 = new Vector3(1, 1, 1)): Matrix4 {
         return new this(v.x, 0, 0, 0, 0, v.y, 0, 0, 0, 0, v.z);
     }
 
-    public static xRotation(r: number): Matrix4 {
+    static xRotation(r: number): Matrix4 {
         const s = Math.sin(r);
         const c = Math.cos(r);
 
         return new this(1, 0, 0, 0, 0, c, s, 0, 0, -s, c);
     }
 
-    public static yRotation(r: number): Matrix4 {
+    static yRotation(r: number): Matrix4 {
         const s = Math.sin(r);
         const c = Math.cos(r);
 
         return new this(c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1);
     }
 
-    public static zRotation(r: number): Matrix4 {
+    static zRotation(r: number): Matrix4 {
         const s = Math.sin(r);
         const c = Math.cos(r);
 
         return new this(c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     }
 
-    public static projection(fieldOfViewInRadians = 0, aspect = 0, near = 0.1, far = 1000): Matrix4 {
+    static projection(fieldOfViewInRadians = 0, aspect = 0, near = 0.1, far = 1000): Matrix4 {
         const f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewInRadians);
         const rangeInv = 1.0 / (near - far);
 
@@ -478,7 +516,7 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         );
     }
 
-    public static inverse(m: Matrix4) {
+    static inverse(m: Matrix4) {
         const m00 = m[0];
         const m01 = m[1];
         const m02 = m[2];
@@ -548,7 +586,7 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         );
     }
 
-    public static transpose(m: Matrix4) {
+    static transpose(m: Matrix4) {
         return new Matrix4(
             m[0],
             m[4],
@@ -569,7 +607,7 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         );
     }
 
-    public static multiply(a: Matrix4, b: Matrix4): Matrix4 {
+    static multiply(a: Matrix4, b: Matrix4): Matrix4 {
         const t00 = a[0];
         const t01 = a[1];
         const t02 = a[2];
@@ -626,7 +664,7 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         );
     }
 
-    public static multiplyFromArray(...args: Matrix4[]): Matrix4 {
+    static multiplyFromArray(...args: Matrix4[]): Matrix4 {
         const m = args[0];
 
         const l = args.length - 1;
@@ -638,7 +676,7 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         return m;
     }
 
-    public static multipleVectorOnMatrix(v: Vector3, m: Matrix4): Vector3 {
+    static multipleVectorOnMatrix(v: Vector3, m: Matrix4): Vector3 {
         return new Vector3(
             m[0] * v.x + m[1] * v.y + m[2] + v.z,
             m[4] * v.x + m[5] * v.y + m[10] + v.z,
@@ -646,7 +684,7 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         );
     }
 
-    public static lookAt(position: Vector3, target: Vector3, up: Vector3) {
+    static lookAt(position: Vector3, target: Vector3, up: Vector3) {
         const z = Vector3.normalize(Vector3.sub(position, target));
         const x = Vector3.normalize(Vector3.cross(up, z));
         const y = Vector3.normalize(Vector3.cross(z, x));
@@ -654,7 +692,7 @@ export default class Matrix4 extends Collection.Float32NativeArray {
         return new Matrix4(x.x, x.y, x.z, 0, y.x, y.y, y.z, 0, z.x, z.y, z.z, 0, position.x, position.y, position.x, 1);
     }
 
-    public static clone(m: Matrix4) {
+    static clone(m: Matrix4) {
         return new Matrix4(
             m[0],
             m[1],

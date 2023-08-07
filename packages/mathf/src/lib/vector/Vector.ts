@@ -1,6 +1,6 @@
-import { Collection } from 'memory';
+import { Float32NativeArray } from 'memory';
 
-export default class Vector extends Collection.Float32NativeArray {
+export default class Vector extends Float32NativeArray {
     protected constructor(...args: number[]) {
         super(args);
     }
