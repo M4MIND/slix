@@ -1,5 +1,5 @@
 import { Vector2, Vector3 } from 'mathf';
-import { Uint8NativeArray, Uint16NativeArray, Uint32NativeArray } from 'memory';
+import { Uint16NativeArray } from 'memory';
 import { BaseMesh, GraphicsBuffer } from 'renderer';
 
 enum AttributeGraphicsBufferIndexes {
