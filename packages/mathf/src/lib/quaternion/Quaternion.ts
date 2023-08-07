@@ -1,4 +1,4 @@
-import { Matrix4, Vector3 } from 'mathf';
+import { Matrix4, Vector3 } from '../../index';
 import { Float32NativeArray } from 'memory';
 
 export default class Quaternion extends Float32NativeArray {
@@ -23,7 +23,7 @@ export default class Quaternion extends Float32NativeArray {
         return this[3];
     }
 
-    public rotateX(rad: number) {
+    rotateX(rad: number) {
         rad *= 0.5;
 
         this.cache.set(this);
@@ -39,7 +39,7 @@ export default class Quaternion extends Float32NativeArray {
         return this;
     }
 
-    public rotateY(rad: number) {
+    rotateY(rad: number) {
         rad *= 0.5;
 
         this.cache.set(this);
@@ -55,7 +55,7 @@ export default class Quaternion extends Float32NativeArray {
         return this;
     }
 
-    public rotateZ(rad: number) {
+    rotateZ(rad: number) {
         rad *= 0.5;
 
         this.cache.set(this);

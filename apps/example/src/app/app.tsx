@@ -1,4 +1,4 @@
-import { GameObject, Material, MeshFilter, MeshRenderer, Monkey, SlixEngine } from 'core';
+import { GameObject, Material, MeshFilterComponent, MeshRendererComponent, Monkey, SlixEngine } from 'core';
 import { Vector3 } from 'mathf';
 import { LinearAllocator, MemoryServer } from 'memory';
 import React, { useEffect, useRef, useState } from 'react';
@@ -64,9 +64,9 @@ void main() {
 
         setMemoryServer(MemoryServer.linearAllocator);
 
-        const gameObject = new GameObject();
-        const meshFilter = gameObject.addComponent<MeshFilter>(MeshFilter);
-        const meshRenderer = gameObject.addComponent<MeshRenderer>(MeshRenderer);
+        const gameObject = new GameObject('GameObject', MeshFilterComponent, MeshRendererComponent);
+        const meshFilter = gameObject.getComponent<MeshFilterComponent>(MeshFilterComponent);
+        const meshRenderer = gameObject.getComponent<MeshRendererComponent>(MeshRendererComponent);
 
         meshRenderer.material = new Material(BaseShader.find('default'));
         meshFilter.mesh = new Monkey();
