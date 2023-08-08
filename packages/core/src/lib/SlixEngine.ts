@@ -14,4 +14,6 @@ export default class SlixEngine {
 
         this.init = true;
     }
+
+    static start() {}
 }

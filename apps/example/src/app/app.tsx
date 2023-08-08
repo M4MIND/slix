@@ -75,6 +75,8 @@ void main() {
 
         gameObject.transform.rotation.toMatrix();
 
+        meshFilter.mesh.uploadMeshData();
+
         meshRenderer.onRender();
     }, []);
 

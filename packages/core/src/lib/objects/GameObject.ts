@@ -1,9 +1,10 @@
-import { Transform } from '../../index';
+import { TransformComponent } from '../../index';
 import BaseComponent, { BaseComponentInterface } from '../components/BaseComponent';
+import BaseObject from './BaseObject';
 
-export default class GameObject {
+export default class GameObject extends BaseObject {
     public name = 'GameObject';
-    public readonly transform: Transform;
+    public readonly transform: TransformComponent;
     private readonly components: { [index: string]: BaseComponent } = {};
     private parent: GameObject | null = null;
     private children: GameObject | null = null;
@@ -11,7 +12,9 @@ export default class GameObject {
     constructor(name?: string);
     constructor(name: string, ...args: BaseComponentInterface[]);
     constructor(name: string, ...args: BaseComponentInterface[]) {
-        this.transform = this.addComponent<Transform>(Transform);
+        super();
+
+        this.transform = this.addComponent<TransformComponent>(TransformComponent);
         if (name) this.name = name;
         if (args) this.addComponents(...args);
     }

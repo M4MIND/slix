@@ -8,7 +8,10 @@ import BaseMaterial from './lib/material/BaseMaterial';
 import BaseShader from './lib/material/BaseShader';
 import { MESH_TOPOLOGY } from './lib/mesh.enums';
 import BaseMesh from './lib/mesh/BaseMesh';
-import VertexAttributeDescriptor, { VertexAttributeFormat } from './lib/mesh/VertexAttributeDescriptor';
+import VertexAttributeDescriptor, {
+    VertexAttribute,
+    VertexAttributeFormat,
+} from './lib/mesh/VertexAttributeDescriptor';
 import { Cube } from './lib/primitives/Cube';
 import MaterialPropertyBlock from './lib/renderer/MaterialPropertyBlock';
 import RendererParams from './lib/renderer/RendererParams';
@@ -25,24 +28,25 @@ import {
 export {
     AttributeGraphicsBuffer,
     Cube,
+    BaseMaterial,
     GL_BUFFER_TARGET,
+    BaseMesh,
     GL_MATH_TYPES,
     GL_PROGRAM_PARAMETERS,
     GL_SHADER_STATUSES,
     GL_SHADER_TYPES,
+    BaseShader,
     GL_USAGE_BUFFER,
     GL_VERTEX_ATTRIBUTE_FORMAT,
     GraphicsBuffer,
     GraphicsBufferUsageFlag,
     IndicesGraphicsBuffer,
-    BaseMaterial,
     MaterialPropertyBlock,
-    BaseMesh,
     MESH_TOPOLOGY,
     RendererParams,
     RendererServer,
     RendererServerInitConfigs,
-    BaseShader,
+    VertexAttribute,
     VertexAttributeDescriptor,
     VertexAttributeFormat,
 };
