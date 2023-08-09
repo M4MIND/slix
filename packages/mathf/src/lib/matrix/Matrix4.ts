@@ -30,6 +30,10 @@ export default class Matrix4 extends Float32NativeArray {
     |get30(12), get31(13), get32(14), get33(15)|
      */
 
+    set _translate(v: Vector3) {
+        this.translate(v);
+    }
+
     constructor(
         m00 = 1,
         m01 = 0,

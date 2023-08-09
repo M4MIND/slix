@@ -1,15 +1,10 @@
 import { Vector2, Vector3 } from 'mathf';
-import { Float32NativeArray, Uint16NativeArray } from 'memory';
-import { BaseMesh, VertexAttribute, VertexAttributeDescriptor, VertexAttributeFormat } from 'renderer';
-
-enum AttributeGraphicsBufferIndexes {
-    '_A_POSITION',
-    '_A_NORMALS',
-}
+import { Float32NativeArray, NativeArrayHelper, Uint16NativeArray } from 'memory';
+import { BaseMesh, GL_VERTEX_ATTRIBUTE_FORMAT, VertexAttribute, VertexAttributeDescriptor } from 'renderer';
 
 export default class Mesh extends BaseMesh {
     get vertices(): Vector3[] {
-        return this._vertices.slice();
+        return this._vertices;
     }
 
     set vertices(value: Vector3[]) {
@@ -43,9 +38,8 @@ export default class Mesh extends BaseMesh {
     constructor() {
         super();
         this.setVertexBufferParams(
-            new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
-            new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 3),
-            new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.Float32, 4)
+            new VertexAttributeDescriptor(VertexAttribute.Position, GL_VERTEX_ATTRIBUTE_FORMAT.Float32, 3),
+            new VertexAttributeDescriptor(VertexAttribute.Normal, GL_VERTEX_ATTRIBUTE_FORMAT.Float32, 3)
         );
     }
     private _vertices: Vector3[] = [];
@@ -56,14 +50,16 @@ export default class Mesh extends BaseMesh {
     setColors() {}
 
     uploadMeshData() {
-        const array = new Float32NativeArray(this.vertexCountElements * this.vertices.length);
+        const array = new Float32NativeArray(this.attributeOneSize * this.vertices.length);
 
-        for (const v of Object.values(this.vertexAttributeDescriptor)) {
-            const countVertex = this.vertices.length;
+        NativeArrayHelper.merge(array, this.vertices, this.attributeOneSize).merge(
+            array,
+            this.vertices,
+            this.attributeOneSize,
+            3
+        );
 
-            for (let i = 0; i < countVertex; i++) {}
-        }
-
-        console.dir(array);
+        this._vertexBuffer.setData(array);
+        this._indexBuffer.setData(this.triangles);
     }
 }

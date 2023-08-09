@@ -6,6 +6,10 @@ export default class CanvasManager {
         y: 0,
     };
 
+    get aspect() {
+        return this.viewport.x / this.viewport.y;
+    }
+
     get width() {
         return this.viewport.x;
     }

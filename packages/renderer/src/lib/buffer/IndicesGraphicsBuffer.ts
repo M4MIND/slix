@@ -3,7 +3,7 @@ import GraphicsBuffer, { GraphicsBufferUsageFlag } from './GraphicsBuffer';
 
 export default class IndicesGraphicsBuffer extends GraphicsBuffer {
     constructor(
-        type: GL_VERTEX_ATTRIBUTE_FORMAT = GL_VERTEX_ATTRIBUTE_FORMAT.Uint32,
+        type: GL_VERTEX_ATTRIBUTE_FORMAT = GL_VERTEX_ATTRIBUTE_FORMAT.Unit16,
         usageFlag: GraphicsBufferUsageFlag = GraphicsBufferUsageFlag.None,
         usage: GL_USAGE_BUFFER = GL_USAGE_BUFFER.STATIC_DRAW
     ) {

@@ -1,8 +1,15 @@
-import { GameObject, Material, MeshFilterComponent, MeshRendererComponent, Monkey, SlixEngine } from 'core';
+import {
+    GL_COLOR_BUFFER_BIT,
+    GL_CULL_FACE,
+    GL_DEPTH,
+    GL_DEPTH_BUFFER_BIT,
+    GL_DEPTH_TEST,
+} from '../../../../packages/renderer/src/lib/webgl.consts';
+import { GameObject, Material, MeshFilterComponent, MeshRendererComponent, Monkey, SlixEngine, Torus } from 'core';
 import { Vector3 } from 'mathf';
 import { LinearAllocator, MemoryServer } from 'memory';
 import React, { useEffect, useRef, useState } from 'react';
-import { BaseShader } from 'renderer';
+import { BaseShader, RendererServer } from 'renderer';
 
 export function App() {
     const canvas = useRef<HTMLCanvasElement>(null);
@@ -11,6 +18,9 @@ export function App() {
         total: 0,
         used: 0,
     });
+    const [count, setCount] = useState(0);
+
+    const [fps, setFps] = useState(0);
     useEffect(() => {
         SlixEngine.startUp({
             rendererServer: {
@@ -27,9 +37,9 @@ export function App() {
 // an attribute is an input (in) to a vertex shader.
 // It will receive data from a buffer
 in vec3 _A_POSITION;
+in vec3 _A_NORMALS;
 
 uniform mat4 _U_PROJECTION;
-uniform mat4 _U_VIEW;
 uniform mat4 _U_MODEL;
 uniform vec4 _U_COLOR;
 
@@ -38,8 +48,8 @@ out vec4 v_color;
 // all shaders have a main function
 void main() {
   // Multiply the position by the matrix.
-  gl_Position = _U_PROJECTION * _U_VIEW * _U_MODEL * vec4(_A_POSITION, 1) ;
-  v_color = _U_COLOR;
+  gl_Position = _U_PROJECTION * _U_MODEL * vec4(_A_POSITION, 1) ;
+  v_color = _U_COLOR * vec4(_A_NORMALS, 1) + 0.1;
 }`,
                         fragment: `#version 300 es
 
@@ -69,15 +79,30 @@ void main() {
         const meshRenderer = gameObject.getComponent<MeshRendererComponent>(MeshRendererComponent);
 
         meshRenderer.material = new Material(BaseShader.find('default'));
-        meshFilter.mesh = new Monkey();
+        meshFilter.mesh = new Torus();
 
-        gameObject.transform.rotation.fromEuler(new Vector3(0.5, 0.4, 0.2));
-
-        gameObject.transform.rotation.toMatrix();
+        let timeStart = performance.now();
 
         meshFilter.mesh.uploadMeshData();
 
-        meshRenderer.onRender();
+        let count = 1;
+        const step = () => {
+            RendererServer.contextManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            if (meshFilter.mesh && meshRenderer.material) {
+                for (let i = 0; i < count; i++) {
+                    RendererServer.graphicsManager.renderMesh(meshFilter.mesh, meshRenderer.material);
+                }
+            }
+
+            setCount(count);
+
+            setFps(Math.round(1000 / (performance.now() - timeStart)));
+            timeStart = performance.now();
+            window.requestAnimationFrame(step);
+        };
+
+        step();
     }, []);
 
     return (

@@ -8,6 +8,7 @@ import Int32NativeArray from './lib/array/Int32NativeArray';
 import { Uint8NativeArray } from './lib/array/Uint8NativeArray';
 import Uint16NativeArray from './lib/array/Uint16NativeArray';
 import Uint32NativeArray from './lib/array/Uint32NativeArray';
+import NativeArrayHelper from './lib/helper/NativeArrayHelper';
 import { DataType, FLOAT32, INT8, INT16, INT32, UINT8, UINT16, UINT32 } from './lib/types/DataType';
 import type {
     DataTypeArguments,
@@ -39,4 +40,5 @@ export {
     Uint8NativeArray,
     Uint16NativeArray,
     Uint32NativeArray,
+    NativeArrayHelper,
 };

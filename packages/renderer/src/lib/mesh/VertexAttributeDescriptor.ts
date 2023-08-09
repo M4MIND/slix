@@ -7,22 +7,23 @@ import {
     GL_DATA_UNSIGNED_INT,
     GL_DATA_UNSIGNED_SHORT,
 } from '../webgl.consts';
+import { GL_VERTEX_ATTRIBUTE_FORMAT } from 'renderer';
 
 export enum VertexAttribute {
-    Position,
-    Normal,
-    Tangent,
-    Color,
-    TexCoord0,
-    TexCoord1,
-    TexCoord2,
-    TexCoord3,
-    TexCoord4,
-    TexCoord5,
-    TexCoord6,
-    TexCoord7,
-    BlendWeight,
-    BlendIndices,
+    Position = '_A_POSITION',
+    Normal = '_A_NORMALS',
+    Tangent = '',
+    Color = '',
+    TexCoord0 = '',
+    TexCoord1 = '',
+    TexCoord2 = '',
+    TexCoord3 = '',
+    TexCoord4 = '',
+    TexCoord5 = '',
+    TexCoord6 = '',
+    TexCoord7 = '',
+    BlendWeight = '',
+    BlendIndices = '',
 }
 
 export enum VertexAttributeFormat {
@@ -37,8 +38,8 @@ export enum VertexAttributeFormat {
 
 export default class VertexAttributeDescriptor {
     constructor(
-        public readonly attribute: VertexAttribute,
-        public readonly byteSize: VertexAttributeFormat,
+        public readonly attribute: string,
+        public readonly byteSize: GL_VERTEX_ATTRIBUTE_FORMAT,
         public readonly dimension: 1 | 2 | 3 | 4 = 3
     ) {}
 }

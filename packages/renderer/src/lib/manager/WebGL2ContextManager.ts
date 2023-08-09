@@ -9,6 +9,7 @@ import {
 } from '../../index';
 import {
     GL_COLOR_BUFFER_BIT,
+    GL_CULL_FACE,
     GL_DATA_UNSIGNED_INT,
     GL_DEPTH_BUFFER_BIT,
     GL_DEPTH_TEST,
@@ -16,6 +17,7 @@ import {
     GL_LINK_STATUS,
 } from '../webgl.consts';
 import { GL_BUFFER_PARAMS, GL_PARAMETERS, GL_VERTEX_ATTRIBUTE_FORMAT } from '../webgl.enums';
+import { Color, Matrix4, Vector4 } from 'mathf';
 
 export default class WebGL2ContextManager {
     private context: WebGL2RenderingContext;
@@ -24,6 +26,8 @@ export default class WebGL2ContextManager {
         this.context = RendererServer.canvasManager.canvas.getContext('webgl2') as WebGL2RenderingContext;
 
         this.viewport(width, height);
+        this.enable(GL_CULL_FACE);
+        this.enable(GL_DEPTH_TEST);
     }
 
     public createProgram(): WebGLProgram {
@@ -227,20 +231,11 @@ export default class WebGL2ContextManager {
         this.context.enableVertexAttribArray(index);
     }
 
-    public uniformMatrix(location: WebGLUniformLocation, data: number[], transpose = false) {
-        if (data.length === 4) {
-            this.context.uniformMatrix2fv(location, transpose, data);
-            return;
-        }
+    public uniformMatrix(location: WebGLUniformLocation, data: number[] | Matrix4, transpose = false) {
+        this.context.uniformMatrix4fv(location, transpose, data);
+    }
 
-        if (data.length === 9) {
-            this.context.uniformMatrix3fv(location, transpose, data);
-
-            return;
-        }
-
-        if (data.length === 16) {
-            this.context.uniformMatrix4fv(location, transpose, data);
-        }
+    public uniformVector(location: WebGLUniformLocation, data: Vector4 | Color) {
+        this.context.uniform4fv(location, data);
     }
 }
