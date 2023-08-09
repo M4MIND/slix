@@ -1,14 +1,16 @@
 import { AttributeGraphicsBuffer, IndicesGraphicsBuffer, MESH_TOPOLOGY } from '../../index';
 import { GraphicsBuffer, VertexAttributeDescriptor } from '../../index';
+import { VertexAttributeFormatByteSize } from './VertexAttributeDescriptor';
 import { TYPED_ARRAY } from 'memory';
 
 export default class BaseMesh {
+    protected vertexAttributeDescriptor: { [index: string]: VertexAttributeDescriptor } = {};
+    public topology = MESH_TOPOLOGY.TRIANGLES;
     private _vertexCountElements = 0;
+    private _byteSizeOfOneVertexPack = 0;
     protected _vertexBuffer = new AttributeGraphicsBuffer();
     protected _indexBuffer = new IndicesGraphicsBuffer();
-    protected vertexAttributeDescriptor: { [index: string]: VertexAttributeDescriptor } = {};
     public _byteSizeOfOneVertex = 0;
-    public topology = MESH_TOPOLOGY.TRIANGLES;
 
     get vertexBuffer() {
         return this._vertexBuffer;
@@ -22,10 +24,24 @@ export default class BaseMesh {
         return this._vertexCountElements;
     }
 
+    get byteSizeOfOneVertexPack() {
+        return this._byteSizeOfOneVertexPack;
+    }
+
     setVertexBufferParams(...list: VertexAttributeDescriptor[]) {
+        this._byteSizeOfOneVertexPack = 0;
+
         for (const v of list) {
+            this._byteSizeOfOneVertexPack += v.dimension * VertexAttributeFormatByteSize[v.byteSize];
+        }
+
+        let offset = 0;
+
+        for (const v of list) {
+            v.offset = offset;
             this.vertexAttributeDescriptor[v.attribute] = v;
             this._vertexCountElements += v.dimension;
+            offset += v.dimension * VertexAttributeFormatByteSize[v.byteSize];
         }
     }
 

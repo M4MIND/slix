@@ -19,11 +19,12 @@
       2,
       {
         "order": [
+          "[conventional-private-properties]",
+          "[properties]",
+          "[static-properties]",
           "[getters]",
           "[setters]",
           "[accessor-pairs]",
-          "[properties]",
-          "[static-properties]",
           "constructor",
           "[conventional-private-properties]",
           "[methods]",

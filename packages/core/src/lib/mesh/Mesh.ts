@@ -1,38 +1,32 @@
 import { Vector2, Vector3 } from 'mathf';
 import { Float32NativeArray, NativeArrayHelper, Uint16NativeArray } from 'memory';
-import { BaseMesh, GL_VERTEX_ATTRIBUTE_FORMAT, VertexAttribute, VertexAttributeDescriptor } from 'renderer';
+import {
+    BaseMesh,
+    GL_BUFFER_TARGET,
+    GL_USAGE_BUFFER,
+    GL_VERTEX_ATTRIBUTE_FORMAT,
+    GraphicsBuffer,
+    GraphicsBufferUsageFlag,
+    VertexAttribute,
+    VertexAttributeDescriptor,
+} from 'renderer';
 
 export default class Mesh extends BaseMesh {
+    private _vertices: Vector3[] = [];
+    private _uv: Vector2[] = [];
+    private _triangles: Uint16NativeArray = new Uint16NativeArray(1);
+    private _normals: Vector3[] = [];
     get vertices(): Vector3[] {
         return this._vertices;
     }
-
-    set vertices(value: Vector3[]) {
-        this._vertices = value;
-    }
-
     get uv() {
         return this._uv;
     }
-
-    set uv(v: Vector2[]) {
-        this._uv = v;
-    }
-
     get triangles() {
         return this._triangles;
     }
-
-    set triangles(v: Uint16NativeArray) {
-        this._triangles = v;
-    }
-
     get normals() {
         return this._normals;
-    }
-
-    set normals(v: Vector3[]) {
-        this._normals = v;
     }
 
     constructor() {
@@ -42,24 +36,38 @@ export default class Mesh extends BaseMesh {
             new VertexAttributeDescriptor(VertexAttribute.Normal, GL_VERTEX_ATTRIBUTE_FORMAT.Float32, 3)
         );
     }
-    private _vertices: Vector3[] = [];
-    private _uv: Vector2[] = [];
-    private _triangles: Uint16NativeArray = new Uint16NativeArray(1);
-    private _normals: Vector3[] = [];
+
+    set vertices(value: Vector3[]) {
+        this._vertices = value;
+    }
+
+    set uv(v: Vector2[]) {
+        this._uv = v;
+    }
+
+    set triangles(v: Uint16NativeArray) {
+        this._triangles = v;
+    }
+
+    set normals(v: Vector3[]) {
+        this._normals = v;
+    }
 
     setColors() {}
 
     uploadMeshData() {
         const array = new Float32NativeArray(this.attributeOneSize * this.vertices.length);
 
-        NativeArrayHelper.merge(array, this.vertices, this.attributeOneSize).merge(
+        NativeArrayHelper.merge(array, this.attributeOneSize, this.vertices).merge(
             array,
-            this.vertices,
             this.attributeOneSize,
+            this.vertices,
             3
         );
 
         this._vertexBuffer.setData(array);
         this._indexBuffer.setData(this.triangles);
     }
+
+    calculateNormals() {}
 }

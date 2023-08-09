@@ -1,18 +1,18 @@
 import { GraphicsBuffer } from '../../index';
+import { BaseMaterial, BaseMesh } from '../../index';
 import { RendererServer } from '../RendererServer';
 import { MESH_TOPOLOGY } from '../mesh.enums';
 import RendererParams from '../renderer/RendererParams';
 import { GL_DEPTH_TEST } from '../webgl.consts';
 import WebGL2ContextManager from './WebGL2ContextManager';
 import { Color, Matrix4, Vector3 } from 'mathf';
-import { BaseMaterial, BaseMesh } from 'renderer';
 
 export default class GraphicsManager {
     private readonly context: WebGL2ContextManager = RendererServer.contextManager;
-    private position = new Vector3(0, 0, -3);
+    private position = new Vector3(0, 0, -6);
     private projection = Matrix4.projection((70 * Math.PI) / 180, RendererServer.canvasManager.aspect);
-    private color = new Color(0.2, 0.4, 0.6, 1);
-    private modelMatrix = new Matrix4();
+    private color = new Color(0, 0, 0, 1);
+    private modelMatrix = new Matrix4().translate(this.position);
     private rotateY = 0;
     constructor() {
         //
@@ -28,7 +28,6 @@ export default class GraphicsManager {
 
     renderMesh(mesh: BaseMesh, material: BaseMaterial) {
         this.modelMatrix.clear();
-        let stride = 0;
         material.shader.use();
         mesh.vertexBuffer.bind();
 
@@ -40,10 +39,9 @@ export default class GraphicsManager {
                 descriptor.dimension,
                 descriptor.byteSize,
                 false,
-                24,
-                stride
+                mesh.byteSizeOfOneVertexPack,
+                descriptor.offset
             );
-            stride += 12;
         }
 
         mesh.indexBuffer.bind();
@@ -52,13 +50,8 @@ export default class GraphicsManager {
 
         this.context.uniformMatrix(
             material.shader.getUniformLocationByName('_U_MODEL'),
-            this.modelMatrix
-                .translate(this.position)
-                .rotateX(0)
-                .rotateY((this.rotateY * Math.PI) / 180)
+            this.modelMatrix.translate(this.position)
         );
-
-        this.rotateY += 0.1;
 
         this.context.uniformVector(material.shader.getUniformLocationByName('_U_COLOR'), this.color);
 

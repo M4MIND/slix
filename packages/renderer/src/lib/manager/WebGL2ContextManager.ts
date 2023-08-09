@@ -15,6 +15,7 @@ import {
     GL_DEPTH_TEST,
     GL_LEQUAL,
     GL_LINK_STATUS,
+    GL_SAMPLE_COVERAGE,
 } from '../webgl.consts';
 import { GL_BUFFER_PARAMS, GL_PARAMETERS, GL_VERTEX_ATTRIBUTE_FORMAT } from '../webgl.enums';
 import { Color, Matrix4, Vector4 } from 'mathf';

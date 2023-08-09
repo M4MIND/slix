@@ -1,15 +1,8 @@
-import {
-    GL_COLOR_BUFFER_BIT,
-    GL_CULL_FACE,
-    GL_DEPTH,
-    GL_DEPTH_BUFFER_BIT,
-    GL_DEPTH_TEST,
-} from '../../../../packages/renderer/src/lib/webgl.consts';
-import { GameObject, Material, MeshFilterComponent, MeshRendererComponent, Monkey, SlixEngine, Torus } from 'core';
-import { Vector3 } from 'mathf';
+import { GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT } from '../../../../packages/renderer/src/lib/webgl.consts';
+import { Cube, GameObject, Material, MeshFilterComponent, MeshRendererComponent, SlixEngine, Torus } from 'core';
 import { LinearAllocator, MemoryServer } from 'memory';
 import React, { useEffect, useRef, useState } from 'react';
-import { BaseShader, RendererServer } from 'renderer';
+import { BaseShader, MESH_TOPOLOGY, RendererServer } from 'renderer';
 
 export function App() {
     const canvas = useRef<HTMLCanvasElement>(null);
@@ -18,9 +11,6 @@ export function App() {
         total: 0,
         used: 0,
     });
-    const [count, setCount] = useState(0);
-
-    const [fps, setFps] = useState(0);
     useEffect(() => {
         SlixEngine.startUp({
             rendererServer: {
@@ -48,8 +38,8 @@ out vec4 v_color;
 // all shaders have a main function
 void main() {
   // Multiply the position by the matrix.
-  gl_Position = _U_PROJECTION * _U_MODEL * vec4(_A_POSITION, 1) ;
-  v_color = _U_COLOR * vec4(_A_NORMALS, 1) + 0.1;
+  gl_Position = _U_PROJECTION * _U_MODEL * vec4(_A_POSITION, 1);
+  v_color = _U_COLOR + vec4(_A_NORMALS, 1);
 }`,
                         fragment: `#version 300 es
 
@@ -79,13 +69,12 @@ void main() {
         const meshRenderer = gameObject.getComponent<MeshRendererComponent>(MeshRendererComponent);
 
         meshRenderer.material = new Material(BaseShader.find('default'));
-        meshFilter.mesh = new Torus();
-
-        let timeStart = performance.now();
+        meshFilter.mesh = new Cube();
 
         meshFilter.mesh.uploadMeshData();
+        meshFilter.mesh.topology = MESH_TOPOLOGY.TRIANGLES;
 
-        let count = 1;
+        const count = 10;
         const step = () => {
             RendererServer.contextManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -95,10 +84,6 @@ void main() {
                 }
             }
 
-            setCount(count);
-
-            setFps(Math.round(1000 / (performance.now() - timeStart)));
-            timeStart = performance.now();
             window.requestAnimationFrame(step);
         };
 
@@ -108,12 +93,6 @@ void main() {
     return (
         <div>
             <canvas ref={canvas} />
-            <div style={{ position: 'fixed', top: 0, padding: 8, background: 'rgba(255,255,255,0.7)' }}>
-                Memory: <br />
-                used: {memoryServer?.usedMemory} byte <br />
-                free: {(memoryServer?.byteSize ?? 0) - (memoryServer?.usedMemory ?? 0)} byte <br />
-                allocateCount: {memoryServer?.numAllocations}
-            </div>
         </div>
     );
 }

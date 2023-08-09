@@ -1,15 +1,15 @@
-import ArgumentOutOfRangeException from '../exceptions/ArgumentOutOfRangeException';
-import { GL_FLOAT_MAT4, GL_FLOAT_VEC4 } from '../webgl.consts';
-import BaseShader from './BaseShader';
-import { Color, Matrix4, Vector2, Vector4 } from 'mathf';
-import { Float32NativeArray, Int32NativeArray } from 'memory';
 import {
     GL_BUFFER_TARGET,
     GL_USAGE_BUFFER,
     GL_VERTEX_ATTRIBUTE_FORMAT,
     GraphicsBuffer,
     GraphicsBufferUsageFlag,
-} from 'renderer';
+} from '../../index';
+import ArgumentOutOfRangeException from '../exceptions/ArgumentOutOfRangeException';
+import { GL_FLOAT_MAT4, GL_FLOAT_VEC4 } from '../webgl.consts';
+import BaseShader from './BaseShader';
+import { Color, Matrix4, Vector2, Vector4 } from 'mathf';
+import { Float32NativeArray, Int32NativeArray } from 'memory';
 
 export enum UNIFORM_TYPE {
     MATRIX = GL_FLOAT_MAT4,
@@ -18,23 +18,12 @@ export enum UNIFORM_TYPE {
 }
 
 export default class BaseMaterial {
-    private readonly buffers: { [index: string | number]: GraphicsBuffer } = {};
     private readonly uniforms: { [key in UNIFORM_TYPE]: { [key: string]: Matrix4 | Vector4 | Color } } = {
         [UNIFORM_TYPE.COLOR]: {},
         [UNIFORM_TYPE.MATRIX]: {},
         [UNIFORM_TYPE.VECTOR]: {},
     };
     constructor(public shader: BaseShader) {
-        for (const attr of this.shader.getAttributes()) {
-            this.buffers[attr.name] = new GraphicsBuffer(
-                GL_BUFFER_TARGET.ARRAY_BUFFER,
-                GL_VERTEX_ATTRIBUTE_FORMAT.Float32,
-                GraphicsBufferUsageFlag.None,
-                GL_USAGE_BUFFER.STATIC_DRAW
-            );
-            this.buffers[attr.index] = this.buffers[attr.name];
-        }
-
         for (const uniform of this.shader.getUniforms()) {
             if (uniform.webGLActiveInfo.type === UNIFORM_TYPE.MATRIX) {
                 this.setMatrix(uniform.webGLActiveInfo.name, new Matrix4());
@@ -45,20 +34,6 @@ export default class BaseMaterial {
                 this.setVector(uniform.webGLActiveInfo.name, new Vector4());
             }
         }
-    }
-
-    setBuffer(id: number | string, buffer: GraphicsBuffer): void {
-        if (this.buffers[id]) return;
-        this.buffers[id] = buffer;
-    }
-
-    getBuffer(id: number | string): WebGLBuffer {
-        if (this.hasBuffer(id)) throw new ArgumentOutOfRangeException();
-        return this.buffers[id].bufferHandle;
-    }
-
-    hasBuffer(id: number | string) {
-        return !!this.buffers[id];
     }
 
     setColor(name: string, value: Color): void {

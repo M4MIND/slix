@@ -8,10 +8,11 @@ export enum GraphicsBufferUsageFlag {
 }
 
 export default class GraphicsBuffer {
+    public readonly bufferHandle: WebGLBuffer;
     get count(): number {
         return this._count;
     }
-    public readonly bufferHandle: WebGLBuffer;
+
     constructor(
         public readonly target: GL_BUFFER_TARGET = GL_BUFFER_TARGET.ARRAY_BUFFER,
         public readonly type: GL_VERTEX_ATTRIBUTE_FORMAT = GL_VERTEX_ATTRIBUTE_FORMAT.Float32,
