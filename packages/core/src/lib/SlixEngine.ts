@@ -1,3 +1,4 @@
+import Renderer from './Renderer';
 import { MemoryServer, MemoryServerInitConfigs } from 'memory';
 import { RendererServer, RendererServerInitConfigs } from 'renderer';
 
@@ -11,6 +12,7 @@ export default class SlixEngine {
 
         MemoryServer.startUp(configs.memoryServer);
         RendererServer.startUp(configs.rendererServer);
+        Renderer.startUp();
 
         this.init = true;
     }

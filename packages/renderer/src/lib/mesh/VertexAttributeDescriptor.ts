@@ -47,11 +47,23 @@ export const VertexAttributeFormatByteSize = {
 };
 
 export default class VertexAttributeDescriptor {
-    public offset = 0;
-
-    constructor(
+    private constructor(
         public readonly attribute: string,
         public readonly byteSize: GL_VERTEX_ATTRIBUTE_FORMAT,
-        public readonly dimension: 1 | 2 | 3 | 4 = 3
+        public readonly dimension: 1 | 2 | 3 | 4 = 3,
+        public readonly offset: number
     ) {}
+
+    static makeList(...args: [string, GL_VERTEX_ATTRIBUTE_FORMAT, 1 | 2 | 3 | 4][]): VertexAttributeDescriptor[] {
+        const list: VertexAttributeDescriptor[] = [];
+
+        let offset = 0;
+
+        for (const arg of args) {
+            list.push(new VertexAttributeDescriptor(arg[0], arg[1], arg[2], offset));
+            offset += arg[2] * VertexAttributeFormatByteSize[arg[1]];
+        }
+
+        return list;
+    }
 }

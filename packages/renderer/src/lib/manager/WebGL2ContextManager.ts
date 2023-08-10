@@ -213,6 +213,16 @@ export default class WebGL2ContextManager {
         this.context.drawElements(mode, count, type, offset);
     }
 
+    public drawElementsInstanced(
+        mode: MESH_TOPOLOGY,
+        count: number,
+        type: number,
+        offset: number,
+        instanceCount: number
+    ) {
+        this.context.drawElementsInstanced(mode, count, type, offset, instanceCount);
+    }
+
     public getUniformLocation(program: WebGLProgram, name: string) {
         return this.context.getUniformLocation(program, name);
     }

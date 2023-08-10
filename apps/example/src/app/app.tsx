@@ -1,5 +1,14 @@
 import { GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT } from '../../../../packages/renderer/src/lib/webgl.consts';
-import { Cube, GameObject, Material, MeshFilterComponent, MeshRendererComponent, SlixEngine, Torus } from 'core';
+import {
+    Camera,
+    Cube,
+    GameObject,
+    Material,
+    MeshFilterComponent,
+    MeshRendererComponent,
+    SlixEngine,
+    Torus,
+} from 'core';
 import { LinearAllocator, MemoryServer } from 'memory';
 import React, { useEffect, useRef, useState } from 'react';
 import { BaseShader, MESH_TOPOLOGY, RendererServer } from 'renderer';
@@ -64,6 +73,8 @@ void main() {
 
         setMemoryServer(MemoryServer.linearAllocator);
 
+        const camera = new Camera();
+
         const gameObject = new GameObject('GameObject', MeshFilterComponent, MeshRendererComponent);
         const meshFilter = gameObject.getComponent<MeshFilterComponent>(MeshFilterComponent);
         const meshRenderer = gameObject.getComponent<MeshRendererComponent>(MeshRendererComponent);
@@ -71,34 +82,23 @@ void main() {
         meshRenderer.material = new Material(BaseShader.find('default'));
         meshFilter.mesh = new Cube();
 
-        meshFilter.mesh.uploadMeshData();
         meshFilter.mesh.topology = MESH_TOPOLOGY.TRIANGLES;
+        meshFilter.mesh.uploadMeshData();
 
-        const count = 1;
-        (function animationLoop() {
-            // //RendererServer.contextManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            //
-            // if (meshFilter.mesh && meshRenderer.material) {
-            //     for (let i = 0; i < count; i++) {
-            //         RendererServer.graphicsManager.renderMesh(meshFilter.mesh, meshRenderer.material);
-            //     }
-            // }
+        const count = 64 * 64;
 
-            window.requestAnimationFrame(animationLoop);
-        })();
-        // const step = () => {
-        //     RendererServer.contextManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //
-        //     if (meshFilter.mesh && meshRenderer.material) {
-        //         for (let i = 0; i < count; i++) {
-        //             RendererServer.graphicsManager.renderMesh(meshFilter.mesh, meshRenderer.material);
-        //         }
-        //     }
-        //
-        //     window.requestAnimationFrame(step);
-        // };
-        //
-        // step();
+        const step = () => {
+            RendererServer.contextManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            if (meshFilter.mesh && meshRenderer.material) {
+                for (let i = 0; i < count; i++) {
+                    RendererServer.graphicsManager.renderMesh(meshFilter.mesh, meshRenderer.material);
+                }
+            }
+
+            window.requestAnimationFrame(step);
+        };
+
+        step();
     }, []);
 
     return (

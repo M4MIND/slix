@@ -1,15 +1,6 @@
 import { Vector2, Vector3 } from 'mathf';
 import { Float32NativeArray, NativeArrayHelper, Uint16NativeArray } from 'memory';
-import {
-    BaseMesh,
-    GL_BUFFER_TARGET,
-    GL_USAGE_BUFFER,
-    GL_VERTEX_ATTRIBUTE_FORMAT,
-    GraphicsBuffer,
-    GraphicsBufferUsageFlag,
-    VertexAttribute,
-    VertexAttributeDescriptor,
-} from 'renderer';
+import { BaseMesh, GL_VERTEX_ATTRIBUTE_FORMAT, VertexAttribute, VertexAttributeDescriptor } from 'renderer';
 
 export default class Mesh extends BaseMesh {
     private _vertices: Vector3[] = [];
@@ -32,8 +23,10 @@ export default class Mesh extends BaseMesh {
     constructor() {
         super();
         this.setVertexBufferParams(
-            new VertexAttributeDescriptor(VertexAttribute.Position, GL_VERTEX_ATTRIBUTE_FORMAT.Float32, 3),
-            new VertexAttributeDescriptor(VertexAttribute.Normal, GL_VERTEX_ATTRIBUTE_FORMAT.Float32, 3)
+            ...VertexAttributeDescriptor.makeList(
+                [VertexAttribute.Position, GL_VERTEX_ATTRIBUTE_FORMAT.Float32, 3],
+                [VertexAttribute.Normal, GL_VERTEX_ATTRIBUTE_FORMAT.Float32, 3]
+            )
         );
     }
 
@@ -65,8 +58,8 @@ export default class Mesh extends BaseMesh {
             3
         );
 
-        this._vertexBuffer.setData(array);
-        this._indexBuffer.setData(this.triangles);
+        this.setVertexBufferData(array);
+        this.setIndexBufferData(this.triangles);
     }
 
     calculateNormals() {}
