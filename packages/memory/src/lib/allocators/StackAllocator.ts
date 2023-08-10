@@ -1,4 +1,4 @@
-import { DataTypeArguments, DataTypeConstructor, TYPED_ARRAY } from '../types/DataType';
+import { TYPED_ARRAY } from '../types/DataType';
 import Allocator from './Allocator';
 
 enum MARKER {
@@ -92,12 +92,5 @@ export default class StackAllocator extends Allocator {
         this.currentPosition = dataView.byteOffset - this.dataView.getUint32(headerAddress);
 
         this.numAllocations = this.numAllocations - 1;
-    }
-
-    calloc<T extends TYPED_ARRAY>(length: number, type: DataTypeConstructor<DataTypeArguments>): T {
-        const address = this.getAddress(length * type.byteSize, type.byteSize);
-        if (!address) throw new Error();
-
-        return new type.dataViewConstructor(this.arrayBuffer, address, length) as T;
     }
 }

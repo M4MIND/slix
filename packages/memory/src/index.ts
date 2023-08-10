@@ -9,30 +9,15 @@ import { Uint8NativeArray } from './lib/array/Uint8NativeArray';
 import Uint16NativeArray from './lib/array/Uint16NativeArray';
 import Uint32NativeArray from './lib/array/Uint32NativeArray';
 import NativeArrayHelper from './lib/helper/NativeArrayHelper';
-import { DataType, FLOAT32, INT8, INT16, INT32, UINT8, UINT16, UINT32 } from './lib/types/DataType';
-import type {
-    DataTypeArguments,
-    DataTypeConstructor,
-    TYPED_ARRAY,
-    TYPED_ARRAY_CONSTRUCTOR,
-} from './lib/types/DataType';
+import type { DataTypeConstructor, TYPED_ARRAY, TYPED_ARRAY_CONSTRUCTOR } from './lib/types/DataType';
 
 export {
-    DataType,
-    DataTypeArguments,
     DataTypeConstructor,
-    FLOAT32,
-    INT16,
-    INT32,
-    INT8,
     LinearAllocator,
     MemoryServer,
     MemoryServerInitConfigs,
     TYPED_ARRAY,
     TYPED_ARRAY_CONSTRUCTOR,
-    UINT16,
-    UINT32,
-    UINT8,
     Float32NativeArray,
     Int32NativeArray,
     Int16NativeArray,

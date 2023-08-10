@@ -1,4 +1,4 @@
-import { DataTypeArguments, DataTypeConstructor, TYPED_ARRAY } from '../types/DataType';
+import { TYPED_ARRAY } from '../types/DataType';
 import Allocator from './Allocator';
 
 enum FREE_BLOCK {
@@ -60,12 +60,4 @@ export default class FreeListAllocator extends Allocator {
     malloc(size: number, alignment: number): DataView {
         return new DataView(this.arrayBuffer);
     }
-
-    calloc<T extends TYPED_ARRAY>(length: number, size: DataTypeConstructor<DataTypeArguments>): T {
-        return new Uint8Array() as T;
-    }
-
-    // private getFreeAddress(address: number): boolean {
-    //     return this.dataView.getUint32(ALLOCATOR_INFORMATION.HEADER_SIZE + FREE_BLOCK.USED) === 1;
-    // }
 }

@@ -1,4 +1,4 @@
-import { DataTypeArguments, DataTypeConstructor, TYPED_ARRAY } from '../types/DataType';
+import { TYPED_ARRAY } from '../types/DataType';
 
 export default abstract class Allocator {
     abstract get byteSize(): number;
@@ -34,7 +34,5 @@ export default abstract class Allocator {
     }
 
     abstract malloc(size: number, alignment: number): DataView;
-
-    abstract calloc<T extends TYPED_ARRAY>(length: number, size: DataTypeConstructor<DataTypeArguments>): T;
     abstract deallocate(dataView: TYPED_ARRAY): void;
 }

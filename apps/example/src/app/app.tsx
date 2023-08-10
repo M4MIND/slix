@@ -74,20 +74,31 @@ void main() {
         meshFilter.mesh.uploadMeshData();
         meshFilter.mesh.topology = MESH_TOPOLOGY.TRIANGLES;
 
-        const count = 10;
-        const step = () => {
-            RendererServer.contextManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        const count = 1;
+        (function animationLoop() {
+            // //RendererServer.contextManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            //
+            // if (meshFilter.mesh && meshRenderer.material) {
+            //     for (let i = 0; i < count; i++) {
+            //         RendererServer.graphicsManager.renderMesh(meshFilter.mesh, meshRenderer.material);
+            //     }
+            // }
 
-            if (meshFilter.mesh && meshRenderer.material) {
-                for (let i = 0; i < count; i++) {
-                    RendererServer.graphicsManager.renderMesh(meshFilter.mesh, meshRenderer.material);
-                }
-            }
-
-            window.requestAnimationFrame(step);
-        };
-
-        step();
+            window.requestAnimationFrame(animationLoop);
+        })();
+        // const step = () => {
+        //     RendererServer.contextManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //
+        //     if (meshFilter.mesh && meshRenderer.material) {
+        //         for (let i = 0; i < count; i++) {
+        //             RendererServer.graphicsManager.renderMesh(meshFilter.mesh, meshRenderer.material);
+        //         }
+        //     }
+        //
+        //     window.requestAnimationFrame(step);
+        // };
+        //
+        // step();
     }, []);
 
     return (

@@ -1,4 +1,6 @@
-export default class Color extends Float32Array {
+import { Float32NativeArray } from 'memory';
+
+export default class Color extends Float32NativeArray {
     static get black() {
         return new Color(0, 0, 0, 1);
     }
