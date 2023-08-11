@@ -14,9 +14,9 @@ type WEBGL_UNIFORM_STORE = {
 } & WEBGL_ATTRIBUTE_STORE;
 
 export default class BaseShader {
-    private attributes: { [index: string | number]: WEBGL_ATTRIBUTE_STORE } = {};
+    private attributes: { [index: string]: WEBGL_ATTRIBUTE_STORE } = {};
     private attributesCollection: WEBGL_ATTRIBUTE_STORE[] = [];
-    private uniforms: { [index: string | number]: WEBGL_UNIFORM_STORE } = {};
+    private uniforms: { [index: string]: WEBGL_UNIFORM_STORE } = {};
     private uniformCollection: WEBGL_UNIFORM_STORE[] = [];
     private readonly countAttributes = 0;
     private readonly countUniforms = 0;
@@ -27,13 +27,12 @@ export default class BaseShader {
             if (!attr) continue;
             program.enableVertexAttribute(index);
 
-            this.attributes[index] = {
+            this.attributes[attr.name] = {
                 index: index,
                 name: attr.name,
                 webGLActiveInfo: attr,
             };
-            this.attributes[attr.name] = this.attributes[index];
-            this.attributesCollection.push(this.attributes[index]);
+            this.attributesCollection.push(this.attributes[attr.name]);
 
             this.countAttributes++;
         }
@@ -48,14 +47,13 @@ export default class BaseShader {
             if (!uniformLocation) continue;
 
             if (uniform && uniformLocation) {
-                this.uniforms[index] = {
+                this.uniforms[uniform.name] = {
                     index: index,
                     name: uniform.name,
                     webGLActiveInfo: uniform,
                     webGLUniformLocation: uniformLocation,
                 };
-                this.uniforms[uniform.name] = this.uniforms[index];
-                this.uniformCollection.push(this.uniforms[index]);
+                this.uniformCollection.push(this.uniforms[uniform.name]);
 
                 this.countUniforms++;
             }
@@ -70,15 +68,10 @@ export default class BaseShader {
         return this.uniformCollection;
     }
 
-    getPropertyAttribute(attribute: number | string) {
+    getPropertyAttribute(attribute: string) {
         if (!this.attributes[attribute]) throw new ArgumentOutOfRangeException();
         return this.attributes[attribute];
     }
-
-    getPropertyAttributeName(id: number) {
-        return this.getPropertyAttribute(id).name;
-    }
-
     getPropertyAttributeId(name: string) {
         if (!this.attributes[name]) throw new ArgumentOutOfRangeException();
         return this.attributes[name].index;
@@ -91,10 +84,6 @@ export default class BaseShader {
 
     getUniformLocationByName(name: string) {
         return this.getPropertyUniform(name).webGLUniformLocation;
-    }
-
-    getPropertyUniformName(id: number) {
-        return this.getPropertyUniform(id).name;
     }
 
     getAttributeCount() {

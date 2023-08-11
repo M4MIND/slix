@@ -3,6 +3,7 @@ import { Float32NativeArray } from 'memory';
 
 export default class Quaternion extends Float32NativeArray {
     private readonly cache = new Float32NativeArray(9);
+
     constructor() {
         super([0, 0, 0, 1]);
     }

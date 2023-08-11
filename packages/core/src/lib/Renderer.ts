@@ -6,6 +6,6 @@ import { RendererServer } from 'renderer';
 export default class Renderer {
     static startUp() {}
     static drawMesh(mesh: Mesh, material: Material, camera: Camera) {
-        RendererServer.graphicsManager.renderMesh(mesh, material);
+        // RendererServer.graphicsManager.renderMesh(mesh, material);
     }
 }

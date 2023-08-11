@@ -6,14 +6,14 @@ import { MESH_TOPOLOGY } from '../mesh.enums';
 import RendererParams from '../renderer/RendererParams';
 import { GL_DEPTH_TEST } from '../webgl.consts';
 import WebGL2ContextManager from './WebGL2ContextManager';
-import { Color, Matrix4, Vector3 } from 'mathf';
+import { Color, MathHelper, Matrix4, Vector3 } from 'mathf';
 
 export default class GraphicsManager {
     private readonly context: WebGL2ContextManager = RendererServer.contextManager;
     private position = new Vector3(0, 0, -6);
     private projection = Matrix4.projection((70 * Math.PI) / 180, RendererServer.canvasManager.aspect);
     private color = new Color(0, 0, 0, 1);
-    private modelMatrix = new Matrix4().translate(this.position);
+    private modelMatrix = new Matrix4();
     private rotateY = 0;
     constructor() {
         //
@@ -27,11 +27,9 @@ export default class GraphicsManager {
         instanceCount: number
     ) {}
 
-    renderMesh(mesh: BaseMesh, material: BaseMaterial) {
-        this.modelMatrix.clear();
-        material.shader.use();
-
+    renderMesh(mesh: BaseMesh, material: BaseMaterial, step: number) {
         mesh.vertexBuffer.bind();
+        this.modelMatrix.clear();
 
         for (const descriptor of mesh.getVertexBufferParams()) {
             const attribute = material.shader.getPropertyAttribute(descriptor.attribute);
@@ -48,12 +46,19 @@ export default class GraphicsManager {
 
         mesh.indexBuffer.bind();
 
+        this.position.y = -step * 0.1;
+        this.position.x = -step * 0.1;
+        this.position.z = -36 - step;
+
+        this.modelMatrix
+            .translate(this.position)
+            .rotateZ(MathHelper.degToRad(45))
+            .rotateY(MathHelper.degToRad(45))
+            .rotateX(MathHelper.degToRad(45));
+
         this.context.uniformMatrix(material.shader.getUniformLocationByName('_U_PROJECTION'), this.projection);
 
-        this.context.uniformMatrix(
-            material.shader.getUniformLocationByName('_U_MODEL'),
-            this.modelMatrix.translate(this.position)
-        );
+        this.context.uniformMatrix(material.shader.getUniformLocationByName('_U_MODEL'), this.modelMatrix);
 
         this.context.uniformVector(material.shader.getUniformLocationByName('_U_COLOR'), this.color);
 

@@ -85,13 +85,15 @@ void main() {
         meshFilter.mesh.topology = MESH_TOPOLOGY.TRIANGLES;
         meshFilter.mesh.uploadMeshData();
 
-        const count = 64 * 64;
+        meshRenderer.material.shader.use();
+
+        const count = 72 * 72;
 
         const step = () => {
             RendererServer.contextManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             if (meshFilter.mesh && meshRenderer.material) {
                 for (let i = 0; i < count; i++) {
-                    RendererServer.graphicsManager.renderMesh(meshFilter.mesh, meshRenderer.material);
+                    RendererServer.graphicsManager.renderMesh(meshFilter.mesh, meshRenderer.material, i);
                 }
             }
 
