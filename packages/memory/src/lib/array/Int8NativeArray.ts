@@ -1,18 +1,30 @@
-import MemoryServer from '../MemoryServer';
+import NativeArrayHelper from '../helper/NativeArrayHelper';
 import { ALLOCATOR } from '../types/DataType';
+import { NativeArray } from './NativeArray';
 
-export default class Int8NativeArray extends Int8Array {
+export default class Int8NativeArray extends Int8Array implements NativeArray {
+    public readonly ALLOCATOR: ALLOCATOR;
     constructor(size: number);
     constructor(data: number[]);
     constructor(sizeOrData: number | number[], type: ALLOCATOR = ALLOCATOR.LINEAR) {
-        const BYTES_PER_ELEMENT = Int8Array.BYTES_PER_ELEMENT;
-        const dataView = MemoryServer.getAllocator(type).malloc(
-            typeof sizeOrData === 'object' ? sizeOrData.length * BYTES_PER_ELEMENT : sizeOrData * BYTES_PER_ELEMENT,
-            BYTES_PER_ELEMENT
+        const dataView = NativeArrayHelper.malloc(
+            type,
+            NativeArrayHelper.needBytes(sizeOrData, Int8Array.BYTES_PER_ELEMENT),
+            Int8Array.BYTES_PER_ELEMENT
         );
 
-        super(dataView.buffer, dataView.byteOffset, dataView.byteLength / BYTES_PER_ELEMENT);
+        super(
+            dataView.buffer,
+            dataView.byteOffset,
+            NativeArrayHelper.needLength(dataView, Int8Array.BYTES_PER_ELEMENT)
+        );
+
+        this.ALLOCATOR = type;
 
         if (typeof sizeOrData === 'object') this.set(sizeOrData);
+    }
+
+    destroy(): void {
+        NativeArrayHelper.destroy(this.ALLOCATOR, this);
     }
 }

@@ -10,32 +10,20 @@ import { Color, MathHelper, Matrix4, Vector3 } from 'mathf';
 
 export default class GraphicsManager {
     private readonly context: WebGL2ContextManager = RendererServer.contextManager;
-    private position = new Vector3(0, 0, -6);
-    private projection = Matrix4.projection((70 * Math.PI) / 180, RendererServer.canvasManager.aspect);
     private color = new Color(0, 0, 0, 1);
-    private modelMatrix = new Matrix4();
+    private modelMatrix = new Matrix4()
+        .translate(new Vector3(0, 0, -6))
+        .rotateZ(MathHelper.degToRad(45))
+        .rotateY(MathHelper.degToRad(45))
+        .rotateX(MathHelper.degToRad(45));
     private rotateY = 0;
-    constructor() {
-        //
-    }
-    drawElementsInstanced(
-        rendererParams: RendererParams,
-        topology: MESH_TOPOLOGY,
-        indexBuffer: GraphicsBuffer,
-        indexCount: number,
-        startIndex = 0,
-        instanceCount: number
-    ) {}
 
-    renderMesh(mesh: BaseMesh, material: BaseMaterial, step: number) {
+    renderMesh(mesh: BaseMesh, material: BaseMaterial) {
         mesh.vertexBuffer.bind();
-        this.modelMatrix.clear();
 
         for (const descriptor of mesh.getVertexBufferParams()) {
-            const attribute = material.shader.getPropertyAttribute(descriptor.attribute);
-
             this.context.vertexAttributePointer(
-                attribute.index,
+                material.shader.getPropertyAttribute(descriptor.attribute).index,
                 descriptor.dimension,
                 descriptor.byteSize,
                 false,
@@ -45,18 +33,6 @@ export default class GraphicsManager {
         }
 
         mesh.indexBuffer.bind();
-
-        this.position.y = -step * 0.1;
-        this.position.x = -step * 0.1;
-        this.position.z = -36 - step;
-
-        this.modelMatrix
-            .translate(this.position)
-            .rotateZ(MathHelper.degToRad(45))
-            .rotateY(MathHelper.degToRad(45))
-            .rotateX(MathHelper.degToRad(45));
-
-        this.context.uniformMatrix(material.shader.getUniformLocationByName('_U_PROJECTION'), this.projection);
 
         this.context.uniformMatrix(material.shader.getUniformLocationByName('_U_MODEL'), this.modelMatrix);
 

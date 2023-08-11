@@ -2,7 +2,7 @@ import Allocator from './allocators/Allocator';
 import FreeListAllocator from './allocators/FreeListAllocator';
 import LinearAllocator from './allocators/LinearAllocator';
 import StackAllocator from './allocators/StackAllocator';
-import { ALLOCATOR } from './types/DataType';
+import { ALLOCATOR, TYPED_ARRAY } from './types/DataType';
 
 export default class MemoryServer {
     private static _freeListAllocator: FreeListAllocator;
@@ -28,6 +28,14 @@ export default class MemoryServer {
         if (type === ALLOCATOR.LINEAR) return this.linearAllocator;
 
         throw new Error(`Can't find Allocator`);
+    }
+
+    static destroyNativeArray(type: ALLOCATOR, nativeArray: TYPED_ARRAY) {
+        this.getAllocator(type).deallocate(nativeArray);
+    }
+
+    static malloc(type: ALLOCATOR, byteSize: number, alignment: number): DataView {
+        return this.getAllocator(type).malloc(byteSize, alignment);
     }
 }
 

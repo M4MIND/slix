@@ -4,6 +4,7 @@ import AttributeGraphicsBuffer from './lib/buffer/AttributeGraphicsBuffer';
 import GraphicsBuffer from './lib/buffer/GraphicsBuffer';
 import { GraphicsBufferUsageFlag } from './lib/buffer/GraphicsBuffer';
 import IndicesGraphicsBuffer from './lib/buffer/IndicesGraphicsBuffer';
+import { UniformGraphicsBuffer } from './lib/buffer/UniformGraphicsBuffer';
 import BaseMaterial from './lib/material/BaseMaterial';
 import BaseShader from './lib/material/BaseShader';
 import { MESH_TOPOLOGY } from './lib/mesh.enums';
@@ -27,15 +28,15 @@ import {
 
 export {
     AttributeGraphicsBuffer,
-    Cube,
     BaseMaterial,
-    GL_BUFFER_TARGET,
     BaseMesh,
+    BaseShader,
+    Cube,
+    GL_BUFFER_TARGET,
     GL_MATH_TYPES,
     GL_PROGRAM_PARAMETERS,
     GL_SHADER_STATUSES,
     GL_SHADER_TYPES,
-    BaseShader,
     GL_USAGE_BUFFER,
     GL_VERTEX_ATTRIBUTE_FORMAT,
     GraphicsBuffer,
@@ -46,6 +47,7 @@ export {
     RendererParams,
     RendererServer,
     RendererServerInitConfigs,
+    UniformGraphicsBuffer,
     VertexAttribute,
     VertexAttributeDescriptor,
     VertexAttributeFormat,

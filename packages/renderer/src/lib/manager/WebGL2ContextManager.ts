@@ -16,9 +16,25 @@ import {
     GL_LEQUAL,
     GL_LINK_STATUS,
     GL_SAMPLE_COVERAGE,
+    GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS,
+    GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES,
+    GL_UNIFORM_BLOCK_BINDING,
+    GL_UNIFORM_BLOCK_DATA_SIZE,
+    GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER,
+    GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER,
 } from '../webgl.consts';
 import { GL_BUFFER_PARAMS, GL_PARAMETERS, GL_VERTEX_ATTRIBUTE_FORMAT } from '../webgl.enums';
 import { Color, Matrix4, Vector4 } from 'mathf';
+
+export type UNIFORM_BLOCK_INFORMATION = {
+    UNIFORM_BLOCK_INDEX: number;
+    UNIFORM_BLOCK_BINDING: GLint;
+    UNIFORM_BLOCK_DATA_SIZE: GLint;
+    UNIFORM_BLOCK_ACTIVE_UNIFORMS: GLint;
+    UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER: GLboolean;
+    UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES: Uint32Array;
+    UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER: GLboolean;
+};
 
 export default class WebGL2ContextManager {
     private context: WebGL2RenderingContext;
@@ -225,6 +241,70 @@ export default class WebGL2ContextManager {
 
     public getUniformLocation(program: WebGLProgram, name: string) {
         return this.context.getUniformLocation(program, name);
+    }
+
+    public getActiveUniformBlockName(program: WebGLProgram, index: number) {
+        return this.context.getActiveUniformBlockName(program, index);
+    }
+
+    public getUniformBlockIndex(program: WebGLProgram, uniformBlockName: string) {
+        return this.context.getUniformBlockIndex(program, uniformBlockName);
+    }
+
+    public bindBufferRange(target: GL_BUFFER_TARGET, index: number, buffer: WebGLBuffer, offset = 0, size = 0) {
+        this.context.bindBufferRange(target, index, buffer, offset, size);
+    }
+
+    public bindBufferBase(target: GL_BUFFER_TARGET, index: number, buffer: WebGLBuffer) {
+        this.context.bindBufferBase(target, index, buffer);
+    }
+
+    public getActiveUniformBlockParameter(
+        program: WebGLProgram,
+        index: number,
+        pname: number
+    ): GLint | Uint32Array | GLboolean {
+        return this.context.getActiveUniformBlockParameter(program, index, pname);
+    }
+
+    public asd(target: GL_BUFFER_TARGET, index: number, buffer: WebGLBuffer) {
+        this.context.bindBufferBase(target, index, buffer);
+    }
+
+    public getAllInformationUniformBlock(program: WebGLProgram, index: number): UNIFORM_BLOCK_INFORMATION {
+        return {
+            UNIFORM_BLOCK_INDEX: index,
+            UNIFORM_BLOCK_BINDING: this.getActiveUniformBlockParameter(
+                program,
+                index,
+                GL_UNIFORM_BLOCK_BINDING
+            ) as GLint,
+            UNIFORM_BLOCK_DATA_SIZE: this.getActiveUniformBlockParameter(
+                program,
+                index,
+                GL_UNIFORM_BLOCK_DATA_SIZE
+            ) as GLint,
+            UNIFORM_BLOCK_ACTIVE_UNIFORMS: this.getActiveUniformBlockParameter(
+                program,
+                index,
+                GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS
+            ) as GLint,
+            UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER: this.getActiveUniformBlockParameter(
+                program,
+                index,
+                GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER
+            ) as GLboolean,
+            UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES: this.getActiveUniformBlockParameter(
+                program,
+                index,
+                GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES
+            ) as Uint32Array,
+            UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER: this.getActiveUniformBlockParameter(
+                program,
+                index,
+                GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER
+            ) as GLboolean,
+        };
     }
 
     public vertexAttributePointer(

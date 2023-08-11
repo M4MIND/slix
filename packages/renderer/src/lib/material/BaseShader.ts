@@ -1,7 +1,8 @@
+import { GL_MATH_TYPES, GL_SHADER_TYPES } from '../../index';
 import ArgumentOutOfRangeException from '../exceptions/ArgumentOutOfRangeException';
 import Program from '../gpu/Program';
+import { UNIFORM_BLOCK_INFORMATION } from '../manager/WebGL2ContextManager';
 import { RendererServer } from './../RendererServer';
-import { GL_MATH_TYPES, GL_SHADER_TYPES } from 'renderer';
 
 type WEBGL_ATTRIBUTE_STORE = {
     index: number;
@@ -14,10 +15,12 @@ type WEBGL_UNIFORM_STORE = {
 } & WEBGL_ATTRIBUTE_STORE;
 
 export default class BaseShader {
-    private attributes: { [index: string]: WEBGL_ATTRIBUTE_STORE } = {};
-    private attributesCollection: WEBGL_ATTRIBUTE_STORE[] = [];
-    private uniforms: { [index: string]: WEBGL_UNIFORM_STORE } = {};
-    private uniformCollection: WEBGL_UNIFORM_STORE[] = [];
+    private readonly attributes: { [index: string]: WEBGL_ATTRIBUTE_STORE } = {};
+    private readonly attributeCollection: WEBGL_ATTRIBUTE_STORE[] = [];
+    private readonly uniforms: { [index: string]: WEBGL_UNIFORM_STORE } = {};
+    private readonly uniformCollection: WEBGL_UNIFORM_STORE[] = [];
+    private readonly uniformBlocks: { [index: string]: UNIFORM_BLOCK_INFORMATION } = {};
+    private readonly uniformBlockCollection: UNIFORM_BLOCK_INFORMATION[] = [];
     private readonly countAttributes = 0;
     private readonly countUniforms = 0;
 
@@ -32,7 +35,7 @@ export default class BaseShader {
                 name: attr.name,
                 webGLActiveInfo: attr,
             };
-            this.attributesCollection.push(this.attributes[attr.name]);
+            this.attributeCollection.push(this.attributes[attr.name]);
 
             this.countAttributes++;
         }
@@ -58,10 +61,20 @@ export default class BaseShader {
                 this.countUniforms++;
             }
         }
+
+        for (const index of program.getActiveUniformsBlock()) {
+            const blockName = this.program.getActiveUniformBlockName(index);
+
+            if (!blockName) continue;
+            this.uniformBlocks[blockName] = this.program.getAllInformationUniformBlock(index);
+            this.uniformBlockCollection.push(this.uniformBlocks[blockName]);
+        }
+
+        console.dir(this);
     }
 
     getAttributes() {
-        return this.attributesCollection;
+        return this.attributeCollection;
     }
 
     getUniforms() {

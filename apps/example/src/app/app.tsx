@@ -9,9 +9,10 @@ import {
     SlixEngine,
     Torus,
 } from 'core';
-import { LinearAllocator, MemoryServer } from 'memory';
+import { Matrix4, Vector3 } from 'mathf';
+import { Float32NativeArray, LinearAllocator, MemoryServer } from 'memory';
 import React, { useEffect, useRef, useState } from 'react';
-import { BaseShader, MESH_TOPOLOGY, RendererServer } from 'renderer';
+import { BaseShader, MESH_TOPOLOGY, RendererServer, UniformGraphicsBuffer } from 'renderer';
 
 export function App() {
     const canvas = useRef<HTMLCanvasElement>(null);
@@ -33,12 +34,14 @@ export function App() {
                         name: 'default',
                         vertex: `#version 300 es
 
-// an attribute is an input (in) to a vertex shader.
-// It will receive data from a buffer
 in vec3 _A_POSITION;
 in vec3 _A_NORMALS;
 
-uniform mat4 _U_PROJECTION;
+uniform GlobalMatrices {
+    mat4 PROJECTION;
+    mat4 VIEW;
+} CameraGlobalMatrices;
+
 uniform mat4 _U_MODEL;
 uniform vec4 _U_COLOR;
 
@@ -47,7 +50,7 @@ out vec4 v_color;
 // all shaders have a main function
 void main() {
   // Multiply the position by the matrix.
-  gl_Position = _U_PROJECTION * _U_MODEL * vec4(_A_POSITION, 1);
+  gl_Position = CameraGlobalMatrices.PROJECTION * CameraGlobalMatrices.VIEW * _U_MODEL * vec4(_A_POSITION, 1);
   v_color = _U_COLOR + vec4(_A_NORMALS, 1);
 }`,
                         fragment: `#version 300 es
@@ -73,6 +76,8 @@ void main() {
 
         setMemoryServer(MemoryServer.linearAllocator);
 
+        const position = new Vector3(0, 0, 0);
+
         const camera = new Camera();
 
         const gameObject = new GameObject('GameObject', MeshFilterComponent, MeshRendererComponent);
@@ -87,13 +92,31 @@ void main() {
 
         meshRenderer.material.shader.use();
 
-        const count = 72 * 72;
+        const matrixView = new Matrix4();
+
+        const UniformBuffer = new UniformGraphicsBuffer();
+
+        const matrix = new Float32NativeArray(32);
+        matrix.set(Matrix4.projection((70 * Math.PI) / 180, RendererServer.canvasManager.aspect), 0);
+
+        RendererServer.contextManager.bindBufferBase(UniformBuffer.target, 0, UniformBuffer.bufferHandle);
+
+        const count = 128 * 128;
 
         const step = () => {
+            matrixView.clear();
+            position.x = Math.random();
+            position.y = Math.random();
+            position.z = -(Math.random() * 12);
+
+            matrix.set(matrixView.translate(position), 16);
+
+            UniformBuffer.setData(matrix);
+
             RendererServer.contextManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             if (meshFilter.mesh && meshRenderer.material) {
                 for (let i = 0; i < count; i++) {
-                    RendererServer.graphicsManager.renderMesh(meshFilter.mesh, meshRenderer.material, i);
+                    RendererServer.graphicsManager.renderMesh(meshFilter.mesh, meshRenderer.material);
                 }
             }
 
