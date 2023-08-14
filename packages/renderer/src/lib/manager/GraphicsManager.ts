@@ -53,8 +53,6 @@ export default class GraphicsManager {
         this.context.enable(GL_DEPTH_TEST);
         this.context.depthFunc();
 
-        rendererParams.material.shader.use();
-
         for (const bufferKey of rendererParams.materialPropertyBlock.getBuffersKeys()) {
             const buffer = rendererParams.materialPropertyBlock.getBufferByKey(bufferKey);
             buffer.bind();

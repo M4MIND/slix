@@ -33,14 +33,26 @@ export function App() {
                     {
                         name: 'default',
                         vertex: `#version 300 es
-
+precision lowp float;
 in vec3 _A_POSITION;
 in vec3 _A_NORMALS;
 
-uniform GlobalMatrices {
-    mat4 PROJECTION;
-    mat4 VIEW;
-} CameraGlobalMatrices;
+uniform _SlixCameraAndScreen {
+    vec3 _WorldSpaceCameraPos;
+    mat4 _MatrixView;
+    vec4 _ProjectionParams;
+    vec4 _ScreenParams;
+    mat4 _CameraProjection;
+    mat4 _CameraInvProjection;
+} SlixCameraAndScreen;
+
+uniform _SlixTime {
+    vec4 _TIME;
+    vec4 _SinTime;
+    vec4 _CosTime;
+    vec4 _DeltaTime;
+} SlixTime;
+
 
 uniform mat4 _U_MODEL;
 uniform vec4 _U_COLOR;
@@ -50,8 +62,8 @@ out vec4 v_color;
 // all shaders have a main function
 void main() {
   // Multiply the position by the matrix.
-  gl_Position = CameraGlobalMatrices.PROJECTION * CameraGlobalMatrices.VIEW * _U_MODEL * vec4(_A_POSITION, 1);
-  v_color = _U_COLOR + vec4(_A_NORMALS, 1);
+  gl_Position = SlixCameraAndScreen._CameraProjection * SlixCameraAndScreen._MatrixView * _U_MODEL * vec4(_A_POSITION, 1);
+  v_color = (_U_COLOR + vec4(_A_NORMALS, 1));
 }`,
                         fragment: `#version 300 es
 
@@ -96,23 +108,22 @@ void main() {
 
         const UniformBuffer = new UniformGraphicsBuffer();
 
-        const matrix = new Float32NativeArray(32);
-        matrix.set(Matrix4.projection((70 * Math.PI) / 180, RendererServer.canvasManager.aspect), 0);
+        const matrix = new Float32NativeArray(36);
+        matrix.set(Matrix4.projection((80 * Math.PI) / 180, RendererServer.canvasManager.aspect), 0);
 
         RendererServer.contextManager.bindBufferBase(UniformBuffer.target, 0, UniformBuffer.bufferHandle);
 
-        const count = 128 * 128;
+        const count = 156 * 156;
+        matrix[32] = Math.random();
+        matrix[33] = Math.random();
+        matrix[34] = Math.random();
+        matrix[35] = 1;
 
+        matrix.set(matrixView.translate(position), 16);
+
+        meshRenderer.material.shader.use();
         const step = () => {
-            matrixView.clear();
-            position.x = Math.random();
-            position.y = Math.random();
-            position.z = -(Math.random() * 12);
-
-            matrix.set(matrixView.translate(position), 16);
-
             UniformBuffer.setData(matrix);
-
             RendererServer.contextManager.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             if (meshFilter.mesh && meshRenderer.material) {
                 for (let i = 0; i < count; i++) {
