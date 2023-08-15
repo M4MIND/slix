@@ -20,12 +20,17 @@ export default class MemoryServer {
     }
 
     static startUp(params: MemoryServerInitConfigs) {
-        this._linearAllocator = this._linearAllocator ?? new LinearAllocator(params.linearAllocatorByteSize);
-        this._stackAllocator = this._stackAllocator ?? new StackAllocator();
+        this._linearAllocator =
+            this._linearAllocator ?? new LinearAllocator(params.linearAllocatorByteSize ?? 64 * 1024 * 1024);
+        this._stackAllocator =
+            this._stackAllocator ?? new StackAllocator(params.stackAllocatorByteSize ?? 64 * 1024 * 1024);
+        this._freeListAllocator =
+            this._freeListAllocator ?? new FreeListAllocator(params.freeListAllocatorByteSize ?? 64 * 1024 * 1024);
     }
 
     static getAllocator(type: ALLOCATOR): Allocator {
-        if (type === ALLOCATOR.LINEAR) return this.linearAllocator;
+        if (type === ALLOCATOR.LINEAR) return this._linearAllocator;
+        if (type === ALLOCATOR.FREE_LIST) return this._freeListAllocator;
 
         throw new Error(`Can't find Allocator`);
     }
@@ -39,4 +44,8 @@ export default class MemoryServer {
     }
 }
 
-export type MemoryServerInitConfigs = { linearAllocatorByteSize: number; stackAllocatorByteSize: number };
+export type MemoryServerInitConfigs = {
+    linearAllocatorByteSize?: number;
+    stackAllocatorByteSize?: number;
+    freeListAllocatorByteSize?: number;
+};

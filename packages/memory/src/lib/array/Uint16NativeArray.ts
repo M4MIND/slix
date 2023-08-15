@@ -4,8 +4,7 @@ import { NativeArray } from './NativeArray';
 
 export default class Uint16NativeArray extends Uint16Array implements NativeArray {
     public readonly ALLOCATOR: ALLOCATOR;
-    constructor(size: number);
-    constructor(data: number[]);
+    protected readonly dataView: DataView;
     constructor(sizeOrData: number | number[], type: ALLOCATOR = ALLOCATOR.LINEAR) {
         const dataView = NativeArrayHelper.malloc(
             type,
@@ -20,6 +19,7 @@ export default class Uint16NativeArray extends Uint16Array implements NativeArra
         );
 
         this.ALLOCATOR = type;
+        this.dataView = dataView;
 
         if (typeof sizeOrData === 'object') this.set(sizeOrData);
     }

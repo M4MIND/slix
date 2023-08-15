@@ -1,4 +1,5 @@
-import { TransformComponent } from '../../index';
+import { Scene } from '../../index';
+import { SlixEngine, TransformComponent } from '../../index';
 import BaseComponent, { BaseComponentInterface } from '../components/BaseComponent';
 import BaseObject from './BaseObject';
 
@@ -8,6 +9,7 @@ export default class GameObject extends BaseObject {
     private readonly components: { [index: string]: BaseComponent } = {};
     private parent: GameObject | null = null;
     private children: GameObject | null = null;
+    private scene: Scene;
 
     constructor(name?: string);
     constructor(name: string, ...args: BaseComponentInterface[]);
@@ -17,6 +19,9 @@ export default class GameObject extends BaseObject {
         this.transform = this.addComponent<TransformComponent>(TransformComponent);
         if (name) this.name = name;
         if (args) this.addComponents(...args);
+
+        this.scene = SlixEngine.sceneManager.getActiveScene();
+        this.scene.addGameObject(this);
     }
 
     addComponent<T extends BaseComponent>(component: BaseComponentInterface): T {

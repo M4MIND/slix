@@ -15,6 +15,8 @@ enum ALLOCATOR_INFORMATION {
 }
 
 export default class StackAllocator extends Allocator {
+    private arrayBuffer: ArrayBuffer;
+    private dataView: DataView;
     public get byteSize() {
         return this.dataView.getUint32(ALLOCATOR_INFORMATION.BYTE_SIZE);
     }
@@ -47,12 +49,9 @@ export default class StackAllocator extends Allocator {
         this.dataView.setUint32(ALLOCATOR_INFORMATION.NUM_ALLOCATIONS, v);
     }
 
-    private arrayBuffer: ArrayBuffer;
-    private dataView: DataView;
-
-    constructor() {
+    constructor(byteSize: number) {
         super();
-        this.arrayBuffer = new ArrayBuffer(64 * 1024 * 1024);
+        this.arrayBuffer = new ArrayBuffer(byteSize);
         this.dataView = new DataView(this.arrayBuffer);
 
         this.byteSize = this.arrayBuffer.byteLength - ALLOCATOR_INFORMATION.HEADER_SIZE;

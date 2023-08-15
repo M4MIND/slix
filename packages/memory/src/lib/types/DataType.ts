@@ -1,6 +1,10 @@
+import { StructureNativeArray } from '../../index';
+import { Float32NativeArray, Uint8NativeArray, Uint16NativeArray, Uint32NativeArray } from '../../index';
+
 export enum ALLOCATOR {
     LINEAR,
     POOL,
+    FREE_LIST,
 }
 
 export type DataTypeConstructor<T> = {
@@ -19,3 +23,13 @@ export type TYPED_ARRAY_CONSTRUCTOR =
     | Int16ArrayConstructor
     | Int32ArrayConstructor
     | Float32ArrayConstructor;
+
+export type TYPED_NATIVE_ARRAY =
+    | Uint8NativeArray
+    | Uint16NativeArray
+    | Uint32NativeArray
+    | Float32NativeArray
+    | Int8ArrayConstructor
+    | Int16ArrayConstructor
+    | Int32ArrayConstructor
+    | StructureNativeArray;

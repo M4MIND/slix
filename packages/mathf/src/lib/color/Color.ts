@@ -1,6 +1,21 @@
 import { Float32NativeArray } from 'memory';
 
 export default class Color extends Float32NativeArray {
+    get r() {
+        return this[0];
+    }
+    get g() {
+        return this[1];
+    }
+    get b() {
+        return this[2];
+    }
+    get a() {
+        return this[3];
+    }
+    constructor(r: number, g: number, b: number, a: number) {
+        super([r, g, b, a]);
+    }
     static get black() {
         return new Color(0, 0, 0, 1);
     }
@@ -38,22 +53,6 @@ export default class Color extends Float32NativeArray {
         return new Color(1, 0.92, 0.016, 1);
     }
 
-    get r() {
-        return this[0];
-    }
-
-    get g() {
-        return this[1];
-    }
-
-    get b() {
-        return this[2];
-    }
-
-    get a() {
-        return this[3];
-    }
-
     set r(v: number) {
         this[0] = v;
     }
@@ -68,9 +67,5 @@ export default class Color extends Float32NativeArray {
 
     set a(v: number) {
         this[3] = v;
-    }
-
-    constructor(r: number, g: number, b: number, a: number) {
-        super([r, g, b, a]);
     }
 }

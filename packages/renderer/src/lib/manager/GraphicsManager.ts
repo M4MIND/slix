@@ -1,7 +1,6 @@
 import { GraphicsBuffer } from '../../index';
 import { BaseMaterial, BaseMesh } from '../../index';
 import { RendererServer } from '../RendererServer';
-import Camera from '../camera/Camera';
 import { MESH_TOPOLOGY } from '../mesh.enums';
 import RendererParams from '../renderer/RendererParams';
 import { GL_DEPTH_TEST } from '../webgl.consts';
@@ -35,8 +34,6 @@ export default class GraphicsManager {
         mesh.indexBuffer.bind();
 
         this.context.uniformMatrix(material.shader.getUniformLocationByName('_U_MODEL'), this.modelMatrix);
-
-        this.context.uniformVector(material.shader.getUniformLocationByName('_U_COLOR'), this.color);
 
         this.context.drawElements(mesh.topology, mesh.indexBuffer.count, mesh.indexBuffer.type, 0);
     }

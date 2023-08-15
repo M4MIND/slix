@@ -12,6 +12,8 @@ import Material from './lib/material/Material';
 import Mesh from './lib/mesh/Mesh';
 import Camera from './lib/objects/Camera';
 import GameObject from './lib/objects/GameObject';
+import Scene from './lib/scene/Scene';
+import SceneManager from './lib/scene/SceneManager';
 
 export {
     Camera,
@@ -25,6 +27,8 @@ export {
     MeshRendererComponent,
     Monkey,
     RendererComponent,
+    Scene,
+    SceneManager,
     SlixEngine,
     Torus,
     TransformComponent,

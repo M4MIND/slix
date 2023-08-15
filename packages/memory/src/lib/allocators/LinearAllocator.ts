@@ -9,6 +9,8 @@ enum ALLOCATOR_INFORMATION {
     HEADER_SIZE = 16,
 }
 export default class LinearAllocator extends Allocator {
+    private readonly arrayBuffer: ArrayBuffer;
+    private readonly dataView: DataView;
     public get byteSize() {
         return this.dataView.getUint32(ALLOCATOR_INFORMATION.BYTE_SIZE);
     }
@@ -36,9 +38,6 @@ export default class LinearAllocator extends Allocator {
     private set numAllocations(v: number) {
         this.dataView.setUint32(ALLOCATOR_INFORMATION.NUM_ALLOCATIONS, v);
     }
-
-    private readonly arrayBuffer: ArrayBuffer;
-    private readonly dataView: DataView;
 
     constructor(byteSize: number) {
         super();

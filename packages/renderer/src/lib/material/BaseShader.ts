@@ -66,11 +66,12 @@ export default class BaseShader {
             const blockName = this.program.getActiveUniformBlockName(index);
 
             if (!blockName) continue;
-            this.uniformBlocks[blockName] = this.program.getAllInformationUniformBlock(index);
+
+            this.uniformBlocks[blockName] = this.program.getAllInformationUniformBlock(
+                this.program.getUniformBlockIndex(blockName)
+            );
             this.uniformBlockCollection.push(this.uniformBlocks[blockName]);
         }
-
-        console.dir(this);
     }
 
     getAttributes() {
