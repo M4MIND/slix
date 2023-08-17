@@ -1,18 +1,6 @@
-import { GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT } from '../../../../packages/renderer/src/lib/webgl.consts';
-import {
-    Camera,
-    Cube,
-    GameObject,
-    Material,
-    MeshFilterComponent,
-    MeshRendererComponent,
-    SceneManager,
-    SlixEngine,
-} from 'core';
-import { MathHelper, Matrix4, Vector3, Vector4 } from 'mathf';
-import { Float32NativeArray, LinearAllocator, MemoryServer, Struct, StructureNativeArray, TypeAllocator } from 'memory';
+import { Cube, GameObject, MeshFilterComponent, MeshRendererComponent, SlixEngine } from 'core';
+import { LinearAllocator } from 'memory';
 import React, { useEffect, useRef, useState } from 'react';
-import { BaseShader, MESH_TOPOLOGY, RendererServer, UniformGraphicsBuffer } from 'renderer';
 
 export function App() {
     const canvas = useRef<HTMLCanvasElement>(null);

@@ -20,4 +20,8 @@ export default class AllocatorHelper {
 
         return adjustment;
     }
+
+    static checkSize(size: number) {
+        if (size <= 0) throw new Error(`Can't free ${size}`);
+    }
 }

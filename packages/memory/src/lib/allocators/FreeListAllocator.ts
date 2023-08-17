@@ -13,7 +13,7 @@ enum FREE_BLOCK {
     NEXT = 4,
     HEADER_SIZE = 8,
 }
-export default class FreeListAllocator extends Allocator {
+export default class FreeListAllocator implements Allocator {
     public readonly arrayBuffer: ArrayBuffer;
     public readonly dataView: DataView;
     public get byteSize(): number {
@@ -34,10 +34,9 @@ export default class FreeListAllocator extends Allocator {
 
     private set numAllocations(v: number) {}
 
-    constructor(byteSize: number) {
-        super();
-        this.arrayBuffer = new ArrayBuffer(byteSize);
-        this.dataView = new DataView(this.arrayBuffer);
+    constructor(dataView: DataView) {
+        this.arrayBuffer = dataView.buffer;
+        this.dataView = dataView;
 
         this.dataView.setUint32(FREE_BLOCK.SIZE, this.arrayBuffer.byteLength);
         this.dataView.setUint32(FREE_BLOCK.NEXT, 0);

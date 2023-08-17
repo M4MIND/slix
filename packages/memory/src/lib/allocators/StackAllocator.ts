@@ -1,5 +1,6 @@
 import { TYPED_ARRAY } from '../types/DataType';
 import Allocator from './Allocator';
+import { AllocatorHelper } from 'memory';
 
 enum MARKER {
     ADJUSTMENT = 4,
@@ -14,7 +15,7 @@ enum ALLOCATOR_INFORMATION {
     HEADER_SIZE = 16,
 }
 
-export default class StackAllocator extends Allocator {
+export default class StackAllocator implements Allocator {
     private arrayBuffer: ArrayBuffer;
     private dataView: DataView;
     public get byteSize() {
@@ -49,10 +50,9 @@ export default class StackAllocator extends Allocator {
         this.dataView.setUint32(ALLOCATOR_INFORMATION.NUM_ALLOCATIONS, v);
     }
 
-    constructor(byteSize: number) {
-        super();
-        this.arrayBuffer = new ArrayBuffer(byteSize);
-        this.dataView = new DataView(this.arrayBuffer);
+    constructor(dataView: DataView) {
+        this.arrayBuffer = dataView.buffer;
+        this.dataView = dataView;
 
         this.byteSize = this.arrayBuffer.byteLength - ALLOCATOR_INFORMATION.HEADER_SIZE;
         this.currentPosition = ALLOCATOR_INFORMATION.HEADER_SIZE;
@@ -61,9 +61,13 @@ export default class StackAllocator extends Allocator {
     }
 
     private getAddress(size: number, alignment: number) {
-        this.checkSize(size);
+        AllocatorHelper.checkSize(size);
 
-        const adjustment = this.alignForwardAdjustmentWithHeader(this.currentPosition, alignment, MARKER.ADJUSTMENT);
+        const adjustment = AllocatorHelper.alignForwardAdjustmentWithHeader(
+            this.currentPosition,
+            alignment,
+            MARKER.ADJUSTMENT
+        );
 
         if (this.usedMemory + adjustment + size > this.arrayBuffer.byteLength) return null;
 

@@ -12,7 +12,7 @@ export default class MemoryServer {
     private static _stackAllocator: StackAllocator;
     private static _GC: GCHandler;
     private static _logger: Logger;
-    static _rootAllocator: LinearAllocator;
+    private static rootAllocator: LinearAllocator;
 
     static get stackAllocator(): StackAllocator {
         return this._stackAllocator;
@@ -36,13 +36,16 @@ export default class MemoryServer {
         LoggerManager.register('MemoryServer', 'TRACE');
         this._GC = this._GC ?? new GCHandler();
 
-        this._rootAllocator = this._rootAllocator ?? new LinearAllocator(params.rootAllocator ?? 1024 * 1024 * 1024);
+        const arrayBuffer = new ArrayBuffer(512 * 1024 * 1024);
+        const dataView = new DataView(arrayBuffer);
+
+        this.rootAllocator = new LinearAllocator(dataView);
         this._linearAllocator =
-            this._linearAllocator ?? new LinearAllocator(params.linearAllocatorByteSize ?? 64 * 1024 * 1024);
+            this._linearAllocator ?? new LinearAllocator(this.rootAllocator.malloc(128 * 1024 * 1024, 4));
         this._stackAllocator =
-            this._stackAllocator ?? new StackAllocator(params.stackAllocatorByteSize ?? 64 * 1024 * 1024);
+            this._stackAllocator ?? new StackAllocator(this.rootAllocator.malloc(64 * 1024 * 1024, 4));
         this._freeListAllocator =
-            this._freeListAllocator ?? new FreeListAllocator(params.freeListAllocatorByteSize ?? 64 * 1024 * 1024);
+            this._freeListAllocator ?? new FreeListAllocator(this.rootAllocator.malloc(64 * 1024 * 1024, 4));
 
         LoggerManager.get('MemoryServer').info('Init GC');
         LoggerManager.get('MemoryServer').info(`Init LinearAllocator ${this.linearAllocator.byteSize} byte size`);

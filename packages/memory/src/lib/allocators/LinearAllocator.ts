@@ -1,5 +1,6 @@
 import { TYPED_ARRAY } from '../types/DataType';
 import Allocator from './Allocator';
+import { AllocatorHelper } from 'memory';
 
 enum ALLOCATOR_INFORMATION {
     BYTE_SIZE = 0,
@@ -8,7 +9,7 @@ enum ALLOCATOR_INFORMATION {
     NUM_ALLOCATIONS = 12,
     HEADER_SIZE = 16,
 }
-export default class LinearAllocator extends Allocator {
+export default class LinearAllocator implements Allocator {
     private readonly arrayBuffer: ArrayBuffer;
     private readonly dataView: DataView;
     public get byteSize() {
@@ -39,20 +40,19 @@ export default class LinearAllocator extends Allocator {
         this.dataView.setUint32(ALLOCATOR_INFORMATION.NUM_ALLOCATIONS, v);
     }
 
-    constructor(byteSize: number) {
-        super();
-        this.arrayBuffer = new ArrayBuffer(byteSize);
-        this.dataView = new DataView(this.arrayBuffer);
+    constructor(dataView: DataView) {
+        this.arrayBuffer = dataView.buffer;
+        this.dataView = dataView;
         this.usedMemory = ALLOCATOR_INFORMATION.HEADER_SIZE;
-        this.currentPosition = ALLOCATOR_INFORMATION.HEADER_SIZE;
-        this.byteSize = this.arrayBuffer.byteLength - ALLOCATOR_INFORMATION.HEADER_SIZE;
+        this.currentPosition = dataView.byteOffset + ALLOCATOR_INFORMATION.HEADER_SIZE;
+        this.byteSize = this.dataView.byteLength - ALLOCATOR_INFORMATION.HEADER_SIZE;
         this.numAllocations = 0;
     }
 
     private getAddress(size: number, alignment: number) {
-        this.checkSize(size);
+        AllocatorHelper.checkSize(size);
 
-        const adjustment = this.alignForwardAdjustment(this.currentPosition, alignment);
+        const adjustment = AllocatorHelper.alignForwardAdjustment(this.currentPosition, alignment);
 
         if (this.usedMemory + adjustment + size > this.byteSize) return null;
 
@@ -76,7 +76,7 @@ export default class LinearAllocator extends Allocator {
     clear(): void {
         this.numAllocations = 0;
         this.usedMemory = ALLOCATOR_INFORMATION.HEADER_SIZE;
-        this.currentPosition = ALLOCATOR_INFORMATION.HEADER_SIZE;
+        this.currentPosition = this.dataView.byteOffset + ALLOCATOR_INFORMATION.HEADER_SIZE;
     }
     deallocate(dataView: TYPED_ARRAY): void {
         throw new Error('Please, use Clear() method');
