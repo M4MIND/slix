@@ -37,6 +37,14 @@ export default class TransformComponent extends BaseComponent {
         this.children.push(gameObject);
     }
 
+    public setParent(gameObject: GameObject) {
+        if (gameObject.instanceID === this.instanceID) return;
+
+        gameObject.transform.addChildren(this.gameObject);
+        this.transform.parent = gameObject;
+        this.gameObject.scene.takeOut(this.gameObject);
+    }
+
     set eulerAngles(v: Vector3) {
         this.hasChanged = true;
         this._eulerAngles = v;

@@ -90,11 +90,9 @@ void main() {
 
         SlixEngine.start((sceneManager) => {
             sceneManager.setActiveScene(sceneManager.createScene('MainScene'));
-            new GameObject();
-            new GameObject();
-            new GameObject();
-            new GameObject();
-            new GameObject();
+            const object1 = new GameObject('Cube', MeshFilterComponent, MeshRendererComponent);
+
+            object1.getComponent<MeshFilterComponent>(MeshRendererComponent).mesh = new Cube();
 
             console.dir(sceneManager.getActiveScene());
         });

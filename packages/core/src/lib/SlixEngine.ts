@@ -26,14 +26,14 @@ export default class SlixEngine {
 
     static start(prepare: (sceneManager: SceneManager) => void) {
         prepare(SlixEngine.sceneManager);
-        SlixEngine.gameLoop();
+        SlixEngine.loop();
     }
 
-    private static gameLoop() {
-        SlixEngine.sceneManager
-            .getActiveScene()
-            .sceneGameObject.getComponentsInChildren<TransformComponent>(TransformComponent);
+    private static loop() {
+        // Rendering
+        for (const gm of SlixEngine.sceneManager.getActiveScene().root) {
+        }
 
-        window.requestAnimationFrame(SlixEngine.gameLoop);
+        window.requestAnimationFrame(SlixEngine.loop);
     }
 }

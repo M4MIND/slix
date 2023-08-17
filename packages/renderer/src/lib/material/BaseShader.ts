@@ -23,6 +23,7 @@ export default class BaseShader {
     private readonly uniformBlockCollection: UNIFORM_BLOCK_INFORMATION[] = [];
     private readonly countAttributes = 0;
     private readonly countUniforms = 0;
+    public readonly id: string = self.crypto.randomUUID();
 
     constructor(public readonly name: string, private readonly program: Program) {
         for (const index of program.getActiveAttributes()) {

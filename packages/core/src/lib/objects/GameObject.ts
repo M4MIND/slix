@@ -7,7 +7,7 @@ export default class GameObject extends BaseObject {
     public name = 'GameObject';
     public readonly transform: TransformComponent;
     private readonly components: { [index: string]: BaseComponent } = {};
-    private scene: Scene;
+    public scene: Scene;
 
     constructor(name?: string);
     constructor(name: string, ...args: BaseComponentInterface[]);
@@ -19,10 +19,7 @@ export default class GameObject extends BaseObject {
         if (args) this.addComponents(...args);
 
         this.scene = SlixEngine.sceneManager.getActiveScene();
-
-        if (this.scene?.addGameObject) {
-            this.scene.addGameObject(this);
-        }
+        this.scene.addGameObject(this);
     }
 
     addComponent<T extends BaseComponent>(component: BaseComponentInterface): T {
