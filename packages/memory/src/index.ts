@@ -8,37 +8,38 @@ import Int32NativeArray from './lib/array/Int32NativeArray';
 import { Uint8NativeArray } from './lib/array/Uint8NativeArray';
 import Uint16NativeArray from './lib/array/Uint16NativeArray';
 import Uint32NativeArray from './lib/array/Uint32NativeArray';
+import AllocatorHelper from './lib/helper/AllocatorHelper';
 import NativeArrayHelper from './lib/helper/NativeArrayHelper';
-import { DataType, FLOAT32, INT8, INT16, INT32, UINT8, UINT16, UINT32 } from './lib/types/DataType';
+import Struct from './lib/struct/Struct';
+import type { StructType } from './lib/struct/Struct';
+import StructureNativeArray from './lib/struct/StructureNativeArray';
+import { TypeAllocator } from './lib/types/DataType';
 import type {
-    DataTypeArguments,
     DataTypeConstructor,
     TYPED_ARRAY,
     TYPED_ARRAY_CONSTRUCTOR,
+    TYPED_NATIVE_ARRAY,
 } from './lib/types/DataType';
 
 export {
-    DataType,
-    DataTypeArguments,
+    AllocatorHelper,
     DataTypeConstructor,
-    FLOAT32,
-    INT16,
-    INT32,
-    INT8,
+    Float32NativeArray,
+    Int16NativeArray,
+    Int32NativeArray,
+    Int8NativeArray,
     LinearAllocator,
     MemoryServer,
     MemoryServerInitConfigs,
+    NativeArrayHelper,
+    Struct,
+    StructType,
+    StructureNativeArray,
+    TypeAllocator,
     TYPED_ARRAY,
     TYPED_ARRAY_CONSTRUCTOR,
-    UINT16,
-    UINT32,
-    UINT8,
-    Float32NativeArray,
-    Int32NativeArray,
-    Int16NativeArray,
-    Int8NativeArray,
-    Uint8NativeArray,
+    TYPED_NATIVE_ARRAY,
     Uint16NativeArray,
     Uint32NativeArray,
-    NativeArrayHelper,
+    Uint8NativeArray,
 };

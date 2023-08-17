@@ -4,7 +4,7 @@ import { VertexAttributeFormatByteSize } from './VertexAttributeDescriptor';
 import { TYPED_ARRAY } from 'memory';
 
 export default class BaseMesh {
-    protected vertexAttributeDescriptor: { [index: string]: VertexAttributeDescriptor } = {};
+    protected vertexAttributeDescriptor: VertexAttributeDescriptor[] = [];
     public topology = MESH_TOPOLOGY.TRIANGLES;
     private _vertexCountElements = 0;
     private _byteSizeOfOneVertexPack = 0;
@@ -35,21 +35,21 @@ export default class BaseMesh {
             this._byteSizeOfOneVertexPack += v.dimension * VertexAttributeFormatByteSize[v.byteSize];
         }
 
-        let offset = 0;
-
         for (const v of list) {
-            v.offset = offset;
-            this.vertexAttributeDescriptor[v.attribute] = v;
+            this.vertexAttributeDescriptor.push(v);
             this._vertexCountElements += v.dimension;
-            offset += v.dimension * VertexAttributeFormatByteSize[v.byteSize];
         }
     }
 
     getVertexBufferParams() {
-        return Object.values(this.vertexAttributeDescriptor);
+        return this.vertexAttributeDescriptor;
     }
 
-    setVertexBufferData(data: TYPED_ARRAY, dataStart = 0, meshBufferStart = 0) {
+    setVertexBufferData(data: TYPED_ARRAY) {
         this._vertexBuffer.setData(data);
+    }
+
+    setIndexBufferData(data: TYPED_ARRAY) {
+        this._indexBuffer.setData(data);
     }
 }

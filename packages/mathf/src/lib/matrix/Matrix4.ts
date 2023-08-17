@@ -1,5 +1,5 @@
+import { Quaternion } from '../../index';
 import Vector3 from '../vector/Vector3';
-import { Quaternion } from 'mathf';
 import { Float32NativeArray } from 'memory';
 
 type components = [
@@ -23,17 +23,6 @@ type components = [
 
 export default class Matrix4 extends Float32NativeArray {
     private cache = new Float32NativeArray(18);
-    /*
-    |get00(0),  get01(1),  get02(2),  get03(3)|
-    |get10(4),  get11(5),  get12(6),  get13(7)|
-    |get20(8),  get21(9),  get22(10), get23(11)|
-    |get30(12), get31(13), get32(14), get33(15)|
-     */
-
-    set _translate(v: Vector3) {
-        this.translate(v);
-    }
-
     constructor(
         m00 = 1,
         m01 = 0,
@@ -54,90 +43,81 @@ export default class Matrix4 extends Float32NativeArray {
     ) {
         super([m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33]);
     }
-
     get00(): number {
         return this[0];
     }
-
     set00(v: number): this {
         this[0] = v;
         return this;
     }
-
     get01(): number {
         return this[1];
     }
-
     set01(v: number): this {
         this[1] = v;
         return this;
     }
-
     get02(): number {
         return this[2];
     }
-
     set02(v: number): this {
         this[2] = v;
         return this;
     }
-
     get03(): number {
         return this[3];
     }
-
     set03(v: number): this {
         this[3] = v;
         return this;
     }
-
     get10(): number {
         return this[4];
     }
-
     set10(v: number): this {
         this[4] = v;
         return this;
     }
-
     get11(): number {
         return this[5];
     }
-
     set11(v: number): this {
         this[5] = v;
         return this;
     }
-
     get12(): number {
         return this[6];
     }
-
     set12(v: number): this {
         this[6] = v;
         return this;
     }
-
     get13(): number {
         return this[7];
     }
-
     set13(v: number): this {
         this[7] = v;
         return this;
     }
-
     get20(): number {
         return this[8];
     }
-
     set20(v: number): this {
         this[8] = v;
         return this;
     }
-
     get21(): number {
         return this[9];
+    }
+    /*
+    |get00(0),  get01(1),  get02(2),  get03(3)|
+    |get10(4),  get11(5),  get12(6),  get13(7)|
+    |get20(8),  get21(9),  get22(10), get23(11)|
+    |get30(12), get31(13), get32(14), get33(15)|
+     */
+
+    set _translate(v: Vector3) {
+        this.translate(v);
     }
 
     set21(v: number): this {
@@ -281,44 +261,7 @@ export default class Matrix4 extends Float32NativeArray {
         return this;
     }
 
-    static fromQuaternion(matrix: Matrix4, q: Quaternion) {
-        let x2 = q.x + q.x;
-        let y2 = q.y + q.y;
-        let z2 = q.z + q.z;
-
-        let xx = q.x * x2;
-        let yx = q.y * x2;
-        let yy = q.y * y2;
-        let zx = q.z * x2;
-        let zy = q.z * y2;
-        let zz = q.z * z2;
-        let wx = q.w * x2;
-        let wy = q.w * y2;
-        let wz = q.w * z2;
-
-        matrix[0] = 1 - yy - zz;
-        matrix[1] = yx + wz;
-        matrix[2] = zx - wy;
-        matrix[3] = 0;
-
-        matrix[4] = yx - wz;
-        matrix[5] = 1 - xx - zz;
-        matrix[6] = zy + wx;
-        matrix[7] = 0;
-
-        matrix[8] = zx + wy;
-        matrix[9] = zy - wx;
-        matrix[10] = 1 - xx - yy;
-        matrix[11] = 0;
-
-        matrix[12] = 0;
-        matrix[13] = 0;
-        matrix[14] = 0;
-        matrix[15] = 1;
-    }
-
     fromRotationTranslation(quaternion: Quaternion, vector: Vector3) {}
-
     multiply(b: Matrix4): this {
         const t00 = this[0];
         const t01 = this[1];
@@ -369,7 +312,6 @@ export default class Matrix4 extends Float32NativeArray {
             .set31(b30 * t01 + b31 * t11 + b32 * t21 + b33 * t31)
             .set32(b30 * t02 + b31 * t12 + b32 * t22 + b33 * t32);
     }
-
     inverse(): this {
         const m00 = this[0];
         const m01 = this[1];
@@ -437,7 +379,6 @@ export default class Matrix4 extends Float32NativeArray {
             .set32(d * (tmp_18 * m12 + tmp_23 * m32 + tmp_15 * m02 - (tmp_22 * m32 + tmp_14 * m02 + tmp_19 * m12)))
             .set33(d * (tmp_22 * m22 + tmp_16 * m02 + tmp_21 * m12 - (tmp_20 * m12 + tmp_23 * m22 + tmp_17 * m02)));
     }
-
     multiplyFromArray(...args: Matrix4[]) {
         const l = args.length - 1;
 
@@ -447,7 +388,6 @@ export default class Matrix4 extends Float32NativeArray {
 
         return this;
     }
-
     clear() {
         this[0] = 1;
         this[1] = 0;
@@ -465,6 +405,43 @@ export default class Matrix4 extends Float32NativeArray {
         this[13] = 0;
         this[14] = 0;
         this[15] = 1;
+
+        return this;
+    }
+    static fromQuaternion(matrix: Matrix4, q: Quaternion) {
+        const x2 = q.x + q.x;
+        const y2 = q.y + q.y;
+        const z2 = q.z + q.z;
+
+        const xx = q.x * x2;
+        const yx = q.y * x2;
+        const yy = q.y * y2;
+        const zx = q.z * x2;
+        const zy = q.z * y2;
+        const zz = q.z * z2;
+        const wx = q.w * x2;
+        const wy = q.w * y2;
+        const wz = q.w * z2;
+
+        matrix[0] = 1 - yy - zz;
+        matrix[1] = yx + wz;
+        matrix[2] = zx - wy;
+        matrix[3] = 0;
+
+        matrix[4] = yx - wz;
+        matrix[5] = 1 - xx - zz;
+        matrix[6] = zy + wx;
+        matrix[7] = 0;
+
+        matrix[8] = zx + wy;
+        matrix[9] = zy - wx;
+        matrix[10] = 1 - xx - yy;
+        matrix[11] = 0;
+
+        matrix[12] = 0;
+        matrix[13] = 0;
+        matrix[14] = 0;
+        matrix[15] = 1;
     }
 
     static translate(v: Vector3 = Vector3.zero): Matrix4 {
@@ -496,7 +473,7 @@ export default class Matrix4 extends Float32NativeArray {
         return new this(c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     }
 
-    static projection(fieldOfViewInRadians = 0, aspect = 0, near = 0.1, far = 1000): Matrix4 {
+    static projection(fieldOfViewInRadians = 0, aspect = 1, near = 0.1, far = 1000): Matrix4 {
         const f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewInRadians);
         const rangeInv = 1.0 / (near - far);
 

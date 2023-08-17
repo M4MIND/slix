@@ -1,6 +1,5 @@
 import { GL_PROGRAM_PARAMETERS, RendererServer } from '../../index';
 import WebGL2ContextManager from '../manager/WebGL2ContextManager';
-import { GL_LINK_STATUS } from '../webgl.consts';
 
 export default class Program {
     private readonly context: WebGL2ContextManager = RendererServer.contextManager;
@@ -21,12 +20,27 @@ export default class Program {
         return this.context.getProgramParameter(this.program, GL_PROGRAM_PARAMETERS.ACTIVE_UNIFORMS);
     }
 
+    getActiveUniformsBlock() {
+        return this.context.getProgramParameter(this.program, GL_PROGRAM_PARAMETERS.ACTIVE_UNIFORM_BLOCKS);
+    }
     getActiveUniform(index: number) {
         return this.context.getActiveUniform(this.program, index);
     }
 
     getUniformLocation(name: string) {
         return this.context.getUniformLocation(this.program, name);
+    }
+
+    getActiveUniformBlockName(index: number) {
+        return this.context.getActiveUniformBlockName(this.program, index);
+    }
+
+    getUniformBlockIndex(name: string) {
+        return this.context.getUniformBlockIndex(this.program, name);
+    }
+
+    getAllInformationUniformBlock(index: number) {
+        return this.context.getAllInformationUniformBlock(this.program, index);
     }
 
     attachShader(vertex: WebGLShader, fragment: WebGLShader) {

@@ -1,4 +1,4 @@
-import { DataTypeArguments, DataTypeConstructor, TYPED_ARRAY } from '../types/DataType';
+import { TYPED_ARRAY } from '../types/DataType';
 import Allocator from './Allocator';
 
 enum ALLOCATOR_INFORMATION {
@@ -9,6 +9,8 @@ enum ALLOCATOR_INFORMATION {
     HEADER_SIZE = 16,
 }
 export default class LinearAllocator extends Allocator {
+    private readonly arrayBuffer: ArrayBuffer;
+    private readonly dataView: DataView;
     public get byteSize() {
         return this.dataView.getUint32(ALLOCATOR_INFORMATION.BYTE_SIZE);
     }
@@ -36,9 +38,6 @@ export default class LinearAllocator extends Allocator {
     private set numAllocations(v: number) {
         this.dataView.setUint32(ALLOCATOR_INFORMATION.NUM_ALLOCATIONS, v);
     }
-
-    private readonly arrayBuffer: ArrayBuffer;
-    private readonly dataView: DataView;
 
     constructor(byteSize: number) {
         super();
@@ -73,16 +72,6 @@ export default class LinearAllocator extends Allocator {
                 `Failed to allocate memory for ${size} bytes. ${this.byteSize - this.usedMemory} bytes available `
             );
         return new DataView(this.arrayBuffer, address, size);
-    }
-    calloc<T extends TYPED_ARRAY>(length: number, type: DataTypeConstructor<DataTypeArguments>): T {
-        const address = this.getAddress(length * type.byteSize, type.byteSize);
-        if (!address)
-            throw new Error(
-                `Failed to allocate memory for ${length * type.byteSize} bytes. ${
-                    this.byteSize - this.usedMemory
-                } bytes available `
-            );
-        return new type.dataViewConstructor(this.arrayBuffer, address, length) as T;
     }
     clear(): void {
         this.numAllocations = 0;

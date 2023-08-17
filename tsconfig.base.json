@@ -16,6 +16,7 @@
         "baseUrl": ".",
         "paths": {
             "core": ["packages/core/src/index.ts"],
+            "logger": ["packages/logger/src/index.ts"],
             "mathf": ["packages/mathf/src/index.ts"],
             "memory": ["packages/memory/src/index.ts"],
             "renderer": ["packages/renderer/src/index.ts"]
