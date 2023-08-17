@@ -1,9 +1,9 @@
-import { ALLOCATOR, TYPED_ARRAY, Uint8NativeArray } from '../../index';
+import { TYPED_ARRAY, TypeAllocator, Uint8NativeArray } from '../../index';
 import Struct from './Struct';
 
 export default class StructureNativeArray extends Uint8NativeArray {
     private watchers: { [index: string]: TYPED_ARRAY } = {};
-    constructor(private readonly struct: Struct, allocator: ALLOCATOR = ALLOCATOR.LINEAR) {
+    constructor(private readonly struct: Struct, allocator: TypeAllocator = TypeAllocator.LINEAR) {
         super(struct.byteSize, allocator);
 
         for (const structKey of this.struct.getAllKeys()) {

@@ -1,5 +1,5 @@
 export default class BaseObject {
-    private _instanceID = 0;
+    private _instanceID = self.crypto.randomUUID();
 
     public get hashCode() {
         return this._instanceID;

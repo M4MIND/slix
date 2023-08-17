@@ -1,7 +1,15 @@
+import { GameObject } from '../../../index';
 import BaseComponent from '../BaseComponent';
 import { Quaternion, Vector3 } from 'mathf';
 
 export default class TransformComponent extends BaseComponent {
+    public rotation = new Quaternion();
+    private up = Vector3.up;
+    private right = Vector3.rigth;
+    private forward = Vector3.forward;
+    private hasChanged = false;
+    private parent: GameObject | null = null;
+    private children: GameObject[] = [];
     public get eulerAngles() {
         return this._eulerAngles;
     }
@@ -11,14 +19,23 @@ export default class TransformComponent extends BaseComponent {
     get scale(): Vector3 {
         return this._scale;
     }
-    public rotation = new Quaternion();
-    private up = Vector3.up;
-    private right = Vector3.rigth;
-    private forward = Vector3.forward;
-    private hasChanged = false;
+
     private _position = Vector3.zero;
     private _scale = Vector3.one;
     private _eulerAngles = Vector3.zero;
+
+    public getChild(index: number) {
+        if (this.children[index]) return this.children;
+        return null;
+    }
+
+    public getChildren() {
+        return this.children;
+    }
+
+    public addChildren(gameObject: GameObject) {
+        this.children.push(gameObject);
+    }
 
     set eulerAngles(v: Vector3) {
         this.hasChanged = true;

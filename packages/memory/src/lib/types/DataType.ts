@@ -1,7 +1,7 @@
 import { StructureNativeArray } from '../../index';
 import { Float32NativeArray, Uint8NativeArray, Uint16NativeArray, Uint32NativeArray } from '../../index';
 
-export enum ALLOCATOR {
+export enum TypeAllocator {
     LINEAR,
     POOL,
     FREE_LIST,

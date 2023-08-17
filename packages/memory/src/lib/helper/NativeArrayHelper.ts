@@ -1,5 +1,5 @@
 import { MemoryServer, TYPED_ARRAY } from '../../index';
-import { ALLOCATOR } from '../types/DataType';
+import { TypeAllocator } from '../types/DataType';
 
 export default class NativeArrayHelper {
     static merge(a: TYPED_ARRAY, step: number, b: TYPED_ARRAY[], offset = 0) {
@@ -13,11 +13,11 @@ export default class NativeArrayHelper {
 
     static mergeCollection(_out: TYPED_ARRAY, _in: [TYPED_ARRAY, number][], step: number) {}
 
-    static destroy(allocator: ALLOCATOR, nativeArray: TYPED_ARRAY) {
+    static destroy(allocator: TypeAllocator, nativeArray: TYPED_ARRAY) {
         MemoryServer.destroyNativeArray(allocator, nativeArray);
     }
 
-    static malloc(allocator: ALLOCATOR, byteSize: number, alignment: number): DataView {
+    static malloc(allocator: TypeAllocator, byteSize: number, alignment: number): DataView {
         return MemoryServer.malloc(allocator, byteSize, alignment);
     }
 

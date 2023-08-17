@@ -1,11 +1,11 @@
 import NativeArrayHelper from '../helper/NativeArrayHelper';
-import { ALLOCATOR } from '../types/DataType';
+import { TypeAllocator } from '../types/DataType';
 import { NativeArray } from './NativeArray';
 
 export default class Int8NativeArray extends Int8Array implements NativeArray {
-    public readonly ALLOCATOR: ALLOCATOR;
-    protected readonly dataView: DataView;
-    constructor(sizeOrData: number | number[], type: ALLOCATOR = ALLOCATOR.LINEAR) {
+    public readonly ALLOCATOR: TypeAllocator;
+    public readonly dataView: DataView;
+    constructor(sizeOrData: number | number[], type: TypeAllocator = TypeAllocator.LINEAR) {
         const dataView = NativeArrayHelper.malloc(
             type,
             NativeArrayHelper.needBytes(sizeOrData, Int8Array.BYTES_PER_ELEMENT),

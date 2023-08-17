@@ -1,3 +1,4 @@
+import { TransformComponent } from '../index';
 import Renderer from './Renderer';
 import SceneManager from './scene/SceneManager';
 import { MemoryServer, MemoryServerInitConfigs } from 'memory';
@@ -29,6 +30,10 @@ export default class SlixEngine {
     }
 
     private static gameLoop() {
+        SlixEngine.sceneManager
+            .getActiveScene()
+            .sceneGameObject.getComponentsInChildren<TransformComponent>(TransformComponent);
+
         window.requestAnimationFrame(SlixEngine.gameLoop);
     }
 }

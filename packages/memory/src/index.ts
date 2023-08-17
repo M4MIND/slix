@@ -13,7 +13,7 @@ import NativeArrayHelper from './lib/helper/NativeArrayHelper';
 import Struct from './lib/struct/Struct';
 import type { StructType } from './lib/struct/Struct';
 import StructureNativeArray from './lib/struct/StructureNativeArray';
-import { ALLOCATOR } from './lib/types/DataType';
+import { TypeAllocator } from './lib/types/DataType';
 import type {
     DataTypeConstructor,
     TYPED_ARRAY,
@@ -22,7 +22,6 @@ import type {
 } from './lib/types/DataType';
 
 export {
-    ALLOCATOR,
     AllocatorHelper,
     DataTypeConstructor,
     Float32NativeArray,
@@ -36,6 +35,7 @@ export {
     Struct,
     StructType,
     StructureNativeArray,
+    TypeAllocator,
     TYPED_ARRAY,
     TYPED_ARRAY_CONSTRUCTOR,
     TYPED_NATIVE_ARRAY,

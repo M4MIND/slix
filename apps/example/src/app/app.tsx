@@ -10,7 +10,7 @@ import {
     SlixEngine,
 } from 'core';
 import { MathHelper, Matrix4, Vector3, Vector4 } from 'mathf';
-import { ALLOCATOR, Float32NativeArray, LinearAllocator, MemoryServer, Struct, StructureNativeArray } from 'memory';
+import { Float32NativeArray, LinearAllocator, MemoryServer, Struct, StructureNativeArray, TypeAllocator } from 'memory';
 import React, { useEffect, useRef, useState } from 'react';
 import { BaseShader, MESH_TOPOLOGY, RendererServer, UniformGraphicsBuffer } from 'renderer';
 
@@ -90,9 +90,24 @@ void main() {
 
         SlixEngine.start((sceneManager) => {
             sceneManager.setActiveScene(sceneManager.createScene('MainScene'));
-
             new GameObject();
+            new GameObject();
+            new GameObject();
+            new GameObject();
+            new GameObject();
+
+            console.dir(sceneManager.getActiveScene());
         });
+
+        // (function allocateMemory() {
+        //     // Allocate 50000 functions — a lot of memory!
+        //     Array.from({ length: 50000 }, () => () => {});
+        //     if (counter > 5000) return;
+        //     counter++;
+        //     allocateMemory();
+        // })();
+        //
+        // console.log('Main job ends');
 
         // const gameObject = new GameObject('GameObject', MeshFilterComponent, MeshRendererComponent);
         // const meshFilter = gameObject.getComponent<MeshFilterComponent>(MeshFilterComponent);

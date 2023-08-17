@@ -1,15 +1,14 @@
 import { GameObject } from '../../index';
+import SceneGameObject from '../objects/SceneGameObject';
 
 export default class Scene {
-    private readonly rootGameObjects: GameObject[] = [];
-
-    constructor(public readonly name: string) {}
-
+    public readonly sceneGameObject: SceneGameObject;
+    constructor(public readonly name: string) {
+        this.sceneGameObject = new SceneGameObject(name);
+    }
     addGameObject(gameObject: GameObject) {
-        this.rootGameObjects.push(gameObject);
+        this.sceneGameObject.transform.addChildren(gameObject);
     }
 
-    getGameObjects() {
-        return this.rootGameObjects;
-    }
+    getGameObjects() {}
 }
