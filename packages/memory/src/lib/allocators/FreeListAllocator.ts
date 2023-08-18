@@ -1,19 +1,19 @@
+import { AllocatorHelper } from '../../index';
 import { TYPED_ARRAY } from '../types/DataType';
 import Allocator from './Allocator';
 import { add } from 'benny';
 import { LoggerManager } from 'logger';
-import { AllocatorHelper } from 'memory';
 
-enum ALLOCATION_HEADER {
+enum MEMORY_BLOCK_HEADER {
     SIZE = 0,
-    ADJUSTMENTS = 4,
-    USED = 8,
-    HEADER_SIZE = 9,
+    USED = 4,
+    ALIGN = 5,
+    HEADER_SIZE = 6,
 }
 
-enum ALLOCATION_HEADER_END {
+enum MEMORY_BLOCK_HEADER_END {
     SIZE = 0,
-    ADJUSTMENTS = 4,
+    ALIGN = 4,
     HEADER_SIZE = 5,
 }
 
@@ -45,46 +45,99 @@ export default class FreeListAllocator implements Allocator {
     constructor(dataView: DataView) {
         this.arrayBuffer = dataView.buffer;
         this.dataView = dataView;
-        const ad = AllocatorHelper.alignForwardAdjustmentWithHeader(0, 4, ALLOCATION_HEADER.HEADER_SIZE);
-        this.setFreeBlockHeader(
-            0,
-            dataView.byteLength - ALLOCATION_HEADER.HEADER_SIZE - ALLOCATION_HEADER_END.HEADER_SIZE,
-            false,
-            ad
-        );
-        this.setFreeBlockEnd(
-            this.dataView.byteLength,
-            dataView.byteLength - ALLOCATION_HEADER.HEADER_SIZE - ALLOCATION_HEADER_END.HEADER_SIZE,
-            ad
-        );
+
+        this.setByteSize(0, this.calcNeedByteSizeWithoutHeaders(this.byteSize));
+        this.setUsed(0, false);
+
+        this.dataView.setUint32(this.byteSize - 4, this.calcNeedByteSizeWithoutHeaders(this.byteSize));
+        this.dataView.setUint8(this.byteSize - 5, 0);
     }
 
-    private setFreeBlockHeader(address: number, byteSize: number, used: boolean, adjustment: number) {
-        this.dataView.setUint32(address + ALLOCATION_HEADER.SIZE, byteSize);
-        this.dataView.setUint8(address + ALLOCATION_HEADER.USED, used ? 1 : 0);
-        this.dataView.setUint32(address + ALLOCATION_HEADER.ADJUSTMENTS, adjustment);
-
-        LoggerManager.get('MemoryServer::ALLOCATORS').debug(
-            `${FreeListAllocator.name}::setFreeBlockHeader`,
-            `0x${address.toString(16)}`,
-            `[${byteSize}][${byteSize}][${byteSize}][${byteSize}][${used}][${adjustment}]`
-        );
+    private calcNeedSize(byteSize: number) {
+        return byteSize + MEMORY_BLOCK_HEADER.HEADER_SIZE + MEMORY_BLOCK_HEADER_END.HEADER_SIZE;
     }
 
-    private setFreeBlockEnd(address: number, byteSize: number, adjustment: number) {
-        LoggerManager.get('MemoryServer::ALLOCATORS').debug(
-            `${FreeListAllocator.name}::setFreeBlockEnd`,
-            `0x${address.toString(16)}`,
-            `[${adjustment}][${byteSize}][${byteSize}][${byteSize}][${byteSize}]`
+    private calcNeedByteSizeWithoutHeaders(byteSize: number) {
+        return byteSize - MEMORY_BLOCK_HEADER.HEADER_SIZE - MEMORY_BLOCK_HEADER_END.HEADER_SIZE;
+    }
+
+    private setByteSize(address: number, byteSize: number) {
+        this.dataView.setUint32(address, byteSize);
+    }
+
+    private getByteSize(address: number) {
+        return this.dataView.getUint32(address);
+    }
+
+    private setUsed(address: number, status: boolean) {
+        this.dataView.setUint8(address + MEMORY_BLOCK_HEADER.USED, status ? 2 : 1);
+    }
+
+    private isUsed(address: number) {
+        return this.dataView.getUint8(address + MEMORY_BLOCK_HEADER.USED) === 2;
+    }
+
+    private setAlign(address: number, align: number) {
+        this.dataView.setUint8(address + MEMORY_BLOCK_HEADER.ALIGN, align);
+    }
+
+    private getAlign(address: number) {
+        return this.dataView.getUint8(address);
+    }
+
+    printMemory() {
+        const list = [];
+        for (let i = 0; i < this.byteSize; i++) {
+            if (i % 4 === 0) {
+                list.push('  ');
+            }
+            if (i % 16 === 0) {
+                list.push('\n');
+            }
+            const data = this.dataView.getUint8(i).toString();
+            list.push(`[${'0'.repeat(3 - data.length)}${data}]`);
+        }
+
+        LoggerManager.get('MemoryServer::ALLOCATORS').debug(list.join(''));
+    }
+
+    private markUse(size: number, address: number, alignment: number) {
+        const alignForwardAdjustmentWithHeader = AllocatorHelper.alignForwardAdjustmentWithHeader(
+            address,
+            alignment,
+            MEMORY_BLOCK_HEADER.HEADER_SIZE
         );
+        this.setByteSize(address, this.calcNeedSize(size));
+        this.setUsed(address, true);
+
+        this.dataView.setUint32(address + alignForwardAdjustmentWithHeader + size + 1, this.calcNeedSize(size));
+        this.dataView.setUint8(address + alignForwardAdjustmentWithHeader - 1, alignForwardAdjustmentWithHeader);
+        this.dataView.setUint8(address + alignForwardAdjustmentWithHeader + size, alignForwardAdjustmentWithHeader);
+
+        this.printMemory();
+
+        return new DataView(this.arrayBuffer, alignForwardAdjustmentWithHeader, size);
+    }
+
+    private isFree(address: number) {
+        return this.dataView.getUint8(address + MEMORY_BLOCK_HEADER.USED) === 0;
+    }
+
+    private sizeOf(address: number) {
+        return this.dataView.getUint32(address);
     }
 
     deallocate(dataView: TYPED_ARRAY): void {}
 
     malloc(size: number, alignment: number): DataView {
-        LoggerManager.get('MemoryServer::ALLOCATORS').debug(
-            `${FreeListAllocator.name}::malloc => byteSize: ${size} | alignment: ${alignment}`
-        );
+        let address = 0;
+
+        if (address < this.byteSize) {
+            if (!this.isUsed(address) && this.getByteSize(address) >= this.calcNeedSize(size)) {
+                return this.markUse(size, address, alignment);
+            }
+            address = 0;
+        }
 
         return new DataView(this.arrayBuffer);
     }

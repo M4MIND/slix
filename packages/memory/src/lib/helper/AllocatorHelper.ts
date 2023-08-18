@@ -13,9 +13,9 @@ export default class AllocatorHelper {
 
         if (adjustment < needSpace) {
             needSpace -= adjustment;
-            adjustment += alignment * (needSpace / alignment);
+            adjustment += alignment * Math.floor(needSpace / alignment);
 
-            if (needSpace % alignment > 0) return (adjustment += alignment);
+            if (needSpace % alignment > 0) adjustment += alignment;
         }
 
         return adjustment;

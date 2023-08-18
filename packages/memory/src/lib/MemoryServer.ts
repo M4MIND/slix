@@ -54,7 +54,9 @@ export default class MemoryServer {
         this._freeListAllocator = new FreeListAllocator(this.rootAllocator.malloc(params.freeListAllocatorByteSize, 4));
         LoggerManager.get('MemoryServer').info(`Init FreeListAllocator ${this.freeListAllocator.byteSize} byte`);
 
-        this._freeListAllocator.malloc(355, 4);
+        this.freeListAllocator.printMemory();
+
+        console.log(this._freeListAllocator.malloc(24, 4));
     }
 
     static getAllocator(type: TypeAllocator): Allocator {
