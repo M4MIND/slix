@@ -33,24 +33,28 @@ export default class MemoryServer {
     }
 
     static startUp(params: MemoryServerInitConfigs) {
-        LoggerManager.register('MemoryServer', 'TRACE');
-        this._GC = this._GC ?? new GCHandler();
-
-        const arrayBuffer = new ArrayBuffer(512 * 1024 * 1024);
-        const dataView = new DataView(arrayBuffer);
-
-        this.rootAllocator = new LinearAllocator(dataView);
-        this._linearAllocator =
-            this._linearAllocator ?? new LinearAllocator(this.rootAllocator.malloc(128 * 1024 * 1024, 4));
-        this._stackAllocator =
-            this._stackAllocator ?? new StackAllocator(this.rootAllocator.malloc(64 * 1024 * 1024, 4));
-        this._freeListAllocator =
-            this._freeListAllocator ?? new FreeListAllocator(this.rootAllocator.malloc(64 * 1024 * 1024, 4));
+        LoggerManager.register('MemoryServer', 'DEBUG');
+        LoggerManager.register('MemoryServer::GC', 'OFF');
+        LoggerManager.register('MemoryServer::ALLOCATORS', 'TRACE');
 
         LoggerManager.get('MemoryServer').info('Init GC');
-        LoggerManager.get('MemoryServer').info(`Init LinearAllocator ${this.linearAllocator.byteSize} byte size`);
-        LoggerManager.get('MemoryServer').info(`Init StackAllocator ${this.stackAllocator.byteSize} byte size`);
-        LoggerManager.get('MemoryServer').info(`Init FreeListAllocator ${this.freeListAllocator.byteSize} byte size`);
+        this._GC = this._GC ?? new GCHandler();
+        const arrayBuffer = new ArrayBuffer(Object.values(params).reduce((p, a) => p + a, 0));
+
+        const dataView = new DataView(arrayBuffer);
+        this.rootAllocator = new LinearAllocator(dataView);
+        LoggerManager.get('MemoryServer').info(`Init RootAllocator ${this.rootAllocator.byteSize} byte`);
+
+        this._linearAllocator = new LinearAllocator(this.rootAllocator.malloc(params.linearAllocatorByteSize, 4));
+        LoggerManager.get('MemoryServer').info(`Init LinearAllocator ${this.linearAllocator.byteSize} byte`);
+
+        this._stackAllocator = new StackAllocator(this.rootAllocator.malloc(params.stackAllocatorByteSize, 4));
+        LoggerManager.get('MemoryServer').info(`Init StackAllocator ${this.stackAllocator.byteSize} byte`);
+
+        this._freeListAllocator = new FreeListAllocator(this.rootAllocator.malloc(params.freeListAllocatorByteSize, 4));
+        LoggerManager.get('MemoryServer').info(`Init FreeListAllocator ${this.freeListAllocator.byteSize} byte`);
+
+        this._freeListAllocator.malloc(355, 4);
     }
 
     static getAllocator(type: TypeAllocator): Allocator {
@@ -73,8 +77,7 @@ export default class MemoryServer {
 }
 
 export type MemoryServerInitConfigs = {
-    rootAllocator?: number;
-    linearAllocatorByteSize?: number;
-    stackAllocatorByteSize?: number;
-    freeListAllocatorByteSize?: number;
+    linearAllocatorByteSize: number;
+    stackAllocatorByteSize: number;
+    freeListAllocatorByteSize: number;
 };

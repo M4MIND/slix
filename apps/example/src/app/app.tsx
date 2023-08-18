@@ -73,17 +73,14 @@ void main() {
             },
             memoryServer: {
                 linearAllocatorByteSize: 128 * 1024 * 1024,
+                stackAllocatorByteSize: 64 * 1024 * 1024,
+                freeListAllocatorByteSize: 64 * 1024 * 1024,
             },
         });
 
-        SlixEngine.start((sceneManager) => {
-            sceneManager.setActiveScene(sceneManager.createScene('MainScene'));
-            const object1 = new GameObject('Cube', MeshFilterComponent, MeshRendererComponent);
-
-            object1.getComponent<MeshFilterComponent>(MeshRendererComponent).mesh = new Cube();
-
-            console.dir(sceneManager.getActiveScene());
-        });
+        // SlixEngine.start((sceneManager) => {
+        //     sceneManager.setActiveScene(sceneManager.createScene('MainScene'));
+        // });
 
         // (function allocateMemory() {
         //     // Allocate 50000 functions — a lot of memory!
