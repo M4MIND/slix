@@ -1,6 +1,6 @@
+import { AllocatorHelper } from '../../index';
 import { TYPED_ARRAY } from '../types/DataType';
 import Allocator from './Allocator';
-import { AllocatorHelper } from 'memory';
 
 enum ALLOCATOR_INFORMATION {
     CURRENT_POSITION = 4,
@@ -10,9 +10,9 @@ enum ALLOCATOR_INFORMATION {
 export default class LinearAllocator implements Allocator {
     private readonly arrayBuffer: ArrayBuffer;
     private readonly dataView: DataView;
-    private _usedMemory: number = 0;
-    private _position: number = 0;
-    private _numAllocations: number = 0;
+    private _usedMemory = 0;
+    private _position = 0;
+    private _numAllocations = 0;
     public get byteSize() {
         return this.dataView.byteLength;
     }
@@ -74,7 +74,7 @@ export default class LinearAllocator implements Allocator {
         this.usedMemory = 0;
         this.currentPosition = this.dataView.byteOffset;
     }
-    deallocate(dataView: TYPED_ARRAY): void {
-        throw new Error('Please, use Clear() method');
+    deallocate(byteOffset: number): void {
+        console.warn('Please, use Clear() method');
     }
 }

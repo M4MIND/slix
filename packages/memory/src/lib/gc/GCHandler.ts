@@ -16,8 +16,7 @@ export default class GCHandler {
 
     constructor() {
         this.finalizationRegistry = new FinalizationRegistry((k) => {
-            MemoryServer.destroyByByteOffset(k.allocator, k.byteOffset);
-            LoggerManager.get('MemoryServer').debug(`${GCHandler.name}::destroy`, k.token.toString());
+            MemoryServer.deallocate(k.allocator, k.byteOffset);
         });
     }
 
@@ -26,19 +25,16 @@ export default class GCHandler {
         this.finalizationRegistry.register(
             target,
             {
-                allocator: target.ALLOCATOR,
+                allocator: target.allocator,
                 byteOffset: target.dataView.byteOffset,
                 token: token,
             },
             token
         );
-
-        LoggerManager.get('MemoryServer::GC').trace(`${GCHandler.name}::register`, token.toString());
         return token;
     }
 
     unregister(token: symbol) {
-        LoggerManager.get('MemoryServer').trace(`${GCHandler.name}::unregister`, token.toString());
         this.finalizationRegistry.unregister(token);
     }
 }

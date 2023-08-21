@@ -1,3 +1,5 @@
+import { MemoryServer, TypeAllocator } from '../../index';
+
 export default class AllocatorHelper {
     static alignForwardAdjustment(address: number, alignment: number): number {
         const adjustment = alignment - (address & (alignment - 1));
@@ -19,6 +21,11 @@ export default class AllocatorHelper {
         }
 
         return adjustment;
+    }
+
+    static deallocate(allocator: TypeAllocator, ptr: number, token: symbol) {
+        MemoryServer.GC.unregister(token);
+        MemoryServer.deallocate(allocator, ptr);
     }
 
     static checkSize(size: number) {

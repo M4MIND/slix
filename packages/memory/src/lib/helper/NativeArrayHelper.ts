@@ -13,8 +13,8 @@ export default class NativeArrayHelper {
 
     static mergeCollection(_out: TYPED_ARRAY, _in: [TYPED_ARRAY, number][], step: number) {}
 
-    static destroy(allocator: TypeAllocator, nativeArray: TYPED_ARRAY) {
-        MemoryServer.destroyNativeArray(allocator, nativeArray);
+    static destroy(allocator: TypeAllocator, byteOffset: number) {
+        MemoryServer.deallocate(allocator, byteOffset);
     }
 
     static malloc(allocator: TypeAllocator, byteSize: number, alignment: number): DataView {

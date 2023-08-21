@@ -6,5 +6,5 @@ export default interface Allocator {
     get numAllocations(): number;
 
     malloc(size: number, alignment: number): DataView;
-    deallocate(dataView: TYPED_ARRAY): void;
+    deallocate(byteOffset: number): void;
 }

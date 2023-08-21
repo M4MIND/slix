@@ -1,6 +1,6 @@
+import { AllocatorHelper } from '../../index';
 import { TYPED_ARRAY } from '../types/DataType';
 import Allocator from './Allocator';
-import { AllocatorHelper } from 'memory';
 
 enum MARKER {
     ADJUSTMENT = 4,
@@ -89,10 +89,10 @@ export default class StackAllocator implements Allocator {
 
         return new DataView(this.arrayBuffer, address, size);
     }
-    deallocate(dataView: TYPED_ARRAY) {
-        const headerAddress = dataView.byteOffset - MARKER.HEADER_SIZE;
-        this.usedMemory -= this.currentPosition - dataView.byteOffset + this.dataView.getUint32(headerAddress);
-        this.currentPosition = dataView.byteOffset - this.dataView.getUint32(headerAddress);
+    deallocate(byteOffset: number) {
+        const headerAddress = byteOffset - MARKER.HEADER_SIZE;
+        this.usedMemory -= this.currentPosition - byteOffset + this.dataView.getUint32(headerAddress);
+        this.currentPosition = byteOffset - this.dataView.getUint32(headerAddress);
 
         this.numAllocations = this.numAllocations - 1;
     }

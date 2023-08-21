@@ -36,15 +36,18 @@ export default class MemoryServer {
 
     static startUp(params: MemoryServerInitConfigs) {
         LoggerManager.register('MemoryServer', 'DEBUG');
-        LoggerManager.register('MemoryServer::GC', 'OFF');
+        LoggerManager.register('MemoryServer::GC', 'DEBUG');
         LoggerManager.register('MemoryServer::ALLOCATORS', 'TRACE');
-
         LoggerManager.get('MemoryServer').info('Init GC');
         this._GC = this._GC ?? new GCHandler();
+
         const arrayBuffer = new ArrayBuffer(Object.values(params).reduce((p, a) => p + a, 0));
+
+        LoggerManager.get('MemoryServer').info(`Init ArrayBuffer ${arrayBuffer.byteLength} byte`);
 
         const dataView = new DataView(arrayBuffer);
         this.rootAllocator = new LinearAllocator(dataView);
+
         LoggerManager.get('MemoryServer').info(`Init RootAllocator ${this.rootAllocator.byteSize} byte`);
 
         this._linearAllocator = new LinearAllocator(this.rootAllocator.malloc(params.linearAllocatorByteSize, 4));
@@ -55,12 +58,6 @@ export default class MemoryServer {
 
         this._freeListAllocator = new FreeListAllocator(this.rootAllocator.malloc(params.freeListAllocatorByteSize, 4));
         LoggerManager.get('MemoryServer').info(`Init FreeListAllocator ${this.freeListAllocator.byteSize} byte`);
-
-        for (let i = 0; i < 1000; i++) {
-            this.freeListAllocator.printMemory();
-            this.freeListAllocator.deallocate(this.freeListAllocator.malloc(Math.floor(128), 4));
-            this.freeListAllocator.deallocate(this.freeListAllocator.malloc(Math.floor(128), 4));
-        }
     }
 
     static getAllocator(type: TypeAllocator): Allocator {
@@ -70,12 +67,10 @@ export default class MemoryServer {
         throw new Error(`Can't find Allocator`);
     }
 
-    static destroyNativeArray(type: TypeAllocator, nativeArray: TYPED_ARRAY) {
+    static deallocate(type: TypeAllocator, byteOffset: number) {
         if (type === TypeAllocator.LINEAR) return;
-        this.getAllocator(type).deallocate(nativeArray);
+        this.getAllocator(type).deallocate(byteOffset);
     }
-
-    static destroyByByteOffset(type: TypeAllocator, byteOffset: number) {}
 
     static malloc(type: TypeAllocator, byteSize: number, alignment: number): DataView {
         return this.getAllocator(type).malloc(byteSize, alignment);
