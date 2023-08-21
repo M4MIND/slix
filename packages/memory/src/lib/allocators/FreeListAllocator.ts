@@ -17,6 +17,11 @@ enum MEMORY_BLOCK_HEADER_END {
     HEADER_SIZE = 5,
 }
 
+enum USED_FLAGS {
+    free = 128,
+    use = 255,
+}
+
 export default class FreeListAllocator implements Allocator {
     public readonly arrayBuffer: ArrayBuffer;
     public readonly dataView: DataView;
@@ -46,43 +51,9 @@ export default class FreeListAllocator implements Allocator {
         this.arrayBuffer = dataView.buffer;
         this.dataView = dataView;
 
-        this.setByteSize(0, this.calcNeedByteSizeWithoutHeaders(this.byteSize));
-        this.setUsed(0, false);
-
-        this.dataView.setUint32(this.byteSize - 4, this.calcNeedByteSizeWithoutHeaders(this.byteSize));
-        this.dataView.setUint8(this.byteSize - 5, 0);
-    }
-
-    private calcNeedSize(byteSize: number) {
-        return byteSize + MEMORY_BLOCK_HEADER.HEADER_SIZE + MEMORY_BLOCK_HEADER_END.HEADER_SIZE;
-    }
-
-    private calcNeedByteSizeWithoutHeaders(byteSize: number) {
-        return byteSize - MEMORY_BLOCK_HEADER.HEADER_SIZE - MEMORY_BLOCK_HEADER_END.HEADER_SIZE;
-    }
-
-    private setByteSize(address: number, byteSize: number) {
-        this.dataView.setUint32(address, byteSize);
-    }
-
-    private getByteSize(address: number) {
-        return this.dataView.getUint32(address);
-    }
-
-    private setUsed(address: number, status: boolean) {
-        this.dataView.setUint8(address + MEMORY_BLOCK_HEADER.USED, status ? 2 : 1);
-    }
-
-    private isUsed(address: number) {
-        return this.dataView.getUint8(address + MEMORY_BLOCK_HEADER.USED) === 2;
-    }
-
-    private setAlign(address: number, align: number) {
-        this.dataView.setUint8(address + MEMORY_BLOCK_HEADER.ALIGN, align);
-    }
-
-    private getAlign(address: number) {
-        return this.dataView.getUint8(address);
+        this.dataView.setUint32(0, this.byteSize);
+        this.dataView.setUint8(4, USED_FLAGS.free);
+        this.dataView.setUint32(this.byteSize - 4, this.byteSize);
     }
 
     printMemory() {
@@ -98,47 +69,127 @@ export default class FreeListAllocator implements Allocator {
             list.push(`[${'0'.repeat(3 - data.length)}${data}]`);
         }
 
-        LoggerManager.get('MemoryServer::ALLOCATORS').debug(list.join(''));
-    }
-
-    private markUse(size: number, address: number, alignment: number) {
-        const alignForwardAdjustmentWithHeader = AllocatorHelper.alignForwardAdjustmentWithHeader(
-            address,
-            alignment,
-            MEMORY_BLOCK_HEADER.HEADER_SIZE
-        );
-        this.setByteSize(address, this.calcNeedSize(size));
-        this.setUsed(address, true);
-
-        this.dataView.setUint32(address + alignForwardAdjustmentWithHeader + size + 1, this.calcNeedSize(size));
-        this.dataView.setUint8(address + alignForwardAdjustmentWithHeader - 1, alignForwardAdjustmentWithHeader);
-        this.dataView.setUint8(address + alignForwardAdjustmentWithHeader + size, alignForwardAdjustmentWithHeader);
-
-        this.printMemory();
-
-        return new DataView(this.arrayBuffer, alignForwardAdjustmentWithHeader, size);
+        LoggerManager.get('MemoryServer::ALLOCATORS').info(list.join(''));
     }
 
     private isFree(address: number) {
-        return this.dataView.getUint8(address + MEMORY_BLOCK_HEADER.USED) === 0;
+        return this.dataView.getUint8(address + MEMORY_BLOCK_HEADER.USED) === USED_FLAGS.free;
+    }
+
+    private setUse(address: number, flag: USED_FLAGS) {
+        this.dataView.setUint8(address + MEMORY_BLOCK_HEADER.USED, flag);
     }
 
     private sizeOf(address: number) {
         return this.dataView.getUint32(address);
     }
 
-    deallocate(dataView: TYPED_ARRAY): void {}
+    deallocate(dataView: TYPED_ARRAY | DataView): void {
+        // Вычисляем смещение в аллокаторе
+        const offsetInAllocator = dataView.byteOffset - this.dataView.byteOffset;
+
+        // Вычисляем адрес блока
+        const clearBlockAddress = offsetInAllocator - this.dataView.getUint8(offsetInAllocator - 1);
+
+        // Ставим статус что блок не используется
+        this.setUse(clearBlockAddress, USED_FLAGS.free);
+
+        let sizeOfClearBlockAddress = this.sizeOf(clearBlockAddress);
+
+        // Если это не последний блок
+        // if (sizeOfClearBlockAddress + clearBlockAddress !== this.byteSize) {
+        //     // Адрес следующего блока
+        //     const nextAddress = sizeOfClearBlockAddress + clearBlockAddress;
+        //
+        //     // Если следующий адрес не используется то можно его смержить
+        //     if (this.isFree(nextAddress)) {
+        //         const sizeOfNextAddress = this.sizeOf(nextAddress);
+        //         sizeOfClearBlockAddress += sizeOfNextAddress;
+        //         // Обновляем размер удаляемого блока
+        //         this.dataView.setUint32(clearBlockAddress, sizeOfClearBlockAddress);
+        //         // Обновляем заголовок о размере блока в конце
+        //         this.dataView.setUint32(clearBlockAddress + sizeOfClearBlockAddress - 4, sizeOfClearBlockAddress);
+        //     }
+        // }
+        //
+        // // Если это не начальный блок
+        // if (clearBlockAddress !== 0) {
+        //     // Адрес предыдущего блока
+        //     const prevAddress = clearBlockAddress - this.dataView.getUint32(clearBlockAddress - 4);
+        //
+        //     if (this.isFree(prevAddress)) {
+        //         const sizeOfPrevAddress = this.dataView.getUint32(prevAddress);
+        //         sizeOfClearBlockAddress += sizeOfPrevAddress;
+        //         this.dataView.setUint32(prevAddress, sizeOfClearBlockAddress);
+        //         this.dataView.setUint32(clearBlockAddress + sizeOfClearBlockAddress - 4, sizeOfClearBlockAddress);
+        //     }
+        // }
+    }
 
     malloc(size: number, alignment: number): DataView {
         let address = 0;
 
-        if (address < this.byteSize) {
-            if (!this.isUsed(address) && this.getByteSize(address) >= this.calcNeedSize(size)) {
-                return this.markUse(size, address, alignment);
+        while (address < this.byteSize) {
+            // Проверка свободен ли блок
+            if (!this.isFree(address)) {
+                address = address + this.sizeOf(address);
+                continue;
             }
-            address = 0;
+            // Быстрая проверка хватит ли места для записи
+            const sizeOf = this.sizeOf(address);
+            if (sizeOf < size) {
+                address = address + sizeOf;
+                continue;
+            }
+            // Полная проверка блока
+            const alignForwardAdjustmentWithHeader = AllocatorHelper.alignForwardAdjustmentWithHeader(
+                address,
+                alignment,
+                MEMORY_BLOCK_HEADER.HEADER_SIZE
+            );
+
+            const needByteSize = size + alignForwardAdjustmentWithHeader + MEMORY_BLOCK_HEADER_END.HEADER_SIZE;
+
+            if (sizeOf < needByteSize) {
+                address = address + sizeOf;
+                continue;
+            }
+
+            // Если места хватает, подготавливаем блок
+            // Записываем информацию о размере блока
+            this.dataView.setUint32(address, needByteSize);
+            // Ставим флаг, что блок используется
+            this.setUse(address, USED_FLAGS.use);
+            // Записываем информацию о выравнивании блока в конец, чтобы можно было найти адрес блока для удаления
+            this.dataView.setUint8(address + alignForwardAdjustmentWithHeader - 1, alignForwardAdjustmentWithHeader);
+
+            // Записываем информацию о выделеном блоке в конец блока
+
+            // Размер блока
+            this.dataView.setUint32(address + needByteSize - 4, needByteSize);
+            // Выравнивание
+            this.dataView.setUint8(address + needByteSize - 5, alignForwardAdjustmentWithHeader);
+
+            // Создаем новый свободный блок
+            this.dataView.setUint32(address + needByteSize, sizeOf - needByteSize);
+            this.dataView.setUint8(address + needByteSize + 4, USED_FLAGS.free);
+            this.dataView.setUint32(address + sizeOf - 4, sizeOf - needByteSize);
+
+            this.usedMemory += needByteSize;
+
+            return new DataView(
+                this.arrayBuffer,
+                this.dataView.byteOffset + address + alignForwardAdjustmentWithHeader,
+                size
+            );
         }
 
-        return new DataView(this.arrayBuffer);
+        throw new Error(
+            `Memory is not free. Used: ${this.usedMemory}, Free: ${this.byteSize - this.usedMemory}, Need: ${
+                AllocatorHelper.alignForwardAdjustmentWithHeader(address, alignment, MEMORY_BLOCK_HEADER.HEADER_SIZE) +
+                MEMORY_BLOCK_HEADER_END.HEADER_SIZE +
+                size
+            }`
+        );
     }
 }

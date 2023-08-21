@@ -74,7 +74,7 @@ void main() {
             memoryServer: {
                 linearAllocatorByteSize: 128 * 1024 * 1024,
                 stackAllocatorByteSize: 64 * 1024 * 1024,
-                freeListAllocatorByteSize: 256,
+                freeListAllocatorByteSize: 512,
             },
         });
 

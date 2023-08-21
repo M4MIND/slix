@@ -17,9 +17,11 @@ export default class MemoryServer {
     static get stackAllocator(): StackAllocator {
         return this._stackAllocator;
     }
+
     static get freeListAllocator(): FreeListAllocator {
         return this._freeListAllocator;
     }
+
     static get linearAllocator(): LinearAllocator {
         return this._linearAllocator;
     }
@@ -54,9 +56,11 @@ export default class MemoryServer {
         this._freeListAllocator = new FreeListAllocator(this.rootAllocator.malloc(params.freeListAllocatorByteSize, 4));
         LoggerManager.get('MemoryServer').info(`Init FreeListAllocator ${this.freeListAllocator.byteSize} byte`);
 
-        this.freeListAllocator.printMemory();
-
-        console.log(this._freeListAllocator.malloc(24, 4));
+        for (let i = 0; i < 1000; i++) {
+            this.freeListAllocator.printMemory();
+            this.freeListAllocator.deallocate(this.freeListAllocator.malloc(Math.floor(128), 4));
+            this.freeListAllocator.deallocate(this.freeListAllocator.malloc(Math.floor(128), 4));
+        }
     }
 
     static getAllocator(type: TypeAllocator): Allocator {
