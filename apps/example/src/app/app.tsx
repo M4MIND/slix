@@ -76,8 +76,6 @@ export function App() {
 
         SlixEngine.start((sceneManager) => {
             sceneManager.setActiveScene(sceneManager.createScene('MainScene'));
-
-            MemoryServer.getAllocator('');
         });
 
         // (function allocateMemory() {

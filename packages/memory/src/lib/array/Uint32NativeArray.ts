@@ -5,6 +5,8 @@ import { NativeArray } from './NativeArray';
 export default class Uint32NativeArray extends Uint32Array implements NativeArray {
     public readonly allocator: string;
     public readonly dataView: DataView;
+    public readonly token: symbol | null;
+
     constructor(sizeOrData: number | number[], type = 'DEFAULT') {
         const dataView = MemoryServer.malloc(
             type,
@@ -19,11 +21,12 @@ export default class Uint32NativeArray extends Uint32Array implements NativeArra
         );
         this.allocator = type;
         this.dataView = dataView;
+        this.token = MemoryServer.gcRegister(this);
 
         if (typeof sizeOrData === 'object') this.set(sizeOrData);
     }
 
     destroy(): void {
-        NativeArrayHelper.destroy(this.allocator, this.byteOffset);
+        MemoryServer.deallocate(this);
     }
 }

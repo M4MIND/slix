@@ -19,7 +19,7 @@ export default class GameObject extends BaseObject {
         if (args) this.addComponents(...args);
 
         this.scene = SlixEngine.sceneManager.getActiveScene();
-        this.scene.addGameObject(this);
+        //this.scene.addGameObject(this);
     }
 
     addComponent<T extends BaseComponent>(component: BaseComponentInterface): T {

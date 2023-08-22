@@ -3,6 +3,7 @@ import { TypeAllocator } from '../types/DataType';
 export interface NativeArray {
     allocator: string;
     dataView: DataView;
+    token: symbol | null;
     destroy(): void;
 }
 export interface NativeArrayConstructor {

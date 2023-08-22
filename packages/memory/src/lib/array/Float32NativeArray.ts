@@ -4,10 +4,10 @@ import { NativeArray } from './NativeArray';
 export default class Float32NativeArray extends Float32Array implements NativeArray {
     public readonly allocator: string;
     public readonly dataView: DataView;
-    private token?: symbol;
-    constructor(sizeOrData: number | number[], type = 'DEFAULT') {
+    public readonly token: symbol | null;
+    constructor(sizeOrData: number | number[], allocator = 'DEFAULT') {
         const dataView = MemoryServer.malloc(
-            type,
+            allocator,
             NativeArrayHelper.needBytes(sizeOrData, Float32Array.BYTES_PER_ELEMENT),
             Float32Array.BYTES_PER_ELEMENT
         );
@@ -18,15 +18,13 @@ export default class Float32NativeArray extends Float32Array implements NativeAr
             NativeArrayHelper.needLength(dataView, Float32Array.BYTES_PER_ELEMENT)
         );
 
-        this.allocator = type;
+        this.allocator = allocator;
         this.dataView = dataView;
-
+        this.token = MemoryServer.gcRegister(this);
         if (typeof sizeOrData === 'object') this.set(sizeOrData);
-        this.token = MemoryServer.GC.register(this);
     }
 
     destroy(): void {
-        if (this.token) MemoryServer.GC.unregister(this.token);
-        MemoryServer.deallocate(this.allocator, this.byteOffset);
+        MemoryServer.deallocate(this);
     }
 }

@@ -6,9 +6,10 @@ import { NativeArray } from './NativeArray';
 export default class Int8NativeArray extends Int8Array implements NativeArray {
     public readonly allocator: string;
     public readonly dataView: DataView;
-    constructor(sizeOrData: number | number[], type = 'DEFAULT') {
+    public readonly token: symbol | null;
+    constructor(sizeOrData: number | number[], allocator = 'DEFAULT') {
         const dataView = MemoryServer.malloc(
-            type,
+            allocator,
             NativeArrayHelper.needBytes(sizeOrData, Int8Array.BYTES_PER_ELEMENT),
             Int8Array.BYTES_PER_ELEMENT
         );
@@ -19,13 +20,13 @@ export default class Int8NativeArray extends Int8Array implements NativeArray {
             NativeArrayHelper.needLength(dataView, Int8Array.BYTES_PER_ELEMENT)
         );
 
-        this.allocator = type;
+        this.allocator = allocator;
         this.dataView = dataView;
-
+        this.token = MemoryServer.gcRegister(this);
         if (typeof sizeOrData === 'object') this.set(sizeOrData);
     }
 
     destroy(): void {
-        NativeArrayHelper.destroy(this.allocator, this.byteOffset);
+        MemoryServer.deallocate(this);
     }
 }

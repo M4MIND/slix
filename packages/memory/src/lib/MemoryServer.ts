@@ -1,11 +1,12 @@
+import { TypeAllocator } from '../index';
 import Allocator, { AllocatorConstructor } from './allocators/Allocator';
+import { NativeArray } from './array/NativeArray';
 import GCHandler from './gc/GCHandler';
 
 const symbolDefaultAllocator = Symbol('DEFAULT');
 
 export default class MemoryServer {
-    public static readonly GC: GCHandler = new GCHandler();
-
+    private static readonly GC: GCHandler = new GCHandler();
     private static allocators: { [index: string | symbol]: Allocator } = {};
     private static rootAllocator: Allocator;
 
@@ -30,7 +31,7 @@ export default class MemoryServer {
         });
     }
 
-    static getAllocator(type: string): Allocator {
+    static getAllocator(type: string | symbol): Allocator {
         if (this.allocators[type]) {
             return this.allocators[type];
         } else {
@@ -38,12 +39,26 @@ export default class MemoryServer {
         }
     }
 
-    static deallocate(type: string, byteOffset: number) {
-        this.getAllocator(type).deallocate(byteOffset);
+    static deallocate(target: NativeArray) {
+        this.gcUnregister(target);
+        this.getAllocator(target.allocator).deallocate(target.dataView.byteOffset);
+    }
+
+    static gcDeallocate(allocator: string | symbol, byteOffset: number) {
+        this.getAllocator(allocator).deallocate(byteOffset);
     }
 
     static malloc(type: string, byteSize: number, alignment: number): DataView {
         return this.getAllocator(type).malloc(byteSize, alignment);
+    }
+
+    static gcRegister(target: NativeArray): symbol | null {
+        if (this.getAllocator(target.allocator).typeAllocator === TypeAllocator.LINEAR) return null;
+        return this.GC.register(target);
+    }
+
+    static gcUnregister(target: NativeArray) {
+        if (target.token) this.GC.unregister(target.token);
     }
 }
 

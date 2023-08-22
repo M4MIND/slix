@@ -23,11 +23,6 @@ export default class AllocatorHelper {
         return adjustment;
     }
 
-    static deallocate(allocator: string, ptr: number, token: symbol) {
-        MemoryServer.GC.unregister(token);
-        MemoryServer.deallocate(allocator, ptr);
-    }
-
     static checkSize(size: number) {
         if (size <= 0) throw new Error(`Can't free ${size}`);
     }
