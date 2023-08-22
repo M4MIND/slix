@@ -1,19 +1,12 @@
 import { AllocatorHelper } from '../../index';
-import { TYPED_ARRAY } from '../types/DataType';
 import Allocator from './Allocator';
-import { add } from 'benny';
-import { LoggerManager } from 'logger';
 
 enum MEMORY_BLOCK_HEADER {
-    BLOCK_SIZE = 0,
     USED = 4,
-    ALIGN = 5,
     HEADER_SIZE = 6,
 }
 
 enum MEMORY_BLOCK_HEADER_END {
-    SIZE = 0,
-    ALIGN = 4,
     HEADER_SIZE = 5,
 }
 
@@ -27,86 +20,31 @@ export default class FreeListAllocator implements Allocator {
     public readonly dataView: DataView;
     private _usedMemory = 0;
     private _numAllocations = 0;
+    private readonly _byteSize;
     public get byteSize(): number {
-        return this.dataView.byteLength;
+        return this._byteSize;
     }
 
     public get usedMemory(): number {
         return this._usedMemory;
     }
 
-    private set usedMemory(v: number) {
-        this._usedMemory = v;
-    }
-
     public get numAllocations(): number {
         return this._numAllocations;
-    }
-
-    private set numAllocations(v: number) {
-        this._numAllocations = v;
     }
 
     constructor(dataView: DataView) {
         this.arrayBuffer = dataView.buffer;
         this.dataView = dataView;
+        this._byteSize = this.dataView.byteLength;
 
         this.dataView.setUint32(0, this.byteSize);
         this.dataView.setUint8(4, USED_FLAGS.free);
         this.dataView.setUint32(this.byteSize - 4, this.byteSize);
     }
 
-    printMemory() {
-        let address = 0;
-        let count = 0;
-
-        while (address < this.byteSize) {
-            const sizeOf = `%c${[
-                `[${this.sizeOf(address)}]`,
-                `[${this.sizeOf(address)}]`,
-                `[${this.sizeOf(address)}]`,
-                `[${this.sizeOf(address)}]`,
-            ].join('')}`;
-
-            const used = this.dataView.getUint8(address + 4);
-
-            const endSizeOf = this.sizeOf(address + this.sizeOf(address) - 4);
-            const alignEnd = this.dataView.getUint8(address + this.sizeOf(address) - 5);
-            const alignStart = this.dataView.getUint8(address + alignEnd - 1);
-
-            console.debug(
-                [
-                    `[$${count}]`,
-                    sizeOf,
-                    `%c[${used}]`,
-                    `%c[${alignStart}]`,
-                    `%c${[...new Array(this.sizeOf(address) - alignEnd - 5)]
-                        .map((v) => `[${this.dataView.getUint8(address + v)}]`)
-                        .join('')}`,
-                    `%c[${alignEnd}]`,
-                    `%c[${endSizeOf}]`,
-                ].join(''),
-                'color: white; float: left; background-color: blue; padding: 2px 4px; border-radius: 2px',
-                `color: white; float: left; background-color: ${
-                    used === USED_FLAGS.free ? 'green' : 'red'
-                }; padding: 2px 4px; border-radius: 2px`,
-                'color: black; float: left; background-color: yellow; padding: 2px 4px; border-radius: 2px',
-                'color: black; float: left; background-color: white; padding: 2px 4px; border-radius: 2px',
-                'color: black; float: left; background-color: yellow; padding: 2px 4px; border-radius: 2px',
-                'color: white; float: left; background-color: blue; padding: 2px 4px; border-radius: 2px'
-            );
-
-            count++;
-            address += this.sizeOf(address);
-        }
-    }
-
     private isFree(address: number) {
         return this.dataView.getUint8(address + MEMORY_BLOCK_HEADER.USED) === USED_FLAGS.free;
-    }
-
-    private setUse(address: number, flag: USED_FLAGS) {
-        this.dataView.setUint8(address + MEMORY_BLOCK_HEADER.USED, flag);
     }
 
     private sizeOf(address: number) {
@@ -116,16 +54,42 @@ export default class FreeListAllocator implements Allocator {
     deallocate(byteOffset: number): void {
         const ptrDataView = byteOffset - this.dataView.byteOffset;
         const ptrStartBlock = ptrDataView - this.dataView.getUint8(ptrDataView - 1);
-        const sizeOf = this.dataView.getUint32(ptrStartBlock);
-
+        let sizeOfDeallocateBlock = this.dataView.getUint32(ptrStartBlock);
         // Устанавлиаем флаг что блок свободен
         this.dataView.setUint8(ptrStartBlock + 4, USED_FLAGS.free);
 
-        // Сбрасываем информацию о выравнивании
-        this.dataView.setUint8(ptrDataView - 1, 0);
+        this._usedMemory -= sizeOfDeallocateBlock;
+        this._numAllocations--;
+
+        if (ptrStartBlock + sizeOfDeallocateBlock < this.byteSize) {
+            const nextAddress = ptrStartBlock + sizeOfDeallocateBlock;
+            if (this.isFree(nextAddress)) {
+                const sizeOfNextBlock = this.sizeOf(nextAddress);
+
+                sizeOfDeallocateBlock += sizeOfNextBlock;
+
+                this.dataView.setUint32(ptrStartBlock, sizeOfDeallocateBlock);
+                this.dataView.setUint32(nextAddress + sizeOfNextBlock - 4, sizeOfDeallocateBlock);
+            }
+        }
+
+        // Проверяем предыдущий блок
+        if (ptrStartBlock !== 0) {
+            const prevAddress = ptrStartBlock - this.dataView.getUint32(ptrStartBlock - 4);
+            if (this.isFree(prevAddress)) {
+                const sizeOfPrevBlock = this.sizeOf(prevAddress);
+                sizeOfDeallocateBlock += sizeOfPrevBlock;
+                this.dataView.setUint32(prevAddress, sizeOfDeallocateBlock);
+                this.dataView.setUint32(prevAddress + sizeOfDeallocateBlock - 4, sizeOfDeallocateBlock);
+            }
+        }
     }
 
     malloc(size: number, alignment: number): DataView {
+        if (size <= 0 || alignment <= 0) {
+            throw new Error(`size or alignment can't be < 0`);
+        }
+
         let address = 0;
 
         while (address < this.byteSize) {
@@ -158,7 +122,7 @@ export default class FreeListAllocator implements Allocator {
             // Размер используемого блока
             this.dataView.setUint32(address, needByteSize);
             // Флаг что блок используется
-            this.setUse(address, USED_FLAGS.use);
+            this.dataView.setUint8(address + 4, USED_FLAGS.use);
             // Выравнивание блока
             this.dataView.setUint8(address + alignForwardAdjustmentWithHeader - 1, alignForwardAdjustmentWithHeader);
 
@@ -173,7 +137,8 @@ export default class FreeListAllocator implements Allocator {
             this.dataView.setUint8(endBlock + 4, USED_FLAGS.free);
             this.dataView.setUint32(address + sizeOf - 4, sizeOf - needByteSize);
 
-            this.usedMemory += needByteSize;
+            this._usedMemory += needByteSize;
+            this._numAllocations++;
 
             return new DataView(
                 this.arrayBuffer,

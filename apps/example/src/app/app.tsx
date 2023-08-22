@@ -1,3 +1,4 @@
+import { SlixEngine } from 'core';
 import { LinearAllocator, MemoryServer, TypeAllocator } from 'memory';
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -9,77 +10,77 @@ export function App() {
         used: 0,
     });
     useEffect(() => {
-        //         SlixEngine.startUp({
-        //             rendererServer: {
-        //                 canvas: {
-        //                     canvas: canvas.current as HTMLCanvasElement,
-        //                     height: window.innerHeight,
-        //                     width: window.innerWidth,
-        //                 },
-        //                 shaders: [
-        //                     {
-        //                         name: 'default',
-        //                         vertex: `#version 300 es
-        // in vec3 _A_POSITION;
-        // in vec3 _A_NORMALS;
-        //
-        //
-        // layout(std140) uniform _SlixTime {
-        //     vec4 _Time;
-        //     vec4 _SinTime;
-        //     vec4 _CosTime;
-        //     vec4 _DeltaTime;
-        // } SlixTime;
-        //
-        // layout(std140) uniform _SlixCameraAndScreen {
-        //     vec3 _WorldSpaceCameraPos;
-        //     mat4 _MatrixView;
-        //     vec4 _ProjectionParams;
-        //     vec4 _ScreenParams;
-        //     mat4 _CameraProjection;
-        //     mat4 _CameraInvProjection;
-        //     vec4 _Time;
-        // } SlixCameraAndScreen;
-        //
-        // uniform mat4 _U_MODEL;
-        //
-        // vec3 colorA = vec3(0.149,0.141,0.912);
-        // vec3 colorB = vec3(1.000,0.833,0.224);
-        //
-        // out vec4 v_color;
-        //
-        // // all shaders have a main function
-        // void main() {
-        //   vec3 color = vec3(0.0, 0.0, 0.0);
-        //   color = mix(colorA, colorB, 0.2);
-        //   gl_Position = SlixCameraAndScreen._CameraProjection * SlixCameraAndScreen._MatrixView * _U_MODEL * (vec4(_A_POSITION, 1) + vec4(_A_NORMALS, 1));
-        //   v_color = vec4(color, 1);
-        // }`,
-        //                         fragment: `#version 300 es
-        //
-        // precision highp float;
-        //
-        // in vec4 v_color;
-        //
-        // out vec4 outColor;
-        //
-        // void main() {
-        //   outColor = v_color;
-        // }
-        // `,
-        //                     },
-        //                 ],
-        //             },
-        //             memoryServer: {
-        //                 linearAllocatorByteSize: 128 * 1024 * 1024,
-        //                 stackAllocatorByteSize: 64 * 1024 * 1024,
-        //                 freeListAllocatorByteSize: 1024,
-        //             },
-        //         });
-        //
-        //         SlixEngine.start((sceneManager) => {
-        //             sceneManager.setActiveScene(sceneManager.createScene('MainScene'));
-        //         });
+        SlixEngine.startUp({
+            rendererServer: {
+                canvas: {
+                    canvas: canvas.current as HTMLCanvasElement,
+                    height: window.innerHeight,
+                    width: window.innerWidth,
+                },
+                shaders: [
+                    {
+                        name: 'default',
+                        vertex: `#version 300 es
+        in vec3 _A_POSITION;
+        in vec3 _A_NORMALS;
+
+
+        layout(std140) uniform _SlixTime {
+            vec4 _Time;
+            vec4 _SinTime;
+            vec4 _CosTime;
+            vec4 _DeltaTime;
+        } SlixTime;
+
+        layout(std140) uniform _SlixCameraAndScreen {
+            vec3 _WorldSpaceCameraPos;
+            mat4 _MatrixView;
+            vec4 _ProjectionParams;
+            vec4 _ScreenParams;
+            mat4 _CameraProjection;
+            mat4 _CameraInvProjection;
+            vec4 _Time;
+        } SlixCameraAndScreen;
+
+        uniform mat4 _U_MODEL;
+
+        vec3 colorA = vec3(0.149,0.141,0.912);
+        vec3 colorB = vec3(1.000,0.833,0.224);
+
+        out vec4 v_color;
+
+        // all shaders have a main function
+        void main() {
+          vec3 color = vec3(0.0, 0.0, 0.0);
+          color = mix(colorA, colorB, 0.2);
+          gl_Position = SlixCameraAndScreen._CameraProjection * SlixCameraAndScreen._MatrixView * _U_MODEL * (vec4(_A_POSITION, 1) + vec4(_A_NORMALS, 1));
+          v_color = vec4(color, 1);
+        }`,
+                        fragment: `#version 300 es
+
+        precision highp float;
+
+        in vec4 v_color;
+
+        out vec4 outColor;
+
+        void main() {
+          outColor = v_color;
+        }
+        `,
+                    },
+                ],
+            },
+            memoryServer: {
+                linearAllocatorByteSize: 128 * 1024 * 1024,
+                stackAllocatorByteSize: 64 * 1024 * 1024,
+                freeListAllocatorByteSize: 1024,
+            },
+        });
+
+        SlixEngine.start((sceneManager) => {
+            sceneManager.setActiveScene(sceneManager.createScene('MainScene'));
+        });
 
         // (function allocateMemory() {
         //     // Allocate 50000 functions — a lot of memory!
@@ -165,40 +166,6 @@ export function App() {
         // };
         //
         // step();
-
-        MemoryServer.startUp({
-            linearAllocatorByteSize: 128 * 1024 * 1024,
-            stackAllocatorByteSize: 64 * 1024 * 1024,
-            freeListAllocatorByteSize: 1024,
-        });
-
-        MemoryServer.freeListAllocator.malloc(4, 1);
-        MemoryServer.freeListAllocator.malloc(4, 1);
-        MemoryServer.freeListAllocator.malloc(6, 2);
-        MemoryServer.freeListAllocator.malloc(6, 2);
-        MemoryServer.freeListAllocator.malloc(6, 2);
-        const data = MemoryServer.freeListAllocator.malloc(6, 2);
-        MemoryServer.freeListAllocator.malloc(128, 4);
-        MemoryServer.freeListAllocator.malloc(128, 4);
-        MemoryServer.freeListAllocator.malloc(128, 4);
-        MemoryServer.freeListAllocator.malloc(128, 4);
-        MemoryServer.freeListAllocator.malloc(128, 4);
-        MemoryServer.freeListAllocator.malloc(100, 4);
-        MemoryServer.freeListAllocator.malloc(4, 4);
-        MemoryServer.freeListAllocator.malloc(4, 4);
-        MemoryServer.freeListAllocator.malloc(4, 4);
-        MemoryServer.freeListAllocator.malloc(4, 4);
-        MemoryServer.freeListAllocator.malloc(4, 4);
-        MemoryServer.freeListAllocator.malloc(6, 2);
-
-        MemoryServer.freeListAllocator.printMemory();
-
-        MemoryServer.deallocate(TypeAllocator.FREE_LIST, data.byteOffset);
-
-        console.log('');
-
-        MemoryServer.freeListAllocator.printMemory();
-        //MemoryServer.freeListAllocator.malloc(4, 4);
     }, []);
 
     return (
