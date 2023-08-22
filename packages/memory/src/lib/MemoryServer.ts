@@ -3,7 +3,7 @@ import FreeListAllocator from './allocators/FreeListAllocator';
 import LinearAllocator from './allocators/LinearAllocator';
 import StackAllocator from './allocators/StackAllocator';
 import GCHandler from './gc/GCHandler';
-import { TYPED_ARRAY, TypeAllocator } from './types/DataType';
+import { TypeAllocator } from './types/DataType';
 import { Logger, LoggerManager } from 'logger';
 
 export default class MemoryServer {

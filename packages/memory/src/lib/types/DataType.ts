@@ -5,6 +5,7 @@ export enum TypeAllocator {
     LINEAR,
     POOL,
     FREE_LIST,
+    STACK,
 }
 
 export type DataTypeConstructor<T> = {

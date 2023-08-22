@@ -1,6 +1,7 @@
-import { TYPED_ARRAY } from '../types/DataType';
+import { TYPED_ARRAY, TypeAllocator } from '../types/DataType';
 
 export default interface Allocator {
+    typeAllocator: TypeAllocator;
     get byteSize(): number;
     get usedMemory(): number;
     get numAllocations(): number;

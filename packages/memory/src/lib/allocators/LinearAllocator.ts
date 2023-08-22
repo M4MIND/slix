@@ -1,13 +1,8 @@
-import { AllocatorHelper } from '../../index';
-import { TYPED_ARRAY } from '../types/DataType';
+import { AllocatorHelper, TypeAllocator } from '../../index';
 import Allocator from './Allocator';
 
-enum ALLOCATOR_INFORMATION {
-    CURRENT_POSITION = 4,
-    NUM_ALLOCATIONS = 8,
-    HEADER_SIZE = 12,
-}
 export default class LinearAllocator implements Allocator {
+    public readonly typeAllocator: TypeAllocator = TypeAllocator.LINEAR;
     private readonly arrayBuffer: ArrayBuffer;
     private readonly dataView: DataView;
     private _usedMemory = 0;
@@ -40,9 +35,9 @@ export default class LinearAllocator implements Allocator {
     constructor(dataView: DataView) {
         this.arrayBuffer = dataView.buffer;
         this.dataView = dataView;
-        this.usedMemory = 0;
-        this.numAllocations = 0;
-        this.currentPosition = 0;
+        this._usedMemory = 0;
+        this._numAllocations = 0;
+        this._position = 0;
     }
 
     private getAddress(size: number, alignment: number) {
@@ -65,7 +60,7 @@ export default class LinearAllocator implements Allocator {
         const address = this.getAddress(size, alignment);
         if (address == null)
             throw new Error(
-                `Failed to allocate memory for ${size} bytes. ${this.byteSize - this.usedMemory} bytes available `
+                `Failed to allocate memory for ${size} bytes. ${this.byteSize - this.usedMemory} bytes available`
             );
         return new DataView(this.arrayBuffer, address + this.dataView.byteOffset, size);
     }

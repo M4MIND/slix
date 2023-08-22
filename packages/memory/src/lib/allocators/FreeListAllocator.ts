@@ -1,4 +1,4 @@
-import { AllocatorHelper } from '../../index';
+import { AllocatorHelper, TypeAllocator } from '../../index';
 import Allocator from './Allocator';
 
 enum MEMORY_BLOCK_HEADER {
@@ -16,8 +16,9 @@ enum USED_FLAGS {
 }
 
 export default class FreeListAllocator implements Allocator {
-    public readonly arrayBuffer: ArrayBuffer;
-    public readonly dataView: DataView;
+    public readonly typeAllocator = TypeAllocator.FREE_LIST;
+    private readonly arrayBuffer: ArrayBuffer;
+    private readonly dataView: DataView;
     private _usedMemory = 0;
     private _numAllocations = 0;
     private readonly _byteSize;
@@ -111,6 +112,8 @@ export default class FreeListAllocator implements Allocator {
                 MEMORY_BLOCK_HEADER.HEADER_SIZE
             );
 
+            const addressOfData = address + alignForwardAdjustmentWithHeader;
+
             const needByteSize = size + alignForwardAdjustmentWithHeader + MEMORY_BLOCK_HEADER_END.HEADER_SIZE;
 
             if (sizeOf < needByteSize) {
@@ -124,7 +127,7 @@ export default class FreeListAllocator implements Allocator {
             // Флаг что блок используется
             this.dataView.setUint8(address + 4, USED_FLAGS.use);
             // Выравнивание блока
-            this.dataView.setUint8(address + alignForwardAdjustmentWithHeader - 1, alignForwardAdjustmentWithHeader);
+            this.dataView.setUint8(addressOfData - 1, alignForwardAdjustmentWithHeader);
 
             // Закрывающий загловок
             const endBlock = address + needByteSize;
@@ -140,11 +143,7 @@ export default class FreeListAllocator implements Allocator {
             this._usedMemory += needByteSize;
             this._numAllocations++;
 
-            return new DataView(
-                this.arrayBuffer,
-                this.dataView.byteOffset + address + alignForwardAdjustmentWithHeader,
-                size
-            );
+            return new DataView(this.arrayBuffer, this.dataView.byteOffset + addressOfData, size);
         }
 
         throw new Error(

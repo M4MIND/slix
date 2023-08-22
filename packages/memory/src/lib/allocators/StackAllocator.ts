@@ -1,5 +1,5 @@
 import { AllocatorHelper } from '../../index';
-import { TYPED_ARRAY } from '../types/DataType';
+import { TypeAllocator } from '../types/DataType';
 import Allocator from './Allocator';
 
 enum MARKER {
@@ -18,6 +18,8 @@ enum ALLOCATOR_INFORMATION {
 export default class StackAllocator implements Allocator {
     private arrayBuffer: ArrayBuffer;
     private dataView: DataView;
+
+    typeAllocator: TypeAllocator = TypeAllocator.STACK;
     public get byteSize() {
         return this.dataView.getUint32(ALLOCATOR_INFORMATION.BYTE_SIZE);
     }

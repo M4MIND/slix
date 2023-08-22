@@ -1,5 +1,5 @@
 import { SlixEngine } from 'core';
-import { LinearAllocator, MemoryServer, TypeAllocator } from 'memory';
+import { Float32NativeArray, LinearAllocator, MemoryServer, TypeAllocator } from 'memory';
 import React, { useEffect, useRef, useState } from 'react';
 
 export function App() {
@@ -74,11 +74,18 @@ export function App() {
             memoryServer: {
                 linearAllocatorByteSize: 128 * 1024 * 1024,
                 stackAllocatorByteSize: 64 * 1024 * 1024,
-                freeListAllocatorByteSize: 1024,
+                freeListAllocatorByteSize: 128 * 1024 * 1024,
             },
         });
 
         SlixEngine.start((sceneManager) => {
+            const time = performance.now();
+            for (let i = 0; i < 3000; i++) {
+                new Float32NativeArray(1024);
+            }
+
+            console.log(performance.now() - time);
+
             sceneManager.setActiveScene(sceneManager.createScene('MainScene'));
         });
 
