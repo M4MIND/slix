@@ -1,4 +1,4 @@
-import { Quaternion } from '../../index';
+import { MATH_ALLOCATOR, Quaternion } from '../../index';
 import Vector3 from '../vector/Vector3';
 import { Float32NativeArray } from 'memory';
 
@@ -22,7 +22,7 @@ type components = [
 ];
 
 export default class Matrix4 extends Float32NativeArray {
-    private cache = new Float32NativeArray(18);
+    private cache = new Float32NativeArray(18, MATH_ALLOCATOR.PERSISTENT_TEMP);
     constructor(
         m00 = 1,
         m01 = 0,
@@ -41,7 +41,10 @@ export default class Matrix4 extends Float32NativeArray {
         m32 = 0,
         m33 = 1
     ) {
-        super([m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33]);
+        super(
+            [m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33],
+            MATH_ALLOCATOR.PERSISTENT
+        );
     }
     get00(): number {
         return this[0];
@@ -109,76 +112,52 @@ export default class Matrix4 extends Float32NativeArray {
     get21(): number {
         return this[9];
     }
-    /*
-    |get00(0),  get01(1),  get02(2),  get03(3)|
-    |get10(4),  get11(5),  get12(6),  get13(7)|
-    |get20(8),  get21(9),  get22(10), get23(11)|
-    |get30(12), get31(13), get32(14), get33(15)|
-     */
-
-    set _translate(v: Vector3) {
-        this.translate(v);
-    }
-
     set21(v: number): this {
         this[9] = v;
         return this;
     }
-
     get22(): number {
         return this[10];
     }
-
     set22(v: number): this {
         this[10] = v;
         return this;
     }
-
     get23(): number {
         return this[11];
     }
-
     set23(v: number): this {
         this[11] = v;
         return this;
     }
-
     get30(): number {
         return this[12];
     }
-
     set30(v: number): this {
         this[12] = v;
         return this;
     }
-
     get31(): number {
         return this[13];
     }
-
     set31(v: number): this {
         this[13] = v;
         return this;
     }
-
     get32(): number {
         return this[14];
     }
-
     set32(v: number): this {
         this[14] = v;
         return this;
     }
-
     get33(): number {
         return this[15];
     }
-
     set33(v: number): this {
         this[15] = v;
         return this;
     }
-
     translate(v: Vector3 | [number, number, number]): Matrix4 {
         this[12] = this[0] * v[0] + this[4] * v[1] + this[8] * v[2] + this[12];
         this[13] = this[1] * v[0] + this[5] * v[1] + this[9] * v[2] + this[13];
@@ -187,7 +166,6 @@ export default class Matrix4 extends Float32NativeArray {
 
         return this;
     }
-
     scale(v: Vector3 | [number, number, number] = [1, 1, 1]): Matrix4 {
         this[0] *= v[0];
         this[1] *= v[0];
@@ -204,9 +182,7 @@ export default class Matrix4 extends Float32NativeArray {
 
         return this;
     }
-
     rotate(rad: number, axis: Vector3 | [number, number, number]) {}
-
     rotateX(r: number): Matrix4 {
         this.cache.set(this);
 
@@ -224,7 +200,6 @@ export default class Matrix4 extends Float32NativeArray {
 
         return this;
     }
-
     rotateY(r: number): Matrix4 {
         this.cache.set(this);
 
@@ -242,7 +217,6 @@ export default class Matrix4 extends Float32NativeArray {
 
         return this;
     }
-
     rotateZ(r: number): Matrix4 {
         this.cache.set(this);
 
@@ -260,7 +234,6 @@ export default class Matrix4 extends Float32NativeArray {
 
         return this;
     }
-
     fromRotationTranslation(quaternion: Quaternion, vector: Vector3) {}
     multiply(b: Matrix4): this {
         const t00 = this[0];
@@ -443,34 +416,39 @@ export default class Matrix4 extends Float32NativeArray {
         matrix[14] = 0;
         matrix[15] = 1;
     }
-
     static translate(v: Vector3 = Vector3.zero): Matrix4 {
         return new this(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, v.x, v.y, v.z);
     }
-
     static scale(v: Vector3 = new Vector3(1, 1, 1)): Matrix4 {
         return new this(v.x, 0, 0, 0, 0, v.y, 0, 0, 0, 0, v.z);
     }
-
     static xRotation(r: number): Matrix4 {
         const s = Math.sin(r);
         const c = Math.cos(r);
 
         return new this(1, 0, 0, 0, 0, c, s, 0, 0, -s, c);
     }
-
     static yRotation(r: number): Matrix4 {
         const s = Math.sin(r);
         const c = Math.cos(r);
 
         return new this(c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1);
     }
-
     static zRotation(r: number): Matrix4 {
         const s = Math.sin(r);
         const c = Math.cos(r);
 
         return new this(c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    }
+    /*
+    |get00(0),  get01(1),  get02(2),  get03(3)|
+    |get10(4),  get11(5),  get12(6),  get13(7)|
+    |get20(8),  get21(9),  get22(10), get23(11)|
+    |get30(12), get31(13), get32(14), get33(15)|
+     */
+
+    set _translate(v: Vector3) {
+        this.translate(v);
     }
 
     static projection(fieldOfViewInRadians = 0, aspect = 1, near = 0.1, far = 1000): Matrix4 {

@@ -3,7 +3,7 @@ import Struct from './Struct';
 
 export default class StructureNativeArray extends Uint8NativeArray {
     private watchers: { [index: string]: TYPED_ARRAY } = {};
-    constructor(private readonly struct: Struct, allocator: TypeAllocator = TypeAllocator.LINEAR) {
+    constructor(private readonly struct: Struct, allocator: string) {
         super(struct.byteSize, allocator);
 
         for (const structKey of this.struct.getAllKeys()) {

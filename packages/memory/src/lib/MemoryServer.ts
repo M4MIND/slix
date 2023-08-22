@@ -1,84 +1,55 @@
-import Allocator from './allocators/Allocator';
-import FreeListAllocator from './allocators/FreeListAllocator';
-import LinearAllocator from './allocators/LinearAllocator';
-import StackAllocator from './allocators/StackAllocator';
+import Allocator, { AllocatorConstructor } from './allocators/Allocator';
 import GCHandler from './gc/GCHandler';
-import { TypeAllocator } from './types/DataType';
-import { Logger, LoggerManager } from 'logger';
+
+const symbolDefaultAllocator = Symbol('DEFAULT');
 
 export default class MemoryServer {
-    private static _freeListAllocator: FreeListAllocator;
-    private static _linearAllocator: LinearAllocator;
-    private static _stackAllocator: StackAllocator;
-    private static _GC: GCHandler;
-    private static _logger: Logger;
-    private static rootAllocator: LinearAllocator;
+    public static readonly GC: GCHandler = new GCHandler();
 
-    static get stackAllocator(): StackAllocator {
-        return this._stackAllocator;
-    }
-
-    static get freeListAllocator(): FreeListAllocator {
-        return this._freeListAllocator;
-    }
-
-    static get linearAllocator(): LinearAllocator {
-        return this._linearAllocator;
-    }
-
-    static get logger() {
-        return this._logger;
-    }
-
-    static get GC() {
-        return this._GC;
-    }
+    private static allocators: { [index: string | symbol]: Allocator } = {};
+    private static rootAllocator: Allocator;
 
     static startUp(params: MemoryServerInitConfigs) {
-        LoggerManager.register('MemoryServer', 'DEBUG');
-        LoggerManager.register('MemoryServer::GC', 'DEBUG');
-        LoggerManager.register('MemoryServer::ALLOCATORS', 'TRACE');
-        LoggerManager.get('MemoryServer').info('Init GC');
-        this._GC = this._GC ?? new GCHandler();
+        // Считаем сколько памяти потребуется на все аллокаторы
+        const dataView = new DataView(
+            new ArrayBuffer(
+                params.children.reduce((previousValue, currentValue) => {
+                    return previousValue + currentValue.byteSize;
+                }, 0) + params.default.byteSize
+            )
+        );
 
-        const arrayBuffer = new ArrayBuffer(Object.values(params).reduce((p, a) => p + a, 0));
-
-        LoggerManager.get('MemoryServer').info(`Init ArrayBuffer ${arrayBuffer.byteLength} byte`);
-
-        const dataView = new DataView(arrayBuffer);
-        this.rootAllocator = new LinearAllocator(dataView);
-
-        LoggerManager.get('MemoryServer').info(`Init RootAllocator ${this.rootAllocator.byteSize} byte`);
-
-        this._linearAllocator = new LinearAllocator(this.rootAllocator.malloc(params.linearAllocatorByteSize, 4));
-        LoggerManager.get('MemoryServer').info(`Init LinearAllocator ${this.linearAllocator.byteSize} byte`);
-
-        this._stackAllocator = new StackAllocator(this.rootAllocator.malloc(params.stackAllocatorByteSize, 4));
-        LoggerManager.get('MemoryServer').info(`Init StackAllocator ${this.stackAllocator.byteSize} byte`);
-
-        this._freeListAllocator = new FreeListAllocator(this.rootAllocator.malloc(params.freeListAllocatorByteSize, 4));
-        LoggerManager.get('MemoryServer').info(`Init FreeListAllocator ${this.freeListAllocator.byteSize} byte`);
+        MemoryServer.rootAllocator = new params.root(dataView);
+        MemoryServer.allocators[symbolDefaultAllocator] = new params.default.allocator(
+            MemoryServer.rootAllocator.malloc(params.default.byteSize, 1)
+        );
+        params.children.map((value) => {
+            MemoryServer.allocators[value.name] = new value.allocator(
+                MemoryServer.rootAllocator.malloc(value.byteSize, 1)
+            );
+        });
     }
 
-    static getAllocator(type: TypeAllocator): Allocator {
-        if (type === TypeAllocator.LINEAR) return this._linearAllocator;
-        if (type === TypeAllocator.FREE_LIST) return this._freeListAllocator;
-
-        throw new Error(`Can't find Allocator`);
+    static getAllocator(type: string): Allocator {
+        if (this.allocators[type]) {
+            return this.allocators[type];
+        } else {
+            return this.allocators[symbolDefaultAllocator];
+        }
     }
 
-    static deallocate(type: TypeAllocator, byteOffset: number) {
-        if (type === TypeAllocator.LINEAR) return;
+    static deallocate(type: string, byteOffset: number) {
         this.getAllocator(type).deallocate(byteOffset);
     }
 
-    static malloc(type: TypeAllocator, byteSize: number, alignment: number): DataView {
+    static malloc(type: string, byteSize: number, alignment: number): DataView {
         return this.getAllocator(type).malloc(byteSize, alignment);
     }
 }
 
 export type MemoryServerInitConfigs = {
-    linearAllocatorByteSize: number;
-    stackAllocatorByteSize: number;
-    freeListAllocatorByteSize: number;
+    name: string;
+    root: AllocatorConstructor;
+    default: { allocator: AllocatorConstructor; byteSize: number };
+    children: { name: string; allocator: AllocatorConstructor; byteSize: number }[];
 };

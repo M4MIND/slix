@@ -3,7 +3,7 @@ import Allocator from './Allocator';
 
 export default class LinearAllocator implements Allocator {
     public readonly typeAllocator: TypeAllocator = TypeAllocator.LINEAR;
-    private readonly arrayBuffer: ArrayBuffer;
+    public readonly arrayBuffer: ArrayBuffer;
     private readonly dataView: DataView;
     private _usedMemory = 0;
     private _position = 0;

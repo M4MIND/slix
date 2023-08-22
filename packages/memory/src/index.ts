@@ -1,5 +1,6 @@
 import MemoryServer from './lib/MemoryServer';
 import type { MemoryServerInitConfigs } from './lib/MemoryServer';
+import FreeListAllocator from './lib/allocators/FreeListAllocator';
 import LinearAllocator from './lib/allocators/LinearAllocator';
 import Float32NativeArray from './lib/array/Float32NativeArray';
 import Int8NativeArray from './lib/array/Int8NativeArray';
@@ -25,6 +26,7 @@ export {
     AllocatorHelper,
     DataTypeConstructor,
     Float32NativeArray,
+    FreeListAllocator,
     Int16NativeArray,
     Int32NativeArray,
     Int8NativeArray,

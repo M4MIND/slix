@@ -1,12 +1,11 @@
-import { NativeArrayHelper } from '../../index';
-import { TypeAllocator } from '../types/DataType';
+import { MemoryServer, NativeArrayHelper } from '../../index';
 import { NativeArray } from './NativeArray';
 
 export default class Int16NativeArray extends Int16Array implements NativeArray {
-    public readonly allocator: TypeAllocator;
+    public readonly allocator: string;
     public readonly dataView: DataView;
-    constructor(sizeOrData: number | number[], type: TypeAllocator = TypeAllocator.FREE_LIST) {
-        const dataView = NativeArrayHelper.malloc(
+    constructor(sizeOrData: number | number[], type = 'DEFAULT') {
+        const dataView = MemoryServer.malloc(
             type,
             NativeArrayHelper.needBytes(sizeOrData, Int16Array.BYTES_PER_ELEMENT),
             Int16Array.BYTES_PER_ELEMENT
@@ -25,6 +24,6 @@ export default class Int16NativeArray extends Int16Array implements NativeArray 
     }
 
     destroy(): void {
-        NativeArrayHelper.destroy(this.allocator, this.byteOffset);
+        MemoryServer.deallocate(this.allocator, this.byteOffset);
     }
 }

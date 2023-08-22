@@ -1,3 +1,4 @@
+import { MATH_ALLOCATOR } from '../../index';
 import { Float32NativeArray } from 'memory';
 
 export default class Color extends Float32NativeArray {
@@ -14,7 +15,7 @@ export default class Color extends Float32NativeArray {
         return this[3];
     }
     constructor(r: number, g: number, b: number, a: number) {
-        super([r, g, b, a]);
+        super([r, g, b, a], MATH_ALLOCATOR.PERSISTENT);
     }
     static get black() {
         return new Color(0, 0, 0, 1);

@@ -1,8 +1,9 @@
+import { MATH_ALLOCATOR } from '../../index';
 import { Float32NativeArray } from 'memory';
 
 export default class Vector extends Float32NativeArray {
     protected constructor(...args: number[]) {
-        super(args);
+        super(args, MATH_ALLOCATOR.PERSISTENT);
     }
 
     add(v: Vector): this {

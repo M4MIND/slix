@@ -13,11 +13,11 @@ export default class NativeArrayHelper {
 
     static mergeCollection(_out: TYPED_ARRAY, _in: [TYPED_ARRAY, number][], step: number) {}
 
-    static destroy(allocator: TypeAllocator, byteOffset: number) {
+    static destroy(allocator: string, byteOffset: number) {
         MemoryServer.deallocate(allocator, byteOffset);
     }
 
-    static malloc(allocator: TypeAllocator, byteSize: number, alignment: number): DataView {
+    static malloc(allocator: string, byteSize: number, alignment: number): DataView {
         return MemoryServer.malloc(allocator, byteSize, alignment);
     }
 

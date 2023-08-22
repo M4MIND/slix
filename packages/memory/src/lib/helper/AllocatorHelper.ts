@@ -23,7 +23,7 @@ export default class AllocatorHelper {
         return adjustment;
     }
 
-    static deallocate(allocator: TypeAllocator, ptr: number, token: symbol) {
+    static deallocate(allocator: string, ptr: number, token: symbol) {
         MemoryServer.GC.unregister(token);
         MemoryServer.deallocate(allocator, ptr);
     }

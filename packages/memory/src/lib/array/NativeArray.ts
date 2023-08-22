@@ -1,7 +1,7 @@
 import { TypeAllocator } from '../types/DataType';
 
 export interface NativeArray {
-    allocator: TypeAllocator;
+    allocator: string;
     dataView: DataView;
     destroy(): void;
 }

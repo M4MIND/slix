@@ -17,7 +17,7 @@ enum USED_FLAGS {
 
 export default class FreeListAllocator implements Allocator {
     public readonly typeAllocator = TypeAllocator.FREE_LIST;
-    private readonly arrayBuffer: ArrayBuffer;
+    public readonly arrayBuffer: ArrayBuffer;
     private readonly dataView: DataView;
     private _usedMemory = 0;
     private _numAllocations = 0;
@@ -112,14 +112,14 @@ export default class FreeListAllocator implements Allocator {
                 MEMORY_BLOCK_HEADER.HEADER_SIZE
             );
 
-            const addressOfData = address + alignForwardAdjustmentWithHeader;
-
             const needByteSize = size + alignForwardAdjustmentWithHeader + MEMORY_BLOCK_HEADER_END.HEADER_SIZE;
 
             if (sizeOf < needByteSize) {
                 address = address + sizeOf;
                 continue;
             }
+
+            const addressOfData = address + alignForwardAdjustmentWithHeader;
 
             // Обновляем открывающий заголовки
             // Размер используемого блока
