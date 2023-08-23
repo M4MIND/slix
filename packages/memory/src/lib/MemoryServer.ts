@@ -3,7 +3,7 @@ import Allocator, { AllocatorConstructor } from './allocators/Allocator';
 import { NativeArray } from './array/NativeArray';
 import GCHandler from './gc/GCHandler';
 
-const symbolDefaultAllocator = Symbol('DEFAULT');
+export const symbolDefaultAllocator = Symbol('DEFAULT');
 
 export default class MemoryServer {
     private static readonly GC: GCHandler = new GCHandler();
@@ -31,12 +31,16 @@ export default class MemoryServer {
         });
     }
 
-    static getAllocator(type: string | symbol): Allocator {
+    static getAllocator<T extends Allocator>(type: string | symbol): T {
         if (this.allocators[type]) {
-            return this.allocators[type];
+            return this.allocators[type] as T;
         } else {
-            return this.allocators[symbolDefaultAllocator];
+            return this.allocators[symbolDefaultAllocator] as T;
         }
+    }
+
+    static getAllocators() {
+        return Object.keys(this.allocators);
     }
 
     static deallocate(target: NativeArray) {
@@ -58,7 +62,7 @@ export default class MemoryServer {
     }
 
     static gcUnregister(target: NativeArray) {
-        if (target.token) this.GC.unregister(target.token);
+        if (target.token) this.GC.unregister(target);
     }
 }
 

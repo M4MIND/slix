@@ -1,7 +1,9 @@
+import { GameObject } from '../index';
 import Renderer from './Renderer';
+import MemoryMonitor from './monitoring/MemoryMonitor';
 import SceneManager from './scene/SceneManager';
 import { MATH_ALLOCATOR } from 'mathf';
-import { FreeListAllocator, LinearAllocator, MemoryServer } from 'memory';
+import { Float32NativeArray, FreeListAllocator, LinearAllocator, MemoryServer } from 'memory';
 import { RendererServer, RendererServerInitConfigs } from 'renderer';
 
 export enum ALLOCATORS {
@@ -44,18 +46,19 @@ export default class SlixEngine {
                 },
                 {
                     name: MATH_ALLOCATOR.PERSISTENT,
-                    byteSize: 16 * 1024 * 1024,
+                    byteSize: 3 * 1024 * 1024,
                     allocator: FreeListAllocator,
                 },
                 {
-                    name: MATH_ALLOCATOR.PERSISTENT_TEMP,
-                    byteSize: 16 * 1024 * 1024,
+                    name: MATH_ALLOCATOR.PERSISTENT_CACHE,
+                    byteSize: 3 * 1024 * 1024,
                     allocator: FreeListAllocator,
                 },
             ],
         });
-        RendererServer.startUp(configs.rendererServer);
-        Renderer.startUp();
+        MemoryMonitor.startUp();
+        // RendererServer.startUp(configs.rendererServer);
+        // Renderer.startUp();
 
         this.sceneManager = new SceneManager();
 
@@ -70,9 +73,14 @@ export default class SlixEngine {
     }
 
     private static loop() {
+        new GameObject();
+        new GameObject();
+
         // Rendering
         for (const gm of SlixEngine.sceneManager.getActiveScene().root) {
         }
+
+        MemoryMonitor.draw();
 
         window.requestAnimationFrame(SlixEngine.loop);
     }

@@ -11,8 +11,8 @@ enum MEMORY_BLOCK_HEADER_END {
 }
 
 enum USED_FLAGS {
-    free = 0,
-    use = 255,
+    free = 100,
+    use = 200,
 }
 
 export default class FreeListAllocator implements Allocator {
@@ -22,6 +22,7 @@ export default class FreeListAllocator implements Allocator {
     private _usedMemory = 0;
     private _numAllocations = 0;
     private readonly _byteSize;
+    private readonly _byteOffset;
     public get byteSize(): number {
         return this._byteSize;
     }
@@ -38,6 +39,7 @@ export default class FreeListAllocator implements Allocator {
         this.arrayBuffer = dataView.buffer;
         this.dataView = dataView;
         this._byteSize = this.dataView.byteLength;
+        this._byteOffset = this.dataView.byteOffset;
 
         this.dataView.setUint32(0, this.byteSize);
         this.dataView.setUint8(4, USED_FLAGS.free);
@@ -52,25 +54,30 @@ export default class FreeListAllocator implements Allocator {
         return this.dataView.getUint32(address);
     }
 
+    getMemory() {
+        return new Uint8Array(this.arrayBuffer, this._byteOffset, this.byteSize);
+    }
+
     deallocate(byteOffset: number): void {
-        const ptrDataView = byteOffset - this.dataView.byteOffset;
+        const ptrDataView = byteOffset - this._byteOffset;
         const ptrStartBlock = ptrDataView - this.dataView.getUint8(ptrDataView - 1);
+
         let sizeOfDeallocateBlock = this.dataView.getUint32(ptrStartBlock);
+
         // Устанавлиаем флаг что блок свободен
         this.dataView.setUint8(ptrStartBlock + 4, USED_FLAGS.free);
 
         this._usedMemory -= sizeOfDeallocateBlock;
         this._numAllocations--;
 
-        if (ptrStartBlock + sizeOfDeallocateBlock < this.byteSize) {
+        if (ptrStartBlock + sizeOfDeallocateBlock <= this.byteSize) {
             const nextAddress = ptrStartBlock + sizeOfDeallocateBlock;
+
             if (this.isFree(nextAddress)) {
-                const sizeOfNextBlock = this.sizeOf(nextAddress);
-
-                sizeOfDeallocateBlock += sizeOfNextBlock;
-
+                const nextBlockSizeOf = this.sizeOf(nextAddress);
+                sizeOfDeallocateBlock += nextBlockSizeOf;
                 this.dataView.setUint32(ptrStartBlock, sizeOfDeallocateBlock);
-                this.dataView.setUint32(nextAddress + sizeOfNextBlock - 4, sizeOfDeallocateBlock);
+                this.dataView.setUint32(nextAddress + nextBlockSizeOf - 4, sizeOfDeallocateBlock);
             }
         }
 
@@ -94,64 +101,60 @@ export default class FreeListAllocator implements Allocator {
         let address = 0;
 
         while (address < this.byteSize) {
-            // Проверка свободен ли блок
+            // Если блок доступен
             if (!this.isFree(address)) {
-                address = address + this.sizeOf(address);
+                address += this.sizeOf(address);
                 continue;
             }
-            // Быстрая проверка хватит ли места для записи
-            const sizeOf = this.sizeOf(address);
-            if (sizeOf < size + 11) {
-                address = address + sizeOf;
+
+            const sizeOfBlock = this.sizeOf(address);
+
+            if (sizeOfBlock === 0) {
+                throw new Error(`${address} === 0 bytes`);
+            }
+
+            // Быстрая проверка
+            if (sizeOfBlock <= size) {
+                address += sizeOfBlock;
                 continue;
             }
-            // Полная проверка блока
+
+            // Считаем сколько всего потребуется памяти для записи
+            // Выравнивание
             const alignForwardAdjustmentWithHeader = AllocatorHelper.alignForwardAdjustmentWithHeader(
                 address,
                 alignment,
                 MEMORY_BLOCK_HEADER.HEADER_SIZE
             );
 
-            const needByteSize = size + alignForwardAdjustmentWithHeader + MEMORY_BLOCK_HEADER_END.HEADER_SIZE;
+            // Количество байтов с выравниванием
+            const needByteSize = alignForwardAdjustmentWithHeader + size + MEMORY_BLOCK_HEADER_END.HEADER_SIZE;
 
-            if (sizeOf < needByteSize) {
-                address = address + sizeOf;
+            if (sizeOfBlock - needByteSize - 9 < 0) {
+                address += sizeOfBlock;
                 continue;
             }
+            // Обновляем заголовок начала блока
+            this.dataView.setUint32(address, needByteSize); // Размер выделенного блока
+            this.dataView.setUint8(address + 4, USED_FLAGS.use); // Флаг что блок используется
+            this.dataView.setUint8(address + alignForwardAdjustmentWithHeader - 1, alignForwardAdjustmentWithHeader); // Информация о выравнивании
 
-            const addressOfData = address + alignForwardAdjustmentWithHeader;
+            const endHeaderBlock = address + needByteSize;
+            // Обновляем заголовок конца блока
+            this.dataView.setUint32(endHeaderBlock - 4, needByteSize);
+            this.dataView.setUint8(endHeaderBlock - 5, alignForwardAdjustmentWithHeader);
 
-            // Обновляем открывающий заголовки
-            // Размер используемого блока
-            this.dataView.setUint32(address, needByteSize);
-            // Флаг что блок используется
-            this.dataView.setUint8(address + 4, USED_FLAGS.use);
-            // Выравнивание блока
-            this.dataView.setUint8(addressOfData - 1, alignForwardAdjustmentWithHeader);
+            // Создаем новый блок
+            this.dataView.setUint32(endHeaderBlock, sizeOfBlock - needByteSize);
+            this.dataView.setUint8(endHeaderBlock + 4, USED_FLAGS.free);
+            this.dataView.setUint32(address + sizeOfBlock - 4, sizeOfBlock - needByteSize);
 
-            // Закрывающий загловок
-            const endBlock = address + needByteSize;
-
-            this.dataView.setUint32(endBlock - 4, needByteSize);
-            this.dataView.setUint8(endBlock - 5, alignForwardAdjustmentWithHeader);
-
-            // Новый блок
-            this.dataView.setUint32(endBlock, sizeOf - needByteSize);
-            this.dataView.setUint8(endBlock + 4, USED_FLAGS.free);
-            this.dataView.setUint32(address + sizeOf - 4, sizeOf - needByteSize);
-
-            this._usedMemory += needByteSize;
             this._numAllocations++;
+            this._usedMemory += needByteSize;
 
-            return new DataView(this.arrayBuffer, this.dataView.byteOffset + addressOfData, size);
+            return new DataView(this.arrayBuffer, address + this._byteOffset + alignForwardAdjustmentWithHeader, size);
         }
 
-        throw new Error(
-            `Memory is not free. Used: ${this.usedMemory}, Free: ${this.byteSize - this.usedMemory}, Need: ${
-                AllocatorHelper.alignForwardAdjustmentWithHeader(address, alignment, MEMORY_BLOCK_HEADER.HEADER_SIZE) +
-                MEMORY_BLOCK_HEADER_END.HEADER_SIZE +
-                size
-            }`
-        );
+        throw new Error(`Memory is not free. Used: ${this.usedMemory}, Free: ${this.byteSize - this.usedMemory}`);
     }
 }

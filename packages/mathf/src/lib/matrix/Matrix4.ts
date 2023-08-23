@@ -22,7 +22,7 @@ type components = [
 ];
 
 export default class Matrix4 extends Float32NativeArray {
-    private cache = new Float32NativeArray(18, MATH_ALLOCATOR.PERSISTENT_TEMP);
+    private cache = new Float32NativeArray(18, MATH_ALLOCATOR.PERSISTENT_CACHE);
     constructor(
         m00 = 1,
         m01 = 0,
@@ -440,17 +440,6 @@ export default class Matrix4 extends Float32NativeArray {
 
         return new this(c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     }
-    /*
-    |get00(0),  get01(1),  get02(2),  get03(3)|
-    |get10(4),  get11(5),  get12(6),  get13(7)|
-    |get20(8),  get21(9),  get22(10), get23(11)|
-    |get30(12), get31(13), get32(14), get33(15)|
-     */
-
-    set _translate(v: Vector3) {
-        this.translate(v);
-    }
-
     static projection(fieldOfViewInRadians = 0, aspect = 1, near = 0.1, far = 1000): Matrix4 {
         const f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewInRadians);
         const rangeInv = 1.0 / (near - far);
@@ -474,7 +463,6 @@ export default class Matrix4 extends Float32NativeArray {
             0
         );
     }
-
     static inverse(m: Matrix4) {
         const m00 = m[0];
         const m01 = m[1];
@@ -544,7 +532,6 @@ export default class Matrix4 extends Float32NativeArray {
             d * (tmp_22 * m22 + tmp_16 * m02 + tmp_21 * m12 - (tmp_20 * m12 + tmp_23 * m22 + tmp_17 * m02))
         );
     }
-
     static transpose(m: Matrix4) {
         return new Matrix4(
             m[0],
@@ -565,7 +552,6 @@ export default class Matrix4 extends Float32NativeArray {
             m[15]
         );
     }
-
     static multiply(a: Matrix4, b: Matrix4): Matrix4 {
         const t00 = a[0];
         const t01 = a[1];
@@ -622,7 +608,6 @@ export default class Matrix4 extends Float32NativeArray {
             1
         );
     }
-
     static multiplyFromArray(...args: Matrix4[]): Matrix4 {
         const m = args[0];
 
@@ -634,7 +619,6 @@ export default class Matrix4 extends Float32NativeArray {
 
         return m;
     }
-
     static multipleVectorOnMatrix(v: Vector3, m: Matrix4): Vector3 {
         return new Vector3(
             m[0] * v.x + m[1] * v.y + m[2] + v.z,
@@ -642,7 +626,6 @@ export default class Matrix4 extends Float32NativeArray {
             m[8] * v.x + m[9] * v.y + m[12] + v.z
         );
     }
-
     static lookAt(position: Vector3, target: Vector3, up: Vector3) {
         const z = Vector3.normalize(Vector3.sub(position, target));
         const x = Vector3.normalize(Vector3.cross(up, z));
@@ -650,7 +633,6 @@ export default class Matrix4 extends Float32NativeArray {
 
         return new Matrix4(x.x, x.y, x.z, 0, y.x, y.y, y.z, 0, z.x, z.y, z.z, 0, position.x, position.y, position.x, 1);
     }
-
     static clone(m: Matrix4) {
         return new Matrix4(
             m[0],
@@ -670,5 +652,15 @@ export default class Matrix4 extends Float32NativeArray {
             m[14],
             m[15]
         );
+    }
+    /*
+    |get00(0),  get01(1),  get02(2),  get03(3)|
+    |get10(4),  get11(5),  get12(6),  get13(7)|
+    |get20(8),  get21(9),  get22(10), get23(11)|
+    |get30(12), get31(13), get32(14), get33(15)|
+     */
+
+    set _translate(v: Vector3) {
+        this.translate(v);
     }
 }

@@ -1,6 +1,7 @@
 import FreeListAllocator from '../../../../packages/memory/src/lib/allocators/FreeListAllocator';
-import { GameObject, SlixEngine } from 'core';
-import { Float32NativeArray, LinearAllocator, MemoryServer, TypeAllocator } from 'memory';
+import { Cube, GameObject, MeshFilterComponent, MeshRendererComponent, SlixEngine } from 'core';
+import { MATH_ALLOCATOR, Matrix4, Vector3, Vector4 } from 'mathf';
+import { Float32NativeArray, LinearAllocator, MemoryServer, TypeAllocator, Uint8NativeArray } from 'memory';
 import React, { useEffect, useRef, useState } from 'react';
 
 export function App() {
@@ -75,18 +76,8 @@ export function App() {
         });
 
         SlixEngine.start((sceneManager) => {
-            sceneManager.setActiveScene(sceneManager.createScene('MainScene'));
+            sceneManager.setActiveScene(sceneManager.createScene('Scene'));
         });
-
-        // (function allocateMemory() {
-        //     // Allocate 50000 functions — a lot of memory!
-        //     Array.from({ length: 50000 }, () => () => {});
-        //     if (counter > 5000) return;
-        //     counter++;
-        //     allocateMemory();
-        // })();
-        //
-        // console.log('Main job ends');
 
         // const gameObject = new GameObject('GameObject', MeshFilterComponent, MeshRendererComponent);
         // const meshFilter = gameObject.getComponent<MeshFilterComponent>(MeshFilterComponent);

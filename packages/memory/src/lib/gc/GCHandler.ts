@@ -3,9 +3,9 @@ import { NativeArray } from '../array/NativeArray';
 import { LoggedMethod, LoggerManager } from 'logger';
 
 declare let FinalizationRegistry: {
-    new (handler: (k: { allocator: string | symbol; byteOffset: number; token: symbol }) => void): never;
-    register(target: NativeArray, heldValue: { allocator: string; byteOffset: number }): void;
-    unregister(token: symbol): boolean;
+    new (handler: (k: { allocator: string | symbol; byteOffset: number }) => void): never;
+    register(target: NativeArray, heldValue: { allocator: string; byteOffset: number }, token: NativeArray): void;
+    unregister(token: NativeArray): boolean;
 };
 export default class GCHandler {
     private finalizationRegistry: typeof FinalizationRegistry;
@@ -17,14 +17,19 @@ export default class GCHandler {
     }
 
     register(target: NativeArray): symbol {
-        this.finalizationRegistry.register(target, {
-            allocator: target.allocator,
-            byteOffset: target.dataView.byteOffset,
-        });
-        return Symbol(self.crypto.randomUUID());
+        const token = Symbol(self.crypto.randomUUID());
+        this.finalizationRegistry.register(
+            target,
+            {
+                allocator: target.allocator,
+                byteOffset: target.dataView.byteOffset,
+            },
+            target
+        );
+        return token;
     }
 
-    unregister(token: symbol) {
+    unregister(token: NativeArray) {
         this.finalizationRegistry.unregister(token);
     }
 }
