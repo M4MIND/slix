@@ -1,4 +1,4 @@
-import { MemoryServer, TypeAllocator } from '../../index';
+import { MemoryServer, TYPED_ARRAY, TYPED_ARRAY_CONSTRUCTOR, TYPED_NATIVE_ARRAY, TypeAllocator } from '../../index';
 import { NativeArray } from '../array/NativeArray';
 import { LoggedMethod, LoggerManager } from 'logger';
 
@@ -16,17 +16,15 @@ export default class GCHandler {
         });
     }
 
-    register(target: NativeArray): symbol {
-        const token = Symbol(self.crypto.randomUUID());
+    register(target: NativeArray) {
         this.finalizationRegistry.register(
             target,
             {
                 allocator: target.allocator,
-                byteOffset: target.dataView.byteOffset,
+                byteOffset: target.byteOffset,
             },
             target
         );
-        return token;
     }
 
     unregister(token: NativeArray) {

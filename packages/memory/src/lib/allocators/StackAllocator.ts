@@ -63,7 +63,7 @@ export default class StackAllocator implements Allocator {
     }
 
     private getAddress(size: number, alignment: number) {
-        AllocatorHelper.checkSize(size);
+        AllocatorHelper.checkParamsMalloc(size, alignment);
 
         const adjustment = AllocatorHelper.alignForwardAdjustmentWithHeader(
             this.currentPosition,
@@ -98,4 +98,6 @@ export default class StackAllocator implements Allocator {
 
         this.numAllocations = this.numAllocations - 1;
     }
+
+    public clear() {}
 }

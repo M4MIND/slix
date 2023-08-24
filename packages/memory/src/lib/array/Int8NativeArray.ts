@@ -5,8 +5,6 @@ import { NativeArray } from './NativeArray';
 
 export default class Int8NativeArray extends Int8Array implements NativeArray {
     public readonly allocator: string;
-    public readonly dataView: DataView;
-    public readonly token: symbol | null;
     constructor(sizeOrData: number | number[], allocator = 'DEFAULT') {
         const dataView = MemoryServer.malloc(
             allocator,
@@ -21,8 +19,7 @@ export default class Int8NativeArray extends Int8Array implements NativeArray {
         );
 
         this.allocator = allocator;
-        this.dataView = dataView;
-        this.token = MemoryServer.gcRegister(this);
+        MemoryServer.gcRegister(this);
         if (typeof sizeOrData === 'object') this.set(sizeOrData);
     }
 

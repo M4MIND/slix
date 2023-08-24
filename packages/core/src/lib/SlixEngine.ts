@@ -1,9 +1,10 @@
-import { GameObject } from '../index';
+import { Cube } from '../index';
+import { GameObject, MeshFilterComponent, MeshRendererComponent, Monkey } from '../index';
 import Renderer from './Renderer';
 import MemoryMonitor from './monitoring/MemoryMonitor';
 import SceneManager from './scene/SceneManager';
 import { MATH_ALLOCATOR } from 'mathf';
-import { Float32NativeArray, FreeListAllocator, LinearAllocator, MemoryServer } from 'memory';
+import { BoundaryTagAllocator, Float32NativeArray, LinearAllocator, MemoryServer } from 'memory';
 import { RendererServer, RendererServerInitConfigs } from 'renderer';
 
 export enum ALLOCATORS {
@@ -26,7 +27,7 @@ export default class SlixEngine {
             root: LinearAllocator,
             default: {
                 byteSize: 32 * 1024 * 1024,
-                allocator: FreeListAllocator,
+                allocator: BoundaryTagAllocator,
             },
             children: [
                 {
@@ -42,23 +43,23 @@ export default class SlixEngine {
                 {
                     name: ALLOCATORS.FREE_LIST,
                     byteSize: 64 * 1024 * 1024,
-                    allocator: FreeListAllocator,
+                    allocator: BoundaryTagAllocator,
                 },
                 {
                     name: MATH_ALLOCATOR.PERSISTENT,
                     byteSize: 3 * 1024 * 1024,
-                    allocator: FreeListAllocator,
+                    allocator: BoundaryTagAllocator,
                 },
                 {
                     name: MATH_ALLOCATOR.PERSISTENT_CACHE,
                     byteSize: 3 * 1024 * 1024,
-                    allocator: FreeListAllocator,
+                    allocator: BoundaryTagAllocator,
                 },
             ],
         });
         MemoryMonitor.startUp();
-        // RendererServer.startUp(configs.rendererServer);
-        // Renderer.startUp();
+        RendererServer.startUp(configs.rendererServer);
+        Renderer.startUp();
 
         this.sceneManager = new SceneManager();
 
@@ -73,10 +74,8 @@ export default class SlixEngine {
     }
 
     private static loop() {
-        new GameObject();
-        new GameObject();
-
         // Rendering
+
         for (const gm of SlixEngine.sceneManager.getActiveScene().root) {
         }
 

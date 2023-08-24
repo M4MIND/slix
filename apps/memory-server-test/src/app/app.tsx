@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { d } from '@pmmmwh/react-refresh-webpack-plugin/types/options';
-import { Float32NativeArray, FreeListAllocator, LinearAllocator, MemoryServer } from 'memory';
+import { BoundaryTagAllocator, Float32NativeArray, LinearAllocator, MemoryServer } from 'memory';
 import { useEffect, useState } from 'react';
 
 export function App() {
@@ -15,39 +15,29 @@ export function App() {
                 allocator: LinearAllocator,
                 byteSize: 1024,
             },
-            children: [{ name: '_FREE_LIST', allocator: FreeListAllocator, byteSize: 1024 }],
+            children: [{ name: '_FREE_LIST', allocator: LinearAllocator, byteSize: 64 * 1024 * 1024 }],
         });
 
-        setInterval(() => {
-            new Float32NativeArray(2, '_FREE_LIST');
-            setMemory([...MemoryServer.getAllocator<FreeListAllocator>('_FREE_LIST').getMemory()]);
-        }, 1000);
+        console.time('Float32NativeArray');
+        for (let i = 0; i < 100000; i++) {
+            new Float32NativeArray(128, '_FREE_LIST');
+        }
+        console.timeEnd('Float32NativeArray');
+
+        console.time('Float32Array');
+        for (let i = 0; i < 100000; i++) {
+            new Float32Array(128);
+        }
+        console.timeEnd('Float32Array');
+
+        console.time('Array');
+        for (let i = 0; i < 100000; i++) {
+            new Array(128);
+        }
+        console.timeEnd('Array');
     }, []);
 
-    return (
-        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-            {memory.map((v, k) => {
-                return (
-                    <div
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            minWidth: 36,
-                            minHeight: 36,
-                            background: 'rgba(0,0,0, 0.2)',
-                            marginRight: 2,
-                            marginBottom: 2,
-                            position: 'relative',
-                        }}
-                    >
-                        <div style={{ position: 'absolute', fontSize: 12, top: -4, display: 'flex' }}>{k}</div>
-                        {v}
-                    </div>
-                );
-            })}
-        </div>
-    );
+    return <div style={{ display: 'flex', flexWrap: 'wrap' }}></div>;
 }
 
 export default App;

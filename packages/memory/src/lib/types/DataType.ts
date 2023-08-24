@@ -4,7 +4,7 @@ import { Float32NativeArray, Uint8NativeArray, Uint16NativeArray, Uint32NativeAr
 export enum TypeAllocator {
     LINEAR,
     POOL,
-    FREE_LIST,
+    TAG_BOUNDARY,
     STACK,
 }
 

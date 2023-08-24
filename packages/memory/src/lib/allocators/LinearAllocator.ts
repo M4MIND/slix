@@ -3,55 +3,44 @@ import Allocator from './Allocator';
 
 export default class LinearAllocator implements Allocator {
     public readonly typeAllocator: TypeAllocator = TypeAllocator.LINEAR;
-    public readonly arrayBuffer: ArrayBuffer;
+    private readonly arrayBuffer: ArrayBuffer;
     private readonly dataView: DataView;
     private _usedMemory = 0;
     private _position = 0;
     private _numAllocations = 0;
+    private _byteSize = 0;
+    private readonly _byteOffset: number;
     public get byteSize() {
-        return this.dataView.byteLength;
+        return this._byteSize;
     }
     public get usedMemory() {
         return this._usedMemory;
-    }
-    private set usedMemory(v: number) {
-        this._usedMemory = v;
-    }
-    public get currentPosition() {
-        return this._position;
-    }
-    private set currentPosition(v: number) {
-        this._position = v;
     }
 
     public get numAllocations() {
         return this._numAllocations;
     }
 
-    private set numAllocations(v: number) {
-        this._numAllocations = v;
-    }
-
     constructor(dataView: DataView) {
         this.arrayBuffer = dataView.buffer;
         this.dataView = dataView;
-        this._usedMemory = 0;
-        this._numAllocations = 0;
-        this._position = 0;
+
+        this._byteOffset = this.dataView.byteOffset;
+        this._byteSize = this.dataView.byteLength;
+
+        this.clear();
     }
 
     private getAddress(size: number, alignment: number) {
-        AllocatorHelper.checkSize(size);
+        AllocatorHelper.checkParamsMalloc(size, alignment);
 
-        const adjustment = AllocatorHelper.alignForwardAdjustment(this.currentPosition, alignment);
+        const adjustment = AllocatorHelper.alignForwardAdjustment(this._position, alignment);
 
-        if (this.usedMemory + adjustment + size > this.byteSize) return null;
-
-        const aligned_address = this.currentPosition + adjustment;
-        this.currentPosition = aligned_address + size;
-        this.usedMemory = this.usedMemory + size + adjustment;
-
-        this.numAllocations = this.numAllocations + 1;
+        if (this._usedMemory + adjustment + size > this._byteSize) return null;
+        const aligned_address = this._position + adjustment;
+        this._position = aligned_address + size;
+        this._usedMemory += size + adjustment;
+        this._numAllocations++;
 
         return aligned_address;
     }
@@ -62,14 +51,16 @@ export default class LinearAllocator implements Allocator {
             throw new Error(
                 `Failed to allocate memory for ${size} bytes. ${this.byteSize - this.usedMemory} bytes available`
             );
-        return new DataView(this.arrayBuffer, address + this.dataView.byteOffset, size);
+        return new DataView(this.arrayBuffer, address + this._byteOffset, size);
     }
     clear(): void {
-        this.numAllocations = 0;
-        this.usedMemory = 0;
-        this.currentPosition = this.dataView.byteOffset;
+        this._usedMemory = 0;
+        this._numAllocations = 0;
+        this._position = 0;
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     deallocate(byteOffset: number): void {
-        console.warn('Please, use Clear() method');
+        console.warn(`${LinearAllocator.name} Can't be deallocate. Please, use clear() method for deallocate all data`);
     }
 }

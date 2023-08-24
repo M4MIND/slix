@@ -1,9 +1,6 @@
-import { MemoryServer, TypeAllocator } from '../../index';
-
 export default class AllocatorHelper {
     static alignForwardAdjustment(address: number, alignment: number): number {
         const adjustment = alignment - (address & (alignment - 1));
-
         if (adjustment === alignment) return 0;
 
         return adjustment;
@@ -23,7 +20,8 @@ export default class AllocatorHelper {
         return adjustment;
     }
 
-    static checkSize(size: number) {
-        if (size <= 0) throw new Error(`Can't free ${size}`);
+    static checkParamsMalloc(size: number, alignment: number) {
+        if (size <= 0 || alignment <= 0)
+            throw new Error('The size of the block to be allocated or the block tear-out cannot be smaller than 1');
     }
 }

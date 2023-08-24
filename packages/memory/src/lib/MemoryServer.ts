@@ -45,7 +45,7 @@ export default class MemoryServer {
 
     static deallocate(target: NativeArray) {
         this.gcUnregister(target);
-        this.getAllocator(target.allocator).deallocate(target.dataView.byteOffset);
+        this.getAllocator(target.allocator).deallocate(target.byteOffset);
     }
 
     static gcDeallocate(allocator: string | symbol, byteOffset: number) {
@@ -56,13 +56,14 @@ export default class MemoryServer {
         return this.getAllocator(type).malloc(byteSize, alignment);
     }
 
-    static gcRegister(target: NativeArray): symbol | null {
-        if (this.getAllocator(target.allocator).typeAllocator === TypeAllocator.LINEAR) return null;
-        return this.GC.register(target);
+    static gcRegister(target: NativeArray): void {
+        if (this.getAllocator(target.allocator).typeAllocator === TypeAllocator.LINEAR) return;
+        this.GC.register(target);
     }
 
     static gcUnregister(target: NativeArray) {
-        if (target.token) this.GC.unregister(target);
+        if (this.getAllocator(target.allocator).typeAllocator === TypeAllocator.LINEAR) return;
+        this.GC.unregister(target);
     }
 }
 

@@ -1,11 +1,16 @@
 # memory
 
-This library was generated with [Nx](https://nx.dev).
+This package contains implementation of allocator and native arrays to allocate memory from ArrayBuffer
 
-## Building
+## Allocators
+### LinearAllocator
+### TagBoundaryAllocator
 
-Run `nx build memory` to build the library.
-
-## Running unit tests
-
-Run `nx test memory` to execute the unit tests via [Jest](https://jestjs.io).
+## Native Arrays
+### Float32NativeArray
+### Int8NativeArray
+### Int16NativeArray
+### Int32NativeArray
+### Uint8NativeArray
+### Uint16NativeArray
+### Uint32NativeArray

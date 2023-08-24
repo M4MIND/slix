@@ -3,8 +3,6 @@ import { NativeArray } from './NativeArray';
 
 export default class Float32NativeArray extends Float32Array implements NativeArray {
     public readonly allocator: string;
-    public readonly dataView: DataView;
-    public readonly token: symbol | null;
     constructor(sizeOrData: number | number[], allocator = 'DEFAULT') {
         const dataView = MemoryServer.malloc(
             allocator,
@@ -19,8 +17,7 @@ export default class Float32NativeArray extends Float32Array implements NativeAr
         );
 
         this.allocator = allocator;
-        this.dataView = dataView;
-        this.token = MemoryServer.gcRegister(this);
+        MemoryServer.gcRegister(this);
         if (typeof sizeOrData === 'object') this.set(sizeOrData);
     }
 

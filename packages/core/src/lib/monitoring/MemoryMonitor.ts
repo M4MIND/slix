@@ -11,14 +11,17 @@ export default class MemoryMonitor {
         this.wrapper.style.zIndex = '99999';
         this.wrapper.style.top = '8px';
         this.wrapper.style.left = '8px';
-        this.wrapper.style.padding = '8px';
+        this.wrapper.style.padding = '16px';
         this.wrapper.style.borderRadius = '4px';
         this.wrapper.style.display = 'flex';
         this.wrapper.style.flexDirection = 'column';
-        this.wrapper.style.backgroundColor = 'rgba(0,0,0,.6)';
+        this.wrapper.style.backgroundColor = 'rgb(33,37,41)';
+        this.wrapper.style.minWidth = '360px';
 
-        this.title.style.marginBottom = '8px';
-        this.title.innerText = 'MemoryServer';
+        this.title.style.marginBottom = '16px';
+        this.title.style.fontSize = '14px';
+        this.title.style.color = '#FFF';
+        this.title.innerText = 'Memory Server';
 
         this.wrapper.appendChild(this.title);
         const allocators = MemoryServer.getAllocators();
@@ -27,7 +30,10 @@ export default class MemoryMonitor {
             this.bars.push(new MemoryBar(allocators[i], this.wrapper));
         }
 
-        document.body.appendChild(MemoryMonitor.wrapper);
+        const root = document.getElementById('root');
+        if (root) {
+            root.appendChild(MemoryMonitor.wrapper);
+        }
     }
 
     static draw() {

@@ -1,5 +1,4 @@
-import FreeListAllocator from '../../../../packages/memory/src/lib/allocators/FreeListAllocator';
-import { Cube, GameObject, MeshFilterComponent, MeshRendererComponent, SlixEngine } from 'core';
+import { Cube, GameObject, MeshFilterComponent, MeshRendererComponent, Monkey, SlixEngine } from 'core';
 import { MATH_ALLOCATOR, Matrix4, Vector3, Vector4 } from 'mathf';
 import { Float32NativeArray, LinearAllocator, MemoryServer, TypeAllocator, Uint8NativeArray } from 'memory';
 import React, { useEffect, useRef, useState } from 'react';
@@ -77,6 +76,9 @@ export function App() {
 
         SlixEngine.start((sceneManager) => {
             sceneManager.setActiveScene(sceneManager.createScene('Scene'));
+            const root = new GameObject();
+            root.addComponents(MeshFilterComponent, MeshRendererComponent);
+            root.getComponent<MeshFilterComponent>(MeshFilterComponent).mesh = new Monkey();
         });
 
         // const gameObject = new GameObject('GameObject', MeshFilterComponent, MeshRendererComponent);
