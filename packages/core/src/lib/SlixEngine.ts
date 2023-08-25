@@ -74,8 +74,6 @@ export default class SlixEngine {
     }
 
     private static loop() {
-        // Rendering
-
         for (const gm of SlixEngine.sceneManager.getActiveScene().root) {
         }
 

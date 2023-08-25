@@ -6,6 +6,7 @@ export enum TypeAllocator {
     POOL,
     TAG_BOUNDARY,
     STACK,
+    FREE_LIST,
 }
 
 export type DataTypeConstructor<T> = {

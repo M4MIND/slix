@@ -1,10 +1,16 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import PoolAllocator from '../../../../packages/memory/src/lib/allocators/PoolAllocator';
 import { d } from '@pmmmwh/react-refresh-webpack-plugin/types/options';
-import { BoundaryTagAllocator, Float32NativeArray, LinearAllocator, MemoryServer } from 'memory';
+import { BoundaryTagAllocator, Float32NativeArray, FreeListAllocator, LinearAllocator, MemoryServer } from 'memory';
 import { useEffect, useState } from 'react';
 
 export function App() {
-    const [memory, setMemory] = useState<number[]>([]);
+    const [memory, setMemory] = useState<{
+        used: number;
+        max: number;
+    }>({
+        used: 0,
+        max: 0,
+    });
     useEffect(() => {
         console.log('i fire once');
 
@@ -15,29 +21,32 @@ export function App() {
                 allocator: LinearAllocator,
                 byteSize: 1024,
             },
-            children: [{ name: '_FREE_LIST', allocator: LinearAllocator, byteSize: 64 * 1024 * 1024 }],
+            children: [{ name: '_FREE_LIST', allocator: PoolAllocator, byteSize: 512 * 1024 }],
         });
 
-        console.time('Float32NativeArray');
-        for (let i = 0; i < 100000; i++) {
-            new Float32NativeArray(128, '_FREE_LIST');
-        }
-        console.timeEnd('Float32NativeArray');
+        const loop = () => {
+            new Float32NativeArray(16, '_FREE_LIST');
+            setMemory({
+                used: MemoryServer.getAllocator('_FREE_LIST').usedMemory,
+                max: MemoryServer.getAllocator('_FREE_LIST').byteSize,
+            });
+            window.requestAnimationFrame(loop);
+        };
 
-        console.time('Float32Array');
-        for (let i = 0; i < 100000; i++) {
-            new Float32Array(128);
-        }
-        console.timeEnd('Float32Array');
-
-        console.time('Array');
-        for (let i = 0; i < 100000; i++) {
-            new Array(128);
-        }
-        console.timeEnd('Array');
+        loop();
+        // const DataView = MemoryServer.getAllocator('_FREE_LIST').malloc(11, 4);
+        //
+        // for (let i = 0; i < DataView.byteLength; i++) {
+        //     DataView.setUint8(i, 0);
+        // }
+        // setMemory([...MemoryServer.getAllocator<FreeListAllocator>('_FREE_LIST').printMemory()]);
     }, []);
 
-    return <div style={{ display: 'flex', flexWrap: 'wrap' }}></div>;
+    return (
+        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+            <progress value={memory.used} max={memory.max}></progress>
+        </div>
+    );
 }
 
 export default App;
