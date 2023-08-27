@@ -1,5 +1,5 @@
 import { ALLOCATOR, AllocatorHelper } from '../../index';
-import AllocatorInterface from './AllocatorInterface';
+import AllocatorInterface, { MemoryPointer } from './AllocatorInterface';
 
 export default class PoolAllocator implements AllocatorInterface {
     public readonly typeAllocator: ALLOCATOR = ALLOCATOR.POOL;
@@ -25,9 +25,9 @@ export default class PoolAllocator implements AllocatorInterface {
         return this._byteSize;
     }
 
-    constructor(dataView: DataView, params: number[]) {
-        this.arrayBuffer = dataView.buffer;
-        this.dataView = dataView;
+    constructor(memoryPointer: MemoryPointer, params: number[]) {
+        this.arrayBuffer = memoryPointer.buffer;
+        this.dataView = new DataView(memoryPointer.buffer, memoryPointer.byteOffset, memoryPointer.byteLength);
         this._byteSize = this.dataView.byteLength;
         this._byteOffset = this.dataView.byteOffset;
         this._numAllocations = 0;
@@ -68,7 +68,7 @@ export default class PoolAllocator implements AllocatorInterface {
         this._numAllocations--;
     }
 
-    malloc(size: number, alignment: number): DataView {
+    malloc(size: number, alignment: number): MemoryPointer {
         if (size > this._objectSize || alignment !== this._alignment)
             throw new Error('size or alignment parameters are not correctly');
 
@@ -79,6 +79,10 @@ export default class PoolAllocator implements AllocatorInterface {
         this._usedMemory += this._objectSize;
         this._numAllocations++;
 
-        return new DataView(this.arrayBuffer, this._byteOffset + p, this._objectSize);
+        return {
+            buffer: this.arrayBuffer,
+            byteLength: size,
+            byteOffset: this._byteOffset + p,
+        };
     }
 }

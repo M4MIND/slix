@@ -6,11 +6,17 @@ export default interface AllocatorInterface {
     get usedMemory(): number;
     get numAllocations(): number;
 
-    malloc(size: number, alignment: number): DataView;
+    malloc(size: number, alignment: number): MemoryPointer;
     deallocate(byteOffset: number): void;
     clear(): void;
 }
 
 export interface AllocatorConstructor {
-    new (dataView: DataView, ...params: any[]): AllocatorInterface;
+    new (memoryPointer: MemoryPointer, ...params: any[]): AllocatorInterface;
 }
+
+export type MemoryPointer = {
+    buffer: ArrayBuffer;
+    byteOffset: number;
+    byteLength: number;
+};

@@ -1,6 +1,12 @@
-import PoolAllocator from '../../../../packages/memory/src/lib/allocators/PoolAllocator';
-import { d } from '@pmmmwh/react-refresh-webpack-plugin/types/options';
-import { BoundaryTagAllocator, Float32NativeArray, FreeListAllocator, LinearAllocator, MemoryServer } from 'memory';
+import {
+    BoundaryTagAllocator,
+    Float32NativeArray,
+    FreeListAllocator,
+    LinearAllocator,
+    MemoryPointer,
+    MemoryServer,
+    PoolAllocator,
+} from 'memory';
 import { useEffect, useState } from 'react';
 
 export function App() {
@@ -12,8 +18,6 @@ export function App() {
         max: 0,
     });
     useEffect(() => {
-        console.log('i fire once');
-
         MemoryServer.startUp({
             root: LinearAllocator,
             name: '_ROOT',
@@ -21,25 +25,12 @@ export function App() {
                 allocator: LinearAllocator,
                 byteSize: 1024,
             },
-            children: [{ name: '_FREE_LIST', allocator: PoolAllocator, byteSize: 512 * 1024 }],
+            children: [
+                { name: '_POOL_ALLOCATOR', allocator: PoolAllocator, byteSize: 256 * 1024 * 1024 },
+                { name: '_LINEAR_ALLOCATOR', allocator: LinearAllocator, byteSize: 256 * 1024 * 1024 },
+                { name: '_BOUNDARY_TAG_ALLOCATOR', allocator: BoundaryTagAllocator, byteSize: 256 * 1024 * 1024 },
+            ],
         });
-
-        const loop = () => {
-            new Float32NativeArray(16, '_FREE_LIST');
-            setMemory({
-                used: MemoryServer.getAllocator('_FREE_LIST').usedMemory,
-                max: MemoryServer.getAllocator('_FREE_LIST').byteSize,
-            });
-            window.requestAnimationFrame(loop);
-        };
-
-        loop();
-        // const DataView = MemoryServer.getAllocator('_FREE_LIST').malloc(11, 4);
-        //
-        // for (let i = 0; i < DataView.byteLength; i++) {
-        //     DataView.setUint8(i, 0);
-        // }
-        // setMemory([...MemoryServer.getAllocator<FreeListAllocator>('_FREE_LIST').printMemory()]);
     }, []);
 
     return (

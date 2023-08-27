@@ -1,6 +1,5 @@
 import { MemoryServer, NativeArrayHelper } from '../../index';
 import { symbolDefaultAllocator } from '../MemoryServer';
-import { ALLOCATOR } from '../types/DataType';
 import { NativeArray } from './NativeArray';
 
 export class Uint8NativeArray extends Uint8Array implements NativeArray {
