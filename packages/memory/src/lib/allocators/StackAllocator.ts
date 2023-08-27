@@ -1,6 +1,6 @@
 import { AllocatorHelper } from '../../index';
-import { TypeAllocator } from '../types/DataType';
-import Allocator from './Allocator';
+import { ALLOCATOR } from '../types/DataType';
+import AllocatorInterface from './AllocatorInterface';
 
 enum MARKER {
     ADJUSTMENT = 4,
@@ -15,11 +15,11 @@ enum ALLOCATOR_INFORMATION {
     HEADER_SIZE = 16,
 }
 
-export default class StackAllocator implements Allocator {
+export default class StackAllocator implements AllocatorInterface {
     private arrayBuffer: ArrayBuffer;
     private dataView: DataView;
 
-    typeAllocator: TypeAllocator = TypeAllocator.STACK;
+    typeAllocator: ALLOCATOR = ALLOCATOR.STACK;
     public get byteSize() {
         return this.dataView.getUint32(ALLOCATOR_INFORMATION.BYTE_SIZE);
     }

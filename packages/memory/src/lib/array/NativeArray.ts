@@ -1,4 +1,4 @@
-import { TypeAllocator } from '../types/DataType';
+import { ALLOCATOR } from '../types/DataType';
 
 export interface NativeArray {
     readonly allocator: string;
@@ -11,7 +11,7 @@ export interface NativeArray {
 export interface NativeArrayConstructor extends NativeArray {
     new <T>(size: number): T;
     new <T>(data: number[]): T;
-    new <T>(sizeOrData: number | number[], type: TypeAllocator): T;
+    new <T>(sizeOrData: number | number[], type: ALLOCATOR): T;
     readonly BYTES_PER_ELEMENT: number;
 }
 

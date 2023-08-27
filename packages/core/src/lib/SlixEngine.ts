@@ -4,7 +4,14 @@ import Renderer from './Renderer';
 import MemoryMonitor from './monitoring/MemoryMonitor';
 import SceneManager from './scene/SceneManager';
 import { MATH_ALLOCATOR } from 'mathf';
-import { BoundaryTagAllocator, Float32NativeArray, LinearAllocator, MemoryServer } from 'memory';
+import {
+    BoundaryTagAllocator,
+    Float32NativeArray,
+    LinearAllocator,
+    MemoryCalculate,
+    MemoryServer,
+    PoolAllocator,
+} from 'memory';
 import { RendererServer, RendererServerInitConfigs } from 'renderer';
 
 export enum ALLOCATORS {
@@ -47,16 +54,19 @@ export default class SlixEngine {
                 },
                 {
                     name: MATH_ALLOCATOR.PERSISTENT,
-                    byteSize: 3 * 1024 * 1024,
-                    allocator: BoundaryTagAllocator,
+                    byteSize: MemoryCalculate.MB(6),
+                    allocator: PoolAllocator,
+                    params: [76, 4],
                 },
                 {
                     name: MATH_ALLOCATOR.PERSISTENT_CACHE,
-                    byteSize: 3 * 1024 * 1024,
-                    allocator: BoundaryTagAllocator,
+                    byteSize: MemoryCalculate.MB(2),
+                    allocator: PoolAllocator,
+                    params: [76, 4],
                 },
             ],
         });
+
         MemoryMonitor.startUp();
         RendererServer.startUp(configs.rendererServer);
         Renderer.startUp();

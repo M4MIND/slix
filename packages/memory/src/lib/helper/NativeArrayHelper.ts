@@ -1,5 +1,5 @@
 import { MemoryServer, TYPED_ARRAY } from '../../index';
-import { TypeAllocator } from '../types/DataType';
+import { ALLOCATOR } from '../types/DataType';
 
 export default class NativeArrayHelper {
     static merge(a: TYPED_ARRAY, step: number, b: TYPED_ARRAY[], offset = 0) {

@@ -1,9 +1,10 @@
-import { AllocatorHelper, MemoryServer, NativeArrayHelper, TypeAllocator } from '../../index';
+import { ALLOCATOR, AllocatorHelper, MemoryServer, NativeArrayHelper } from '../../index';
+import { symbolDefaultAllocator } from '../MemoryServer';
 import { NativeArray } from './NativeArray';
 
 export default class Float32NativeArray extends Float32Array implements NativeArray {
     public readonly allocator: string;
-    constructor(sizeOrData: number | number[], allocator = 'DEFAULT') {
+    constructor(sizeOrData: number | number[], allocator = symbolDefaultAllocator) {
         const dataView = MemoryServer.malloc(
             allocator,
             NativeArrayHelper.needBytes(sizeOrData, Float32Array.BYTES_PER_ELEMENT),

@@ -1,7 +1,7 @@
-import { TypeAllocator } from '../types/DataType';
+import { ALLOCATOR } from '../types/DataType';
 
-export default interface Allocator {
-    typeAllocator: TypeAllocator;
+export default interface AllocatorInterface {
+    typeAllocator: ALLOCATOR;
     get byteSize(): number;
     get usedMemory(): number;
     get numAllocations(): number;
@@ -12,5 +12,5 @@ export default interface Allocator {
 }
 
 export interface AllocatorConstructor {
-    new (dataView: DataView): Allocator;
+    new (dataView: DataView, ...params: any[]): AllocatorInterface;
 }

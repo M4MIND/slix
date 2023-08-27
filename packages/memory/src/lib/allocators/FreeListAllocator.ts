@@ -1,4 +1,5 @@
-import { Allocator, AllocatorHelper, TypeAllocator } from '../../index';
+import { ALLOCATOR, AllocatorHelper } from '../../index';
+import AllocatorInterface from './AllocatorInterface';
 
 enum ALLOCATION_HEADER {
     size = 0,
@@ -6,8 +7,8 @@ enum ALLOCATION_HEADER {
     adjustment = 8,
     HEADER_SIZE = 9,
 }
-export default class FreeListAllocator implements Allocator {
-    public readonly typeAllocator: TypeAllocator = TypeAllocator.FREE_LIST;
+export default class FreeListAllocator implements AllocatorInterface {
+    public readonly typeAllocator: ALLOCATOR = ALLOCATOR.FREE_LIST;
     private readonly _byteSize: number;
     private readonly _arrayBuffer: ArrayBuffer;
     private _numAllocations = 0;

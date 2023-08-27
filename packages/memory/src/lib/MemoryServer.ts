@@ -1,14 +1,14 @@
-import { TypeAllocator } from '../index';
-import Allocator, { AllocatorConstructor } from './allocators/Allocator';
+import { ALLOCATOR } from '../index';
+import AllocatorInterface, { AllocatorConstructor } from './allocators/AllocatorInterface';
 import { NativeArray } from './array/NativeArray';
 import GCHandler from './gc/GCHandler';
 
-export const symbolDefaultAllocator = Symbol('DEFAULT');
+export const symbolDefaultAllocator = '_DEFAULT';
 
 export default class MemoryServer {
     private static readonly GC: GCHandler = new GCHandler();
-    private static allocators: { [index: string | symbol]: Allocator } = {};
-    private static rootAllocator: Allocator;
+    private static allocators: { [index: string | symbol]: AllocatorInterface } = {};
+    private static rootAllocator: AllocatorInterface;
 
     static startUp(params: MemoryServerInitConfigs) {
         // Считаем сколько памяти потребуется на все аллокаторы
@@ -26,12 +26,13 @@ export default class MemoryServer {
         );
         params.children.map((value) => {
             MemoryServer.allocators[value.name] = new value.allocator(
-                MemoryServer.rootAllocator.malloc(value.byteSize, 1)
+                MemoryServer.rootAllocator.malloc(value.byteSize, 1),
+                value.params ? value.params : []
             );
         });
     }
 
-    static getAllocator<T extends Allocator>(type: string | symbol): T {
+    static getAllocator<T extends AllocatorInterface>(type: string | symbol): T {
         if (this.allocators[type]) {
             return this.allocators[type] as T;
         } else {
@@ -57,12 +58,12 @@ export default class MemoryServer {
     }
 
     static gcRegister(target: NativeArray): void {
-        if (this.getAllocator(target.allocator).typeAllocator === TypeAllocator.LINEAR) return;
+        if (this.getAllocator(target.allocator).typeAllocator === ALLOCATOR.LINEAR) return;
         this.GC.register(target);
     }
 
     static gcUnregister(target: NativeArray) {
-        if (this.getAllocator(target.allocator).typeAllocator === TypeAllocator.LINEAR) return;
+        if (this.getAllocator(target.allocator).typeAllocator === ALLOCATOR.LINEAR) return;
         this.GC.unregister(target);
     }
 }
@@ -71,5 +72,5 @@ export type MemoryServerInitConfigs = {
     name: string;
     root: AllocatorConstructor;
     default: { allocator: AllocatorConstructor; byteSize: number };
-    children: { name: string; allocator: AllocatorConstructor; byteSize: number }[];
+    children: { name: string; allocator: AllocatorConstructor; byteSize: number; params?: any[] }[];
 };

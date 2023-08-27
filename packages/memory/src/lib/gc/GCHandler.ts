@@ -1,4 +1,4 @@
-import { MemoryServer, TYPED_ARRAY, TYPED_ARRAY_CONSTRUCTOR, TYPED_NATIVE_ARRAY, TypeAllocator } from '../../index';
+import { ALLOCATOR, MemoryServer, TYPED_ARRAY, TYPED_ARRAY_CONSTRUCTOR, TYPED_NATIVE_ARRAY } from '../../index';
 import { NativeArray } from '../array/NativeArray';
 import { LoggedMethod, LoggerManager } from 'logger';
 

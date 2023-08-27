@@ -1,6 +1,6 @@
 import { Cube, GameObject, MeshFilterComponent, MeshRendererComponent, Monkey, SlixEngine } from 'core';
 import { MATH_ALLOCATOR, Matrix4, Vector3, Vector4 } from 'mathf';
-import { Float32NativeArray, LinearAllocator, MemoryServer, TypeAllocator, Uint8NativeArray } from 'memory';
+import { ALLOCATOR, Float32NativeArray, LinearAllocator, MemoryServer, Uint8NativeArray } from 'memory';
 import React, { useEffect, useRef, useState } from 'react';
 
 export function App() {
@@ -76,8 +76,9 @@ export function App() {
 
         SlixEngine.start((sceneManager) => {
             sceneManager.setActiveScene(sceneManager.createScene('Scene'));
-            const root = new GameObject();
-            root.addComponents(MeshFilterComponent, MeshRendererComponent);
+
+            const root = new GameObject('Main', MeshFilterComponent, MeshRendererComponent);
+
             root.getComponent<MeshFilterComponent>(MeshFilterComponent).mesh = new Monkey();
         });
 

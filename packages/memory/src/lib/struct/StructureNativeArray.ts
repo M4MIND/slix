@@ -1,4 +1,4 @@
-import { TYPED_ARRAY, TypeAllocator, Uint8NativeArray } from '../../index';
+import { ALLOCATOR, TYPED_ARRAY, Uint8NativeArray } from '../../index';
 import Struct from './Struct';
 
 export default class StructureNativeArray extends Uint8NativeArray {

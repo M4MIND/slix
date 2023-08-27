@@ -1,8 +1,8 @@
-import { AllocatorHelper, TypeAllocator } from '../../index';
-import Allocator from './Allocator';
+import { ALLOCATOR, AllocatorHelper } from '../../index';
+import AllocatorInterface from './AllocatorInterface';
 
-export default class LinearAllocator implements Allocator {
-    public readonly typeAllocator: TypeAllocator = TypeAllocator.LINEAR;
+export default class LinearAllocator implements AllocatorInterface {
+    public readonly typeAllocator: ALLOCATOR = ALLOCATOR.LINEAR;
     private readonly arrayBuffer: ArrayBuffer;
     private readonly dataView: DataView;
     private _usedMemory = 0;

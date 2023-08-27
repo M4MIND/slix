@@ -1,7 +1,8 @@
-import { Allocator, AllocatorHelper, TypeAllocator } from '../../index';
+import { ALLOCATOR, AllocatorHelper } from '../../index';
+import AllocatorInterface from './AllocatorInterface';
 
-export default class PoolAllocator implements Allocator {
-    public readonly typeAllocator: TypeAllocator = TypeAllocator.POOL;
+export default class PoolAllocator implements AllocatorInterface {
+    public readonly typeAllocator: ALLOCATOR = ALLOCATOR.POOL;
     private readonly arrayBuffer: ArrayBuffer;
 
     private readonly dataView: DataView;
@@ -9,7 +10,9 @@ export default class PoolAllocator implements Allocator {
     private readonly _byteOffset: number;
     private _numAllocations: number;
     private _usedMemory: number;
-    private _freeList: number;
+    private _freeList = 0;
+    private readonly _objectSize: number;
+    private readonly _alignment: number;
     get numAllocations(): number {
         return this._numAllocations;
     }
@@ -22,14 +25,24 @@ export default class PoolAllocator implements Allocator {
         return this._byteSize;
     }
 
-    constructor(dataView: DataView, private readonly _objectSize = 64, private readonly _alignment = 4) {
+    constructor(dataView: DataView, params: number[]) {
         this.arrayBuffer = dataView.buffer;
         this.dataView = dataView;
         this._byteSize = this.dataView.byteLength;
         this._byteOffset = this.dataView.byteOffset;
         this._numAllocations = 0;
         this._usedMemory = 0;
+        this._objectSize = params[0] ?? 64;
+        this._alignment = params[1] ?? 4;
 
+        this.clear();
+    }
+
+    printMemory() {
+        return new Uint8Array(this.arrayBuffer, this._byteOffset, this._byteSize);
+    }
+
+    clear(): void {
         const adjustment = AllocatorHelper.alignForwardAdjustment(this._byteOffset, this._alignment);
         this._freeList = adjustment;
 
@@ -44,12 +57,6 @@ export default class PoolAllocator implements Allocator {
 
         this.dataView.setUint32(p, -1);
     }
-
-    printMemory() {
-        return new Uint8Array(this.arrayBuffer, this._byteOffset, this._byteSize);
-    }
-
-    clear(): void {}
 
     deallocate(byteOffset: number): void {
         byteOffset -= this._byteOffset;

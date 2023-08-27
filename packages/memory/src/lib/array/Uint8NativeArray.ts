@@ -1,11 +1,12 @@
 import { MemoryServer, NativeArrayHelper } from '../../index';
-import { TypeAllocator } from '../types/DataType';
+import { symbolDefaultAllocator } from '../MemoryServer';
+import { ALLOCATOR } from '../types/DataType';
 import { NativeArray } from './NativeArray';
 
 export class Uint8NativeArray extends Uint8Array implements NativeArray {
     public readonly allocator: string;
 
-    constructor(sizeOrData: number | number[], type = 'DEFAULT') {
+    constructor(sizeOrData: number | number[], type = symbolDefaultAllocator) {
         const dataView = MemoryServer.malloc(
             type,
             NativeArrayHelper.needBytes(sizeOrData, Uint8Array.BYTES_PER_ELEMENT),

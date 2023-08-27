@@ -1,5 +1,5 @@
-import { AllocatorHelper, TypeAllocator } from '../../index';
-import Allocator from './Allocator';
+import { ALLOCATOR, AllocatorHelper } from '../../index';
+import AllocatorInterface from './AllocatorInterface';
 
 enum MEMORY_BLOCK_HEADER {
     USED = 4,
@@ -15,8 +15,8 @@ enum USED_FLAGS {
     use = 200,
 }
 
-export default class BoundaryTagAllocator implements Allocator {
-    public readonly typeAllocator = TypeAllocator.TAG_BOUNDARY;
+export default class BoundaryTagAllocator implements AllocatorInterface {
+    public readonly typeAllocator = ALLOCATOR.TAG_BOUNDARY;
     public readonly arrayBuffer: ArrayBuffer;
     private readonly dataView: DataView;
     private _usedMemory = 0;
