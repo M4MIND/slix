@@ -1,4 +1,5 @@
 import { ALLOCATOR, AllocatorHelper } from '../../index';
+import AllocatorIsFull from '../exceptions/AllocatorIsFull';
 import AllocatorInterface, { MemoryPointer } from './AllocatorInterface';
 
 enum MEMORY_BLOCK_HEADER {
@@ -102,10 +103,6 @@ export default class BoundaryTagAllocator implements AllocatorInterface {
 
             const sizeOfBlock = this.sizeOf(this._addressTemp);
 
-            if (sizeOfBlock === 0) {
-                throw new Error(`${this._addressTemp} === 0 bytes`);
-            }
-
             // Быстрая проверка
             if (sizeOfBlock <= size) {
                 this._addressTemp += sizeOfBlock;
@@ -157,7 +154,7 @@ export default class BoundaryTagAllocator implements AllocatorInterface {
             };
         }
 
-        throw new Error(`Memory is not free. Used: ${this.usedMemory}, Free: ${this._byteSize - this.usedMemory}`);
+        throw new AllocatorIsFull(this);
     }
 
     clear() {

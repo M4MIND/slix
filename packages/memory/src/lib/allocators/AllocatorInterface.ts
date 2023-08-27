@@ -1,7 +1,7 @@
 import { ALLOCATOR } from '../types/DataType';
 
-export default interface AllocatorInterface {
-    typeAllocator: ALLOCATOR;
+export default interface AllocatorInterface extends Object {
+    get typeAllocator(): ALLOCATOR;
     get byteSize(): number;
     get usedMemory(): number;
     get numAllocations(): number;

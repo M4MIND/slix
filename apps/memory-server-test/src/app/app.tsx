@@ -1,8 +1,10 @@
+import { MATH_ALLOCATOR, Matrix4, Vector4 } from 'mathf';
 import {
     BoundaryTagAllocator,
     Float32NativeArray,
     FreeListAllocator,
     LinearAllocator,
+    MemoryCalculate,
     MemoryPointer,
     MemoryServer,
     PoolAllocator,
@@ -18,6 +20,8 @@ export function App() {
         max: 0,
     });
     useEffect(() => {
+        console.log('i fire once');
+
         MemoryServer.startUp({
             root: LinearAllocator,
             name: '_ROOT',
@@ -26,11 +30,32 @@ export function App() {
                 byteSize: 1024,
             },
             children: [
-                { name: '_POOL_ALLOCATOR', allocator: PoolAllocator, byteSize: 256 * 1024 * 1024 },
-                { name: '_LINEAR_ALLOCATOR', allocator: LinearAllocator, byteSize: 256 * 1024 * 1024 },
-                { name: '_BOUNDARY_TAG_ALLOCATOR', allocator: BoundaryTagAllocator, byteSize: 256 * 1024 * 1024 },
+                {
+                    name: MATH_ALLOCATOR.PERSISTENT,
+                    byteSize: MemoryCalculate.MB(56),
+                    allocator: PoolAllocator,
+                    params: [128, 4],
+                },
+                {
+                    name: MATH_ALLOCATOR.PERSISTENT_CACHE,
+                    byteSize: MemoryCalculate.MB(56),
+                    allocator: PoolAllocator,
+                    params: [128, 4],
+                },
             ],
         });
+
+        let timeFinish = 0;
+        for (let x = 0; x < 100; x++) {
+            const time = performance.now();
+            for (let i = 0; i < 100000; i++) {
+                new Matrix4();
+            }
+            timeFinish += performance.now() - time;
+            MemoryServer.getAllocator(MATH_ALLOCATOR.PERSISTENT_CACHE).clear();
+            MemoryServer.getAllocator(MATH_ALLOCATOR.PERSISTENT).clear();
+        }
+        console.log(timeFinish, timeFinish / 100, timeFinish / 100 / 1000);
     }, []);
 
     return (

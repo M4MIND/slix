@@ -1,10 +1,10 @@
 import { MemoryServer, NativeArrayHelper } from '../../index';
-import { symbolDefaultAllocator } from '../MemoryServer';
+import { DefaultAllocator } from '../MemoryServer';
 import { NativeArray } from './NativeArray';
 
 export default class Int16NativeArray extends Int16Array implements NativeArray {
     public readonly allocator: string;
-    constructor(sizeOrData: number | number[], allocator = symbolDefaultAllocator) {
+    constructor(sizeOrData: number | number[], allocator = DefaultAllocator) {
         const dataView = MemoryServer.malloc(
             allocator,
             NativeArrayHelper.needBytes(sizeOrData, Int16Array.BYTES_PER_ELEMENT),

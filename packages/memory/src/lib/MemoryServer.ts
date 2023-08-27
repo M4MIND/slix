@@ -3,7 +3,7 @@ import AllocatorInterface, { AllocatorConstructor, MemoryPointer } from './alloc
 import { NativeArray } from './array/NativeArray';
 import GCHandler from './gc/GCHandler';
 
-export const symbolDefaultAllocator = '_DEFAULT';
+export const DefaultAllocator = '_DEFAULT';
 
 export default class MemoryServer {
     private static readonly GC: GCHandler = new GCHandler();
@@ -25,7 +25,8 @@ export default class MemoryServer {
             byteOffset: dataView.byteOffset,
             byteLength: dataView.byteLength,
         });
-        MemoryServer.allocators[symbolDefaultAllocator] = new params.default.allocator(
+
+        MemoryServer.allocators[DefaultAllocator] = new params.default.allocator(
             MemoryServer.rootAllocator.malloc(params.default.byteSize, 1)
         );
         params.children.map((value) => {
@@ -40,7 +41,7 @@ export default class MemoryServer {
         if (this.allocators[type]) {
             return this.allocators[type] as T;
         } else {
-            return this.allocators[symbolDefaultAllocator] as T;
+            return this.allocators[DefaultAllocator] as T;
         }
     }
 
@@ -51,10 +52,6 @@ export default class MemoryServer {
     static deallocate(target: NativeArray) {
         this.gcUnregister(target);
         this.getAllocator(target.allocator).deallocate(target.byteOffset);
-    }
-
-    static gcDeallocate(allocator: string, byteOffset: number) {
-        this.getAllocator(allocator).deallocate(byteOffset);
     }
 
     static malloc(type: string, byteSize: number, alignment: number): MemoryPointer {
@@ -69,6 +66,10 @@ export default class MemoryServer {
     static gcUnregister(target: NativeArray) {
         if (this.getAllocator(target.allocator).typeAllocator === ALLOCATOR.LINEAR) return;
         this.GC.unregister(target);
+    }
+
+    static gcDeallocate(allocator: string, byteOffset: number) {
+        this.getAllocator(allocator).deallocate(byteOffset);
     }
 }
 

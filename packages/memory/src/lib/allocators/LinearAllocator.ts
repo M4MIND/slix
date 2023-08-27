@@ -1,8 +1,8 @@
 import { ALLOCATOR, AllocatorHelper } from '../../index';
+import AllocatorIsFull from '../exceptions/AllocatorIsFull';
 import AllocatorInterface, { MemoryPointer } from './AllocatorInterface';
 
 export default class LinearAllocator implements AllocatorInterface {
-    public readonly typeAllocator: ALLOCATOR = ALLOCATOR.LINEAR;
     private readonly arrayBuffer: ArrayBuffer;
     private readonly dataView: DataView;
     private _usedMemory = 0;
@@ -10,6 +10,10 @@ export default class LinearAllocator implements AllocatorInterface {
     private _numAllocations = 0;
     private _byteSize = 0;
     private readonly _byteOffset: number;
+
+    get typeAllocator() {
+        return ALLOCATOR.LINEAR;
+    }
     public get byteSize() {
         return this._byteSize;
     }
@@ -47,10 +51,7 @@ export default class LinearAllocator implements AllocatorInterface {
 
     malloc(size: number, alignment: number): MemoryPointer {
         const address = this.getAddress(size, alignment);
-        if (address == null)
-            throw new Error(
-                `Failed to allocate memory for ${size} bytes. ${this.byteSize - this.usedMemory} bytes available`
-            );
+        if (address == null) throw new AllocatorIsFull(this);
         return {
             buffer: this.arrayBuffer,
             byteLength: size,
