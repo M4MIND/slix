@@ -38,31 +38,28 @@ export default class SlixEngine {
             },
             children: [
                 {
-                    name: ALLOCATORS.LINEAR,
-                    byteSize: 32 * 1024 * 1024,
-                    allocator: LinearAllocator,
-                },
-                {
-                    name: ALLOCATORS.LINEAR_TEMP,
-                    byteSize: 16 * 1024 * 1024,
-                    allocator: LinearAllocator,
-                },
-                {
-                    name: ALLOCATORS.FREE_LIST,
-                    byteSize: 64 * 1024 * 1024,
-                    allocator: BoundaryTagAllocator,
-                },
-                {
-                    name: MATH_ALLOCATOR.PERSISTENT,
-                    byteSize: MemoryCalculate.MB(6),
+                    name: MATH_ALLOCATOR.PERSISTENT_VECTOR,
+                    byteSize: MemoryCalculate.MB(64),
                     allocator: PoolAllocator,
-                    params: [76, 4],
+                    params: [16, 4],
                 },
                 {
-                    name: MATH_ALLOCATOR.PERSISTENT_CACHE,
-                    byteSize: MemoryCalculate.MB(2),
+                    name: MATH_ALLOCATOR.PERSISTENT_MATRIX,
+                    byteSize: MemoryCalculate.MB(1),
                     allocator: PoolAllocator,
-                    params: [76, 4],
+                    params: [64, 4],
+                },
+                {
+                    name: MATH_ALLOCATOR.PERSISTENT_MATRIX_CACHE,
+                    byteSize: MemoryCalculate.MB(1),
+                    allocator: PoolAllocator,
+                    params: [72, 4],
+                },
+                {
+                    name: MATH_ALLOCATOR.PERSISTENT_QUATERNION_CACHE,
+                    byteSize: MemoryCalculate.MB(1),
+                    allocator: PoolAllocator,
+                    params: [36, 4],
                 },
             ],
         });

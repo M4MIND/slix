@@ -150,7 +150,7 @@ export default class BoundaryTagAllocator implements AllocatorInterface {
             return {
                 buffer: this.arrayBuffer,
                 byteLength: size,
-                byteOffset: this._byteOffset + alignForwardAdjustmentWithHeader,
+                byteOffset: this._byteOffset + this._addressTemp + alignForwardAdjustmentWithHeader,
             };
         }
 

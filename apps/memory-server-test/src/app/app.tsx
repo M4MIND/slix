@@ -31,13 +31,13 @@ export function App() {
             },
             children: [
                 {
-                    name: MATH_ALLOCATOR.PERSISTENT,
+                    name: MATH_ALLOCATOR.PERSISTENT_MATRIX,
                     byteSize: MemoryCalculate.MB(56),
                     allocator: PoolAllocator,
                     params: [128, 4],
                 },
                 {
-                    name: MATH_ALLOCATOR.PERSISTENT_CACHE,
+                    name: MATH_ALLOCATOR.PERSISTENT_MATRIX_CACHE,
                     byteSize: MemoryCalculate.MB(56),
                     allocator: PoolAllocator,
                     params: [128, 4],
@@ -52,8 +52,8 @@ export function App() {
                 new Matrix4();
             }
             timeFinish += performance.now() - time;
-            MemoryServer.getAllocator(MATH_ALLOCATOR.PERSISTENT_CACHE).clear();
-            MemoryServer.getAllocator(MATH_ALLOCATOR.PERSISTENT).clear();
+            MemoryServer.getAllocator(MATH_ALLOCATOR.PERSISTENT_MATRIX_CACHE).clear();
+            MemoryServer.getAllocator(MATH_ALLOCATOR.PERSISTENT_MATRIX).clear();
         }
         console.log(timeFinish, timeFinish / 100, timeFinish / 100 / 1000);
     }, []);

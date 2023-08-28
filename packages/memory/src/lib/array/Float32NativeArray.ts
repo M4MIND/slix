@@ -1,4 +1,4 @@
-import { ALLOCATOR, AllocatorHelper, MemoryServer, NativeArrayHelper } from '../../index';
+import { MemoryServer, NativeArrayHelper } from '../../index';
 import { DefaultAllocator } from '../MemoryServer';
 import { NativeArray } from './NativeArray';
 

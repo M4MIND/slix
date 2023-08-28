@@ -15,6 +15,7 @@ type WEBGL_UNIFORM_STORE = {
 } & WEBGL_ATTRIBUTE_STORE;
 
 export default class BaseShader {
+    public readonly id: string = self.crypto.randomUUID();
     private readonly attributes: { [index: string]: WEBGL_ATTRIBUTE_STORE } = {};
     private readonly attributeCollection: WEBGL_ATTRIBUTE_STORE[] = [];
     private readonly uniforms: { [index: string]: WEBGL_UNIFORM_STORE } = {};
@@ -23,7 +24,6 @@ export default class BaseShader {
     private readonly uniformBlockCollection: UNIFORM_BLOCK_INFORMATION[] = [];
     private readonly countAttributes = 0;
     private readonly countUniforms = 0;
-    public readonly id: string = self.crypto.randomUUID();
 
     constructor(public readonly name: string, private readonly program: Program) {
         for (const index of program.getActiveAttributes()) {
@@ -75,6 +75,14 @@ export default class BaseShader {
         }
     }
 
+    public static find(name: string) {
+        const shader = RendererServer.shaderManager.findShader(name);
+
+        if (shader) return shader;
+
+        throw new Error(`Can't find shader: ${name}`);
+    }
+
     getAttributes() {
         return this.attributeCollection;
     }
@@ -87,6 +95,7 @@ export default class BaseShader {
         if (!this.attributes[attribute]) throw new ArgumentOutOfRangeException();
         return this.attributes[attribute];
     }
+
     getPropertyAttributeId(name: string) {
         if (!this.attributes[name]) throw new ArgumentOutOfRangeException();
         return this.attributes[name].index;
@@ -125,13 +134,5 @@ export default class BaseShader {
 
     link() {
         this.program.link();
-    }
-
-    public static find(name: string) {
-        const shader = RendererServer.shaderManager.findShader(name);
-
-        if (shader) return shader;
-
-        throw new Error(`Can't find shader: ${name}`);
     }
 }

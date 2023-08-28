@@ -76,10 +76,9 @@ export function App() {
 
         SlixEngine.start((sceneManager) => {
             sceneManager.setActiveScene(sceneManager.createScene('Scene'));
+            const monkey = new GameObject('Monkey', MeshFilterComponent, MeshRendererComponent);
 
-            const root = new GameObject('Main', MeshFilterComponent, MeshRendererComponent);
-
-            root.getComponent<MeshFilterComponent>(MeshFilterComponent).mesh = new Monkey();
+            monkey.getComponent<MeshFilterComponent>(MeshFilterComponent).mesh = new Monkey();
         });
 
         // const gameObject = new GameObject('GameObject', MeshFilterComponent, MeshRendererComponent);

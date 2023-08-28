@@ -1,10 +1,3 @@
-import {
-    GL_BUFFER_TARGET,
-    GL_USAGE_BUFFER,
-    GL_VERTEX_ATTRIBUTE_FORMAT,
-    GraphicsBuffer,
-    GraphicsBufferUsageFlag,
-} from '../../index';
 import ArgumentOutOfRangeException from '../exceptions/ArgumentOutOfRangeException';
 import { GL_FLOAT_MAT4, GL_FLOAT_VEC4 } from '../webgl.consts';
 import BaseShader from './BaseShader';

@@ -22,7 +22,7 @@ type components = [
 ];
 
 export default class Matrix4 extends Float32NativeArray {
-    private cache = new Float32NativeArray(18, MATH_ALLOCATOR.PERSISTENT_CACHE);
+    private cache = new Float32NativeArray(18, MATH_ALLOCATOR.PERSISTENT_MATRIX_CACHE);
     constructor(
         m00 = 1,
         m01 = 0,
@@ -43,7 +43,7 @@ export default class Matrix4 extends Float32NativeArray {
     ) {
         super(
             [m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33],
-            MATH_ALLOCATOR.PERSISTENT
+            MATH_ALLOCATOR.PERSISTENT_MATRIX
         );
     }
     get00(): number {

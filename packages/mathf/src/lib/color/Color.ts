@@ -15,7 +15,7 @@ export default class Color extends Float32NativeArray {
         return this[3];
     }
     constructor(r: number, g: number, b: number, a: number) {
-        super([r, g, b, a], MATH_ALLOCATOR.PERSISTENT);
+        super([r, g, b, a], MATH_ALLOCATOR.PERSISTENT_VECTOR);
     }
     static get black() {
         return new Color(0, 0, 0, 1);
