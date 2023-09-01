@@ -1,0 +1,73 @@
+{
+    "name": "ecs-sandbox",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/ecs-sandbox/src",
+    "projectType": "application",
+    "targets": {
+        "build": {
+            "executor": "@nx/webpack:webpack",
+            "outputs": ["{options.outputPath}"],
+            "defaultConfiguration": "production",
+            "options": {
+                "compiler": "babel",
+                "outputPath": "dist/apps/ecs-sandbox",
+                "index": "apps/ecs-sandbox/src/index.html",
+                "baseHref": "/",
+                "main": "apps/ecs-sandbox/src/main.tsx",
+                "tsConfig": "apps/ecs-sandbox/tsconfig.app.json",
+                "assets": ["apps/ecs-sandbox/src/favicon.ico", "apps/ecs-sandbox/src/assets"],
+                "styles": ["apps/ecs-sandbox/src/styles.css"],
+                "scripts": [],
+                "isolatedConfig": true,
+                "webpackConfig": "apps/ecs-sandbox/webpack.config.js"
+            },
+            "configurations": {
+                "development": {
+                    "extractLicenses": false,
+                    "optimization": false,
+                    "sourceMap": true,
+                    "vendorChunk": true
+                },
+                "production": {
+                    "fileReplacements": [
+                        {
+                            "replace": "apps/ecs-sandbox/src/environments/environment.ts",
+                            "with": "apps/ecs-sandbox/src/environments/environment.prod.ts"
+                        }
+                    ],
+                    "optimization": true,
+                    "outputHashing": "all",
+                    "sourceMap": false,
+                    "namedChunks": false,
+                    "extractLicenses": true,
+                    "vendorChunk": false
+                }
+            }
+        },
+        "serve": {
+            "executor": "@nx/webpack:dev-server",
+            "defaultConfiguration": "development",
+            "options": {
+                "buildTarget": "ecs-sandbox:build",
+                "hmr": true
+            },
+            "configurations": {
+                "development": {
+                    "buildTarget": "ecs-sandbox:build:development"
+                },
+                "production": {
+                    "buildTarget": "ecs-sandbox:build:production",
+                    "hmr": false
+                }
+            }
+        },
+        "lint": {
+            "executor": "@nx/linter:eslint",
+            "outputs": ["{options.outputFile}"],
+            "options": {
+                "lintFilePatterns": ["apps/ecs-sandbox/**/*.{ts,tsx,js,jsx}"]
+            }
+        }
+    },
+    "tags": []
+}

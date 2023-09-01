@@ -1,0 +1,26 @@
+{
+    "name": "ecs",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "packages/ecs/src",
+    "projectType": "library",
+    "targets": {
+        "build": {
+            "executor": "@nx/js:tsc",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "outputPath": "dist/packages/ecs",
+                "main": "packages/ecs/src/index.ts",
+                "tsConfig": "packages/ecs/tsconfig.lib.json",
+                "assets": ["packages/ecs/*.md"]
+            }
+        },
+        "lint": {
+            "executor": "@nx/linter:eslint",
+            "outputs": ["{options.outputFile}"],
+            "options": {
+                "lintFilePatterns": ["packages/ecs/**/*.ts"]
+            }
+        }
+    },
+    "tags": []
+}
