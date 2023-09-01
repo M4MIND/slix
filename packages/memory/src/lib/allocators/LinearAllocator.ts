@@ -1,8 +1,8 @@
 import { ALLOCATOR, AllocatorHelper } from '../../index';
-import AllocatorInterface from './AllocatorInterface';
+import AllocatorIsFull from '../exceptions/AllocatorIsFull';
+import AllocatorInterface, { MemoryPointer } from './AllocatorInterface';
 
 export default class LinearAllocator implements AllocatorInterface {
-    public readonly typeAllocator: ALLOCATOR = ALLOCATOR.LINEAR;
     private readonly arrayBuffer: ArrayBuffer;
     private readonly dataView: DataView;
     private _usedMemory = 0;
@@ -10,6 +10,10 @@ export default class LinearAllocator implements AllocatorInterface {
     private _numAllocations = 0;
     private _byteSize = 0;
     private readonly _byteOffset: number;
+
+    get typeAllocator() {
+        return ALLOCATOR.LINEAR;
+    }
     public get byteSize() {
         return this._byteSize;
     }
@@ -21,9 +25,9 @@ export default class LinearAllocator implements AllocatorInterface {
         return this._numAllocations;
     }
 
-    constructor(dataView: DataView) {
-        this.arrayBuffer = dataView.buffer;
-        this.dataView = dataView;
+    constructor(memoryPointer: MemoryPointer) {
+        this.arrayBuffer = memoryPointer.buffer;
+        this.dataView = new DataView(memoryPointer.buffer, memoryPointer.byteOffset, memoryPointer.byteLength);
 
         this._byteOffset = this.dataView.byteOffset;
         this._byteSize = this.dataView.byteLength;
@@ -45,13 +49,14 @@ export default class LinearAllocator implements AllocatorInterface {
         return aligned_address;
     }
 
-    malloc(size: number, alignment: number): DataView {
+    malloc(size: number, alignment: number): MemoryPointer {
         const address = this.getAddress(size, alignment);
-        if (address == null)
-            throw new Error(
-                `Failed to allocate memory for ${size} bytes. ${this.byteSize - this.usedMemory} bytes available`
-            );
-        return new DataView(this.arrayBuffer, address + this._byteOffset, size);
+        if (address == null) throw new AllocatorIsFull(this);
+        return {
+            buffer: this.arrayBuffer,
+            byteLength: size,
+            byteOffset: this._byteOffset + address,
+        };
     }
     clear(): void {
         this._usedMemory = 0;

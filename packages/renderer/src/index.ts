@@ -13,7 +13,6 @@ import VertexAttributeDescriptor, {
     VertexAttribute,
     VertexAttributeFormat,
 } from './lib/mesh/VertexAttributeDescriptor';
-import { Cube } from './lib/primitives/Cube';
 import MaterialPropertyBlock from './lib/renderer/MaterialPropertyBlock';
 import RendererParams from './lib/renderer/RendererParams';
 import {
@@ -31,7 +30,6 @@ export {
     BaseMaterial,
     BaseMesh,
     BaseShader,
-    Cube,
     GL_BUFFER_TARGET,
     GL_MATH_TYPES,
     GL_PROGRAM_PARAMETERS,

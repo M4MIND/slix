@@ -1,18 +1,25 @@
 import { ALLOCATOR, AllocatorHelper } from '../../index';
-import AllocatorInterface from './AllocatorInterface';
+import AllocatorIsFull from '../exceptions/AllocatorIsFull';
+import AllocatorInterface, { MemoryPointer } from './AllocatorInterface';
 
 export default class PoolAllocator implements AllocatorInterface {
-    public readonly typeAllocator: ALLOCATOR = ALLOCATOR.POOL;
     private readonly arrayBuffer: ArrayBuffer;
 
     private readonly dataView: DataView;
     private readonly _byteSize: number;
     private readonly _byteOffset: number;
+
     private _numAllocations: number;
     private _usedMemory: number;
     private _freeList = 0;
+    private _tempFreeListPointer = 0;
+
     private readonly _objectSize: number;
     private readonly _alignment: number;
+
+    get typeAllocator() {
+        return ALLOCATOR.POOL;
+    }
     get numAllocations(): number {
         return this._numAllocations;
     }
@@ -25,9 +32,9 @@ export default class PoolAllocator implements AllocatorInterface {
         return this._byteSize;
     }
 
-    constructor(dataView: DataView, params: number[]) {
-        this.arrayBuffer = dataView.buffer;
-        this.dataView = dataView;
+    constructor(memoryPointer: MemoryPointer, params: number[]) {
+        this.arrayBuffer = memoryPointer.buffer;
+        this.dataView = new DataView(memoryPointer.buffer, memoryPointer.byteOffset, memoryPointer.byteLength);
         this._byteSize = this.dataView.byteLength;
         this._byteOffset = this.dataView.byteOffset;
         this._numAllocations = 0;
@@ -68,17 +75,21 @@ export default class PoolAllocator implements AllocatorInterface {
         this._numAllocations--;
     }
 
-    malloc(size: number, alignment: number): DataView {
+    malloc(size: number, alignment: number): MemoryPointer {
         if (size > this._objectSize || alignment !== this._alignment)
             throw new Error('size or alignment parameters are not correctly');
 
-        if (this._freeList == -1) throw new Error(`PoolAllocator is not free`);
-        const p = this._freeList;
-        this._freeList = this.dataView.getInt32(p);
+        if (this._freeList == -1) throw new AllocatorIsFull(this);
+        this._tempFreeListPointer = this._freeList;
+        this._freeList = this.dataView.getInt32(this._tempFreeListPointer);
 
         this._usedMemory += this._objectSize;
         this._numAllocations++;
 
-        return new DataView(this.arrayBuffer, this._byteOffset + p, this._objectSize);
+        return {
+            buffer: this.arrayBuffer,
+            byteLength: size,
+            byteOffset: this._byteOffset + this._tempFreeListPointer,
+        };
     }
 }

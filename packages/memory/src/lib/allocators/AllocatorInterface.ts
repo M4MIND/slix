@@ -1,16 +1,22 @@
 import { ALLOCATOR } from '../types/DataType';
 
-export default interface AllocatorInterface {
-    typeAllocator: ALLOCATOR;
+export default interface AllocatorInterface extends Object {
+    get typeAllocator(): ALLOCATOR;
     get byteSize(): number;
     get usedMemory(): number;
     get numAllocations(): number;
 
-    malloc(size: number, alignment: number): DataView;
+    malloc(size: number, alignment: number): MemoryPointer;
     deallocate(byteOffset: number): void;
     clear(): void;
 }
 
 export interface AllocatorConstructor {
-    new (dataView: DataView, ...params: any[]): AllocatorInterface;
+    new (memoryPointer: MemoryPointer, ...params: any[]): AllocatorInterface;
 }
+
+export type MemoryPointer = {
+    buffer: ArrayBuffer;
+    byteOffset: number;
+    byteLength: number;
+};

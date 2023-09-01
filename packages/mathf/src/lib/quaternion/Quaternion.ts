@@ -2,10 +2,10 @@ import { MATH_ALLOCATOR, Matrix4, Vector3 } from '../../index';
 import { Float32NativeArray } from 'memory';
 
 export default class Quaternion extends Float32NativeArray {
-    private readonly cache = new Float32NativeArray(9, MATH_ALLOCATOR.PERSISTENT_CACHE);
+    private readonly cache = new Float32NativeArray(9, MATH_ALLOCATOR.PERSISTENT_QUATERNION_CACHE);
 
     constructor() {
-        super([0, 0, 0, 1], MATH_ALLOCATOR.PERSISTENT);
+        super([0, 0, 0, 1], MATH_ALLOCATOR.PERSISTENT_VECTOR);
     }
 
     get x() {

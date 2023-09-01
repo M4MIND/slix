@@ -1,5 +1,6 @@
 import { ALLOCATOR, AllocatorHelper } from '../../index';
-import AllocatorInterface from './AllocatorInterface';
+import AllocatorIsFull from '../exceptions/AllocatorIsFull';
+import AllocatorInterface, { MemoryPointer } from './AllocatorInterface';
 
 enum MEMORY_BLOCK_HEADER {
     USED = 4,
@@ -36,9 +37,9 @@ export default class BoundaryTagAllocator implements AllocatorInterface {
         return this._numAllocations;
     }
 
-    constructor(dataView: DataView) {
-        this.arrayBuffer = dataView.buffer;
-        this.dataView = dataView;
+    constructor(memoryPointer: MemoryPointer) {
+        this.arrayBuffer = memoryPointer.buffer;
+        this.dataView = new DataView(memoryPointer.buffer, memoryPointer.byteOffset, memoryPointer.byteLength);
         this._byteSize = this.dataView.byteLength;
         this._byteOffset = this.dataView.byteOffset;
 
@@ -88,7 +89,7 @@ export default class BoundaryTagAllocator implements AllocatorInterface {
         }
     }
 
-    malloc(size: number, alignment: number): DataView {
+    malloc(size: number, alignment: number): MemoryPointer {
         AllocatorHelper.checkParamsMalloc(size, alignment);
 
         this._addressTemp = 0;
@@ -101,10 +102,6 @@ export default class BoundaryTagAllocator implements AllocatorInterface {
             }
 
             const sizeOfBlock = this.sizeOf(this._addressTemp);
-
-            if (sizeOfBlock === 0) {
-                throw new Error(`${this._addressTemp} === 0 bytes`);
-            }
 
             // Быстрая проверка
             if (sizeOfBlock <= size) {
@@ -150,14 +147,14 @@ export default class BoundaryTagAllocator implements AllocatorInterface {
             this._numAllocations++;
             this._usedMemory += needByteSize;
 
-            return new DataView(
-                this.arrayBuffer,
-                this._addressTemp + this._byteOffset + alignForwardAdjustmentWithHeader,
-                size
-            );
+            return {
+                buffer: this.arrayBuffer,
+                byteLength: size,
+                byteOffset: this._byteOffset + this._addressTemp + alignForwardAdjustmentWithHeader,
+            };
         }
 
-        throw new Error(`Memory is not free. Used: ${this.usedMemory}, Free: ${this._byteSize - this.usedMemory}`);
+        throw new AllocatorIsFull(this);
     }
 
     clear() {

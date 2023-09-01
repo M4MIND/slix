@@ -1,4 +1,5 @@
 import { AllocatorHelper } from '../../index';
+import AllocatorIsFull from '../exceptions/AllocatorIsFull';
 import { ALLOCATOR } from '../types/DataType';
 import AllocatorInterface from './AllocatorInterface';
 
@@ -19,7 +20,10 @@ export default class StackAllocator implements AllocatorInterface {
     private arrayBuffer: ArrayBuffer;
     private dataView: DataView;
 
-    typeAllocator: ALLOCATOR = ALLOCATOR.STACK;
+    get typeAllocator() {
+        return ALLOCATOR.STACK;
+    }
+
     public get byteSize() {
         return this.dataView.getUint32(ALLOCATOR_INFORMATION.BYTE_SIZE);
     }
@@ -56,10 +60,7 @@ export default class StackAllocator implements AllocatorInterface {
         this.arrayBuffer = dataView.buffer;
         this.dataView = dataView;
 
-        this.byteSize = this.arrayBuffer.byteLength - ALLOCATOR_INFORMATION.HEADER_SIZE;
-        this.currentPosition = ALLOCATOR_INFORMATION.HEADER_SIZE;
-        this.usedMemory = ALLOCATOR_INFORMATION.HEADER_SIZE;
-        this.numAllocations = 0;
+        this.clear();
     }
 
     private getAddress(size: number, alignment: number) {
@@ -87,7 +88,7 @@ export default class StackAllocator implements AllocatorInterface {
 
     malloc(size: number, alignment: number): DataView {
         const address = this.getAddress(size, alignment);
-        if (!address) throw new Error();
+        if (!address) throw new AllocatorIsFull(this);
 
         return new DataView(this.arrayBuffer, address, size);
     }
@@ -99,5 +100,10 @@ export default class StackAllocator implements AllocatorInterface {
         this.numAllocations = this.numAllocations - 1;
     }
 
-    public clear() {}
+    public clear() {
+        this.byteSize = this.arrayBuffer.byteLength - ALLOCATOR_INFORMATION.HEADER_SIZE;
+        this.currentPosition = ALLOCATOR_INFORMATION.HEADER_SIZE;
+        this.usedMemory = ALLOCATOR_INFORMATION.HEADER_SIZE;
+        this.numAllocations = 0;
+    }
 }

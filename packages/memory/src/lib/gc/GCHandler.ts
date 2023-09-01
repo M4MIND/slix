@@ -3,7 +3,7 @@ import { NativeArray } from '../array/NativeArray';
 import { LoggedMethod, LoggerManager } from 'logger';
 
 declare let FinalizationRegistry: {
-    new (handler: (k: { allocator: string | symbol; byteOffset: number }) => void): never;
+    new (handler: (k: { allocator: string; byteOffset: number }) => void): never;
     register(target: NativeArray, heldValue: { allocator: string; byteOffset: number }, token: NativeArray): void;
     unregister(token: NativeArray): boolean;
 };

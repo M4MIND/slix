@@ -1,5 +1,6 @@
 import MemoryServer from './lib/MemoryServer';
 import type { MemoryServerInitConfigs } from './lib/MemoryServer';
+import type MemoryPointer from './lib/allocators/AllocatorInterface';
 import AllocatorInterface from './lib/allocators/AllocatorInterface';
 import BoundaryTagAllocator from './lib/allocators/BoundaryTagAllocator';
 import FreeListAllocator from './lib/allocators/FreeListAllocator';
@@ -27,6 +28,7 @@ import type {
 } from './lib/types/DataType';
 
 export {
+    MemoryPointer,
     ALLOCATOR,
     ALLOCATOR_NAME,
     AllocatorHelper,

@@ -3,7 +3,7 @@ import { Float32NativeArray } from 'memory';
 
 export default class Vector extends Float32NativeArray {
     protected constructor(...args: number[]) {
-        super(args, MATH_ALLOCATOR.PERSISTENT);
+        super(args, MATH_ALLOCATOR.PERSISTENT_VECTOR);
     }
 
     add(v: Vector): this {

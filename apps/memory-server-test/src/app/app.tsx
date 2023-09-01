@@ -1,6 +1,14 @@
-import PoolAllocator from '../../../../packages/memory/src/lib/allocators/PoolAllocator';
-import { d } from '@pmmmwh/react-refresh-webpack-plugin/types/options';
-import { BoundaryTagAllocator, Float32NativeArray, FreeListAllocator, LinearAllocator, MemoryServer } from 'memory';
+import { MATH_ALLOCATOR, Matrix4, Vector4 } from 'mathf';
+import {
+    BoundaryTagAllocator,
+    Float32NativeArray,
+    FreeListAllocator,
+    LinearAllocator,
+    MemoryCalculate,
+    MemoryPointer,
+    MemoryServer,
+    PoolAllocator,
+} from 'memory';
 import { useEffect, useState } from 'react';
 
 export function App() {
@@ -21,25 +29,33 @@ export function App() {
                 allocator: LinearAllocator,
                 byteSize: 1024,
             },
-            children: [{ name: '_FREE_LIST', allocator: PoolAllocator, byteSize: 512 * 1024 }],
+            children: [
+                {
+                    name: MATH_ALLOCATOR.PERSISTENT_MATRIX,
+                    byteSize: MemoryCalculate.MB(56),
+                    allocator: PoolAllocator,
+                    params: [128, 4],
+                },
+                {
+                    name: MATH_ALLOCATOR.PERSISTENT_MATRIX_CACHE,
+                    byteSize: MemoryCalculate.MB(56),
+                    allocator: PoolAllocator,
+                    params: [128, 4],
+                },
+            ],
         });
 
-        const loop = () => {
-            new Float32NativeArray(16, '_FREE_LIST');
-            setMemory({
-                used: MemoryServer.getAllocator('_FREE_LIST').usedMemory,
-                max: MemoryServer.getAllocator('_FREE_LIST').byteSize,
-            });
-            window.requestAnimationFrame(loop);
-        };
-
-        loop();
-        // const DataView = MemoryServer.getAllocator('_FREE_LIST').malloc(11, 4);
-        //
-        // for (let i = 0; i < DataView.byteLength; i++) {
-        //     DataView.setUint8(i, 0);
-        // }
-        // setMemory([...MemoryServer.getAllocator<FreeListAllocator>('_FREE_LIST').printMemory()]);
+        let timeFinish = 0;
+        for (let x = 0; x < 100; x++) {
+            const time = performance.now();
+            for (let i = 0; i < 100000; i++) {
+                new Matrix4();
+            }
+            timeFinish += performance.now() - time;
+            MemoryServer.getAllocator(MATH_ALLOCATOR.PERSISTENT_MATRIX_CACHE).clear();
+            MemoryServer.getAllocator(MATH_ALLOCATOR.PERSISTENT_MATRIX).clear();
+        }
+        console.log(timeFinish, timeFinish / 100, timeFinish / 100 / 1000);
     }, []);
 
     return (
