@@ -1,3 +1,5 @@
-import { IEcsComponent } from 'ecs';
+import { Vector3 } from 'mathf';
 
-export class TestComponent implements IEcsComponent {}
+export class TestComponent {
+    public position = { x: 0, y: 0, z: 0 };
+}

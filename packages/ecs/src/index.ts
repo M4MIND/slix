@@ -1,15 +1,7 @@
-export * from './lib/component/EcsComponent';
-export * from './lib/debug/EcsDebug';
-export * from './lib/EcsWorld';
-export { EcsSystems } from './lib/system/EcsSystems';
-export type { IEcsComponent, IEcsComponentReset } from './lib/component/EcsComponent';
-
-export type {
-    IEcsSystem,
-    IEcsSystemDestroy,
-    IEcsSystemInit,
-    IEcsSystemPosDestroy,
-    IEcsSystemPostRunnable,
-    IEcsSystemPreInt,
-    IEcsSystemRunnable,
-} from './lib/system/EcsSystems';
+export * from './lib/component/ComponentManager';
+export * from './lib/debug/Debug';
+export * from './lib/entity/EntityManager';
+export * from './lib/system/SystemsGroup';
+export * from './lib/system/SystemsManager';
+export * from './lib/World';
+export type * from './lib/system/ISystem';

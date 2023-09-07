@@ -1,22 +1,36 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { TestSystem } from './systems/TestSystem';
-import { EcsDebugComponents, EcsDebugEntity, EcsDebugSystems, EcsPrepareDebug, EcsSystems, EcsWorld } from 'ecs';
+import { TestComponent } from './component/TestComponent';
+import { TransformComponent } from './component/TransformComponent';
+import { World, debugPrepare } from 'ecs';
 import { useEffect } from 'react';
 
 export function App() {
     useEffect(() => {
-        const world = new EcsWorld({});
-        world.registerSystems(new EcsSystems(world), 'EnginePreUpdateSystems');
-        world.registerSystems(new EcsSystems(world), 'UserSystem');
-        world.registerSystems(new EcsSystems(world), 'EngineAfterUpdateSystems');
-        world.registerSystems(EcsPrepareDebug(world), 'EcsDebugging');
+        const world = new World();
+        world.createSystems('EnginePreUpdate');
+        world.createSystems('EngineAfterUpdate');
+        world.registerComponent<TestComponent>(TestComponent).registerComponent<TransformComponent>(TransformComponent);
+        debugPrepare(world);
 
-        world.getSystems('EnginePreUpdateSystems').add(new TestSystem());
+        world.init();
 
-        world.initSystems();
-        world.runSystems();
+        console.dir(world);
+        const loop = () => {
+            world.run();
+            requestAnimationFrame(loop);
+        };
+
+        loop();
+
+        return () => {
+            window.location.reload();
+        };
     }, []);
-    return <div></div>;
+    return (
+        <div>
+            <div id={'ecsDebug'}></div>
+        </div>
+    );
 }
 
 export default App;
