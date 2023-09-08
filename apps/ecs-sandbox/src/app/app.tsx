@@ -11,8 +11,13 @@ export function App() {
         world.createSystems('EngineAfterUpdate');
         world.registerComponent<TestComponent>(TestComponent).registerComponent<TransformComponent>(TransformComponent);
         debugPrepare(world);
-
         world.init();
+
+        world.newEntity().addComponent<TestComponent>(TestComponent).removeComponent<TestComponent>(TestComponent);
+        world.newEntity().addComponent<TestComponent>(TestComponent);
+        world.newEntity().addComponent<TestComponent>(TestComponent).addComponent(TransformComponent);
+        world.newEntity().addComponent<TestComponent>(TestComponent).delete();
+        world.newEntity().addComponent<TestComponent>(TestComponent);
 
         console.dir(world);
         const loop = () => {

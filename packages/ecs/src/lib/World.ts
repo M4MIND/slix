@@ -21,8 +21,19 @@ export class World {
         return this;
     }
 
-    addComponent<T extends object>(entity: Entity, component: COMPONENT<T>) {
-        return this.componentManager.add(entity, component);
+    addComponent<T extends object>(entity: Entity, component: COMPONENT<T>): T {
+        if (component.id === undefined) throw new Error();
+        return this.componentManager.add<T>(entity, component);
+    }
+
+    getComponent<T extends object>(entity: Entity, component: COMPONENT<T>) {
+        if (component.id === undefined) throw new Error();
+        return this.componentManager.get<T>(entity, component);
+    }
+
+    removeComponent<T extends object>(entity: Entity, component: COMPONENT<T>) {
+        if (component.id === undefined) throw new Error();
+        this.componentManager.delete<T>(entity, component);
     }
 
     createSystems(name: string) {
@@ -47,5 +58,17 @@ export class World {
 
     run() {
         this.systemManager.run();
+    }
+
+    newEntity() {
+        return this.entityManager.new();
+    }
+
+    deleteEntity(entity: Entity) {
+        this.entityManager.delete(entity);
+    }
+
+    getEntitiesInWorld() {
+        return this.entityManager.entitiesInWorld;
     }
 }

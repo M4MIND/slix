@@ -8,6 +8,8 @@ export class EntityManager {
     private recycledEntities: Entity[];
     private recycledEntitiesCount = 0;
     private recycledEntitiesLength: number;
+    public readonly entitiesInWorld: Set<Entity> = new Set();
+
     constructor(private readonly world: World, size = 512) {
         this.entities = new Array<Entity>(size);
         this.recycledEntities = new Array<Entity>(size);
@@ -29,6 +31,12 @@ export class EntityManager {
             entity = this.entities[this.entitiesCount++];
         }
 
+        this.entitiesInWorld.add(entity);
+
         return entity;
+    }
+
+    delete(entity: Entity) {
+        this.entitiesInWorld.delete(entity);
     }
 }

@@ -4,7 +4,7 @@ import { ComponentDeleteException } from '../exceptions/component/ComponentDelet
 import { ComponentGetException } from '../exceptions/component/ComponentGetException';
 import { IComponentReset } from './IComponent';
 
-export class ComponentPool<T> {
+export class ComponentPool<T extends object> {
     private denseItems: T[];
     private denseItemsLength: number;
     private denseItemsCount = 1;
@@ -22,7 +22,7 @@ export class ComponentPool<T> {
         this.recycledItemsLength = this.recycledItems.length;
     }
 
-    add(entity: Entity) {
+    add(entity: Entity): T {
         if (this.sparseItems[entity.id] > 0) throw new ComponentAttachedException(this.component.name, entity.id);
 
         let idx: number;
@@ -34,13 +34,13 @@ export class ComponentPool<T> {
             if (this.denseItemsCount === this.denseItemsLength) {
                 this.denseItemsLength = this.denseItemsLength << 1;
                 this.denseItems.length = this.denseItemsLength;
-
-                this.denseItems.fill(new this.component() as T, this.denseItemsCount, this.denseItemsLength);
             }
             this.denseItemsCount++;
         }
 
-        return this.denseItems[idx];
+        this.sparseItems[entity.id] = idx;
+
+        return this.denseItems[idx] as T;
     }
 
     get(entity: Entity): T {

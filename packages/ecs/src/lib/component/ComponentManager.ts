@@ -18,7 +18,17 @@ export class ComponentManager {
         this.allComponentsKeys.push(component.id);
     }
 
-    add<T extends object>(entity: Entity, component: COMPONENT<T>) {}
+    add<T extends object>(entity: Entity, component: COMPONENT<T>): T {
+        return this.allComponentsMap[component.id as number].add(entity) as T;
+    }
+
+    get<T extends object>(entity: Entity, component: COMPONENT<T>) {
+        return this.allComponentsMap[component.id as number].get(entity);
+    }
+
+    delete<T extends object>(entity: Entity, component: COMPONENT<T>) {
+        this.allComponentsMap[component.id as number].delete(entity);
+    }
 
     hasPool<T extends object>(component: COMPONENT<T>) {
         return this.allComponentsMap[component.id as number] !== undefined;
