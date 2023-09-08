@@ -1,19 +1,13 @@
 import { ISystemInit, ISystemRun } from '../../system/ISystem';
 import { SystemsGroup } from '../../system/SystemsGroup';
+import { DebugUI } from '../ui/DebugUI';
+import { UICard } from '../ui/card/UICard';
 
 export class DebugEntities implements ISystemInit, ISystemRun {
-    private wrapper = document.createElement('div');
+    private card = new UICard('debug entities');
     init(systems: SystemsGroup): void {
-        document.body.appendChild(this.wrapper);
+        DebugUI.append(this.card);
     }
 
-    run(systems: SystemsGroup): void {
-        this.wrapper.innerText = '';
-
-        systems.world.newEntity();
-
-        for (const i of systems.world.getEntitiesInWorld()) {
-            this.wrapper.innerText += `{${i.id}} `;
-        }
-    }
+    run(systems: SystemsGroup): void {}
 }

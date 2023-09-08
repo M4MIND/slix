@@ -29,6 +29,14 @@ export class EntityManager {
             entity = this.recycledEntities[--this.recycledEntitiesCount];
         } else {
             entity = this.entities[this.entitiesCount++];
+            if (this.entitiesCount === this.entitiesLength) {
+                this.entitiesLength = this.entitiesCount << 1;
+                this.entities.length = this.entitiesLength;
+
+                for (let i = this.entitiesCount; i < this.entitiesLength; i++) {
+                    this.entities[i] = new Entity(i, this.world);
+                }
+            }
         }
 
         this.entitiesInWorld.add(entity);
