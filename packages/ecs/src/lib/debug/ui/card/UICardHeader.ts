@@ -1,5 +1,6 @@
 import { UI } from '../UI';
 import { UIText } from '../text/UIText';
+import { UIColor } from '../utils/UIColor';
 
 export class UICardHeader extends UI {
     public readonly title: UIText;
@@ -15,6 +16,7 @@ export class UICardHeader extends UI {
         this.title.addStyle({
             textTransform: 'uppercase',
             fontSize: '12px',
+            fontWeight: '600',
         });
 
         this.append(this.title);

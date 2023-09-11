@@ -1,4 +1,5 @@
 import { CSSProperties } from 'react';
+import { v } from 'vitest/dist/types-198fd1d9';
 
 export class UI {
     public readonly root: HTMLElement;
@@ -17,5 +18,13 @@ export class UI {
         this.root.append(element.root);
 
         return this;
+    }
+
+    remove() {
+        this.root.remove();
+    }
+
+    addEventListener<K extends keyof HTMLElementEventMap>(event: K, callback: () => void) {
+        this.root.addEventListener('click', callback);
     }
 }

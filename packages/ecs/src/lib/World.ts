@@ -2,6 +2,7 @@ import { ComponentManager } from './component/ComponentManager';
 import { COMPONENT } from './component/ComponentPool';
 import { Entity } from './entity/Entity';
 import { EntityManager } from './entity/EntityManager';
+import { EventManager, Events, events } from './events/EventManager';
 import { SystemsGroup } from './system/SystemsGroup';
 import { SystemsManager } from './system/SystemsManager';
 
@@ -9,10 +10,12 @@ export class World {
     private readonly componentManager: ComponentManager;
     private readonly systemManager: SystemsManager;
     private readonly entityManager: EntityManager;
+    private readonly eventManager: EventManager;
     constructor() {
         this.componentManager = new ComponentManager(this);
         this.systemManager = new SystemsManager(this);
         this.entityManager = new EntityManager(this);
+        this.eventManager = new EventManager(this);
     }
 
     registerComponent<T extends object>(component: COMPONENT<T>) {
@@ -61,14 +64,23 @@ export class World {
     }
 
     newEntity() {
-        return this.entityManager.new();
+        const entity = this.entityManager.new();
+
+        this.eventManager.dispatch('addEntity', entity);
+
+        return entity;
     }
 
     deleteEntity(entity: Entity) {
         this.entityManager.delete(entity);
+        this.eventManager.dispatch('removeEntity', entity);
     }
 
     getEntitiesInWorld() {
         return this.entityManager.entitiesInWorld;
+    }
+
+    subscribeEvent<K extends keyof typeof events>(event: K, callback: Events[K]) {
+        this.eventManager.subscribe(event, callback);
     }
 }
