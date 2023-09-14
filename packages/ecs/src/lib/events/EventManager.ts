@@ -1,20 +1,5 @@
+import { World } from '../World';
 import { Entity } from '../entity/Entity';
-import { World } from 'ecs';
-
-export const events = {
-    addEntity: 'addEntity',
-    removeEntity: 'removeEntity',
-} as const;
-
-export type Events = {
-    [events.addEntity]: (entity: Entity) => void;
-    [events.removeEntity]: (entity: Entity) => void;
-};
-
-type EventsProps = {
-    [events.addEntity]: Entity;
-    [events.removeEntity]: Entity;
-};
 
 export class EventManager {
     private map: { [index: string]: ((...args: any) => void)[] } = {};
@@ -30,3 +15,24 @@ export class EventManager {
         }
     }
 }
+
+export const events = {
+    addEntity: 'addEntity',
+    removeEntity: 'removeEntity',
+    addComponent: 'addComponent',
+    removeComponent: 'removeComponent',
+} as const;
+
+type EventsProps = {
+    [events.addEntity]: Entity;
+    [events.removeEntity]: Entity;
+    [events.addComponent]: { entity: Entity; component: object };
+    [events.removeComponent]: { entity: Entity; component: object };
+};
+
+export type Events = {
+    [events.addEntity]: (entity: Entity) => void;
+    [events.removeEntity]: (entity: Entity) => void;
+    [events.addComponent]: (event: { entity: Entity; component: object }) => void;
+    [events.removeComponent]: (event: { entity: Entity; component: object }) => void;
+};

@@ -17,7 +17,7 @@ export function App() {
         max: number;
     }>({
         used: 0,
-        max: 0,
+        bottom: 0,
     });
     useEffect(() => {
         console.log('i fire once');

@@ -5,6 +5,7 @@ import { UICardHeader } from './UICardHeader';
 export class UICard extends UI {
     public readonly header: UICardHeader;
     public readonly body: UICardBody;
+
     constructor(title?: string) {
         super(document.createElement('div'));
         this.header = new UICardHeader();

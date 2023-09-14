@@ -1,5 +1,4 @@
 import { CSSProperties } from 'react';
-import { v } from 'vitest/dist/types-198fd1d9';
 
 export class UI {
     public readonly root: HTMLElement;
@@ -12,6 +11,8 @@ export class UI {
             // @ts-ignore
             this.root.style[key] = styles[key];
         }
+
+        return this;
     }
 
     append(element: UI) {

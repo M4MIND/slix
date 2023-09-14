@@ -3,14 +3,17 @@ import { TestComponent } from './component/TestComponent';
 import { TransformComponent } from './component/TransformComponent';
 import { World, debugPrepare } from 'ecs';
 import { useEffect } from 'react';
+import { UISlix } from 'ui';
 
 export function App() {
     useEffect(() => {
+        UISlix.init();
+
         const world = new World();
         world.createSystems('EnginePreUpdate');
         world.createSystems('EngineAfterUpdate');
         world.registerComponent<TestComponent>(TestComponent).registerComponent<TransformComponent>(TransformComponent);
-        debugPrepare(world);
+        //debugPrepare(world);
         world.init();
 
         world.newEntity().addComponent<TestComponent>(TestComponent).removeComponent<TestComponent>(TestComponent);

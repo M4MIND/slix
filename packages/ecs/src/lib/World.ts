@@ -26,7 +26,11 @@ export class World {
 
     addComponent<T extends object>(entity: Entity, component: COMPONENT<T>): T {
         if (component.id === undefined) throw new Error();
-        return this.componentManager.add<T>(entity, component);
+        const componentInstance = this.componentManager.add<T>(entity, component);
+
+        this.eventManager.dispatch('addComponent', { entity: entity, component: componentInstance });
+
+        return componentInstance;
     }
 
     getComponent<T extends object>(entity: Entity, component: COMPONENT<T>) {
